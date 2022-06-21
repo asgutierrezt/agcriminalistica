@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>A G Criminal&iacute;stica</title>
+	<atom:link href="https://www.agcriminalistica.com/feed/" rel="self" type="application/rss+xml" />
+	<link>https://www.agcriminalistica.com</link>
+	<description>Investigation &#38; Training</description>
+	<lastBuildDate>Thu, 05 Aug 2021 22:00:30 +0000</lastBuildDate>
+	<language>es</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=6.0</generator>
+
+<image>
+	<url>https://www.agcriminalistica.com/wp-content/uploads/2020/11/cropped-Criminalistica-Favicon-32x32.png</url>
+	<title>A G Criminal&iacute;stica</title>
+	<link>https://www.agcriminalistica.com</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>CNT: Un ciberataque que debería preocuparnos a todos</title>
+		<link>https://www.agcriminalistica.com/un-ciberataque-que-deberia-preocuparnos-a-todos/</link>
+					<comments>https://www.agcriminalistica.com/un-ciberataque-que-deberia-preocuparnos-a-todos/#respond</comments>
+		
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<pubDate>Thu, 05 Aug 2021 01:58:40 +0000</pubDate>
+				<category><![CDATA[criminalística]]></category>
+		<category><![CDATA[Education]]></category>
+		<guid isPermaLink="false">https://www.agcriminalistica.com/?p=5381</guid>
+
+					<description><![CDATA[<p>&#124; Por Lcdo. Alberto Gutiérrez &#124; Era el año 1989 y los disquetes de 5,25 pulgadas vivían sus años de popularidad, en ese entonces representaban la manera más fácil y rápida de compartir información. Con la etiqueta “Disquete de información introductoria sobre el SIDA” (enfermedad [&#8230;]</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/un-ciberataque-que-deberia-preocuparnos-a-todos/">CNT: Un ciberataque que debería preocuparnos a todos</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p><strong>|</strong> <strong>Por Lcdo. Alberto Gutiérrez</strong> <strong>|</strong></p>
+
+
+
+<p class="has-drop-cap has-text-align-left">Era el año 1989 y los disquetes de 5,25 pulgadas vivían sus años de popularidad, en ese entonces representaban la manera más fácil y rápida de compartir información. Con la etiqueta “Disquete de información introductoria sobre el SIDA” (enfermedad viral identificada casi una década antes) 20000 copias fueron distribuidas en unos 90 países por correo postal. Al ejecutar el disquete el usuario se encontraba con un cuestionario que le permitiría conocer si pertenecía a algún grupo con mayor riesgo de contraer VIH. </p>
+
+
+
+<p class="has-text-align-left">Al siguiente día todos aquellos usuarios que realizaron el cuestionario, al encender sus computadoras se encontraron con una ventana de color rojo y un mensaje en blanco en el que se solicitaba “renovar la licencia” mientras tanto la máquina permanecería bloqueada e inutilizable. El programa había cifrado el disco duro y solo pagando la cantidad de 189 USD a una tal PC Cyborg Corporation se le enviaría la clave para poder recuperar el control de sus archivos. Empezaba así, el primer ataque Ransomware de la historia. </p>
+
+
+
+<p class="has-text-align-left">Con el acelerado desarrollo de las tecnologías de la información y la comunicación en las décadas siguientes evolucionaron también los medios de propagación con técnicas de ataque más sofisticadas, incrementando el nivel de daños ocasionados y obviamente los rescates solicitados se volvieron millonarios. En el año 2017, un Ransomware atacó los sistemas informáticos de la empresa española Telefónica, paralizando casi la totalidad de sus operaciones, presumiblemente mediante una campaña de spam, es decir, correos electrónicos masivos con archivos o enlaces adjuntos infectados enviados a varios empleados de la empresa que al hacer un simple click abrieron la puerta de los sistemas a los atacantes, pero lo peor aún estaba por venir ya que los ciberdelincuentes convirtieron el virus en un gusano que se propagaba solo y de forma automática por la red, convirtiéndose así en un ciberataque masivo que afectó a cientos de empresas y organismos en más de 100 países, desde 40 hospitales en Reino Unido a corporaciones en EEUU, Portugal, Rusia, China, Italia, Japón o Alemania.</p>
+
+
+
+<p></p>
+
+
+
+<p><strong>La paralización de CNT, la pesadilla de toda empresa</strong></p>
+
+
+
+<p class="has-text-align-left">El ataque informático sufrido por la Corporación Nacional de Telecomunicaciones del Ecuador ha paralizado casi la totalidad de sus operaciones, con sus sistemas informáticos inutilizables los empleados ni siquiera han podido acceder con sus credenciales para realizar sus actividades diarias. Compras y pagos a proveedores, procesos de incorporación de nuevos empleados y salidas, recaudación de servicios particulares y corporativos, reconexión de servicios, incluso la interrupción de servicios en otras instituciones como la Superintendencia de Compañías,  lo que ha provocado millonarias pérdidas y ha puesto en riesgo la información de todos sus clientes, aunque la entidad, en un comunicado, aseguró que los datos de sus usuarios “se encuentran debidamente resguardados” y que su equipo técnico ha implementado las soluciones informáticas necesarias y ha tomado las debidas medidas de protección, además, reconoció que el ataque “afectó los procesos de atención” en sus Centros Integrados de Servicio y Contact Center, en resumen, la pesadilla de toda organización con características similares a las de CNT. </p>
+
+
+
+<p class="has-text-align-left">La ministra responsable de telecomunicaciones, confirmó que se trata del ataque de un virus informático de la familia RansomEXX. “Este tipo de amenazas atacan diversas instancias: el lugar físico, la red o las bases de datos”, indicó la Ministra y aclaró que, en el caso de CNT, “afectó únicamente a los sistemas informáticos”, por lo que el funcionamiento de áreas como facturación, activaciones y recargas se alteró. El gobierno nacional ha decretado estado de emergencia institucional y anunció medidas tras los ataques, a pesar de esto, la mayoría de los servicios afectados aún no se han reactivado a la fecha de escrito este artículo. La institución ya realizó las denuncias pertinentes ante la Fiscalía para que proceda a realizar las investigaciones periciales y forenses con el fin de ubicar a los responsables del masivo ataque que sigue generando problemas sobre todo en los usuarios.</p>
+
+
+
+<p class="has-text-align-left"><br><strong>¿Qué es el Ransomware?</strong></p>
+
+
+
+<p class="has-text-align-left">Para entender lo sucedido, es necesario hablar sobre <a href="https://www.instagram.com/p/CO36qHsFnIw/" target="_blank" aria-label="undefined (abre en una nueva pestaña)" rel="noreferrer noopener">RANSOMWARE</a>, una de las formas de ataque más comunes y que puede llegar a costar millones a las víctimas. Se trata de un software malicioso que &#8220;secuestra&#8221; un dispositivo con toda la información y datos que contiene, bloqueando el acceso a sus usuarios legítimos. Una vez se hace con el control de una PC, automáticamente se pide una recompensa para liberar la información y los datos comprometidos. </p>
+
+
+
+<p class="has-text-align-left">El Ransomware es un tipo de virus perteneciente a una familia más amplia conocidos como <a href="https://www.instagram.com/p/CK7qWrTqFxZ/" target="_blank" aria-label="undefined (abre en una nueva pestaña)" rel="noreferrer noopener">MALWARE</a>, nombre con el que se conoce a este tipo de software malicioso, que afecta los equipos casi siempre con el objetivo de obtener un beneficio económico por parte de las víctimas, ninguna empresa o incluso nosotros, los usuarios individuales estamos libres de ser atacados por uno de estos virus, por lo que es importante la sensibilización en temas de ciberseguridad. </p>
+
+
+
+<p class="has-text-align-left">En el caso específico del RansomEXX, que fue el que afectó a la CNT, son virus que se sirven de un troyano el cual se esconde en archivos con suficiente espacio como videos o software ilegal. En el caso del PC Cyborg que vimos al inicio el virus se propagó, por así decirlo, de una forma manual enviando los disquetes a través de correo postal ya que estos representaban el medio de almacenamiento externo más eficiente en aquella época, actualmente uno de los métodos más eficaces usados por los cibercriminales es el envío masivo de correos electrónicos, ataque conocido como <strong><a aria-label="undefined (abre en una nueva pestaña)" href="https://www.instagram.com/p/CLsitsMBHbm/" target="_blank" rel="noreferrer noopener">Phishing</a></strong>, si un empleado de la empresa hace clic en el enlace o archivo adjunto inconscientemente (y en muchos casos de forma voluntaria como cómplices de los atacantes) concede el acceso al software malicioso y comienza el secuestro de la información. Una vez el sistema ha sido infectado, los hackers buscan obtener permisos de administrador del sistema y se propaga la infección a través de una librería de software cifrando todos los contenidos.</p>
+
+
+
+<p class="has-text-align-left"><br><strong>¿Son inevitables este tipo de ataques?</strong></p>
+
+
+
+<p class="has-text-align-left">El caso de la CNT pone de manifiesto un problema que se ha agravado a nivel mundial desde el inicio de la pandemia, este mismo virus ya había atacado previamente a otras instituciones como el ayuntamiento de Castelló en España, la firma japonesa Konika Minolta, empresas petroleras en Indonesia y Brasil, así como al Departamento de Transporte de Texas en los Estados Unidos. </p>
+
+
+
+<p class="has-text-align-left">Si hablamos de ciberseguridad es fundamental entender los tres pilares sobre los que se asienta la seguridad informática de una organización: la confidencialidad, la integridad y la disponibilidad conocida como la tríada CID. </p>
+
+
+
+<p class="has-text-align-left">La <strong>confidencialidad</strong> garantiza la privacidad de los datos, las políticas de una empresa deben incluir la restricción del acceso a la información únicamente al personal autorizado y garantizar que solo ese personal pueda manipular dicha información. </p>
+
+
+
+<p class="has-text-align-left">La <strong>integridad</strong>, por otro lado, garantiza que la información sea precisa y confiable, los datos deben permanecer inalterados durante la transferencia y no deben ser modificados por entidades no autorizadas. </p>
+
+
+
+<p class="has-text-align-left">Por último, la <strong>disponibilidad</strong> garantiza que la información esté disponible únicamente para las personas autorizadas, con conocimiento y formación adecuada en temas de ciberseguridad. Mantener los equipos, realizar reparaciones de hardware, mantener los sistemas operativos y el software actualizado, así como crear respaldos, garantiza la disponibilidad de la red y los datos a los usuarios autorizados. </p>
+
+
+
+<p class="has-text-align-left">Los ciberdelincuentes son expertos en aprovecharse de las debilidades técnicas y organizacionales de las compañías, por ejemplo, en el caso de que un empleado haga clic en enlaces infectados podemos hablar de una <strong>vulnerabilidad en la organización</strong> porque estamos hablando de una persona con escaso o nulo conocimiento y formación en temas de ciberseguridad. Lamentablemente este tipo de comportamientos son comunes en empleados de todos los rangos, con la diferencia de que el acceso y los permisos son distintos, por lo que es usual que aquellos empleados con cargos gerenciales o directivos sean el target predeterminado a la hora de enviar estos ataques, mientras que los empleados que no están en puestos estratégicos solo tienen permisos de usuarios, no de administradores. De todas maneras la capacitación constante y la implementación de protocolos de actuación son fundamentales para reducir las vulnerabilidades en la organización de cualquier institución. </p>
+
+
+
+<p class="has-text-align-left">Proteger de forma absoluta a las organizaciones contra cualquier ciberataque no es factible por varios motivos, la experiencia necesaria para configurar y mantener la red segura puede llegar a ser muy costosa y de todas formas los criminales siempre seguirán encontrando nuevas formas de atacar. Con el tiempo, un ciberataque sofisticado y dirigido tendrá éxito. La prioridad y lo verdaderamente importante será con qué rapidez el equipo de seguridad de la organización puede responder al ataque para minimizar la pérdida de datos, el tiempo de inactividad y la pérdida de ingresos.</p>
+
+
+
+<p><strong>Ecuador pierde el año en Ciberseguridad</strong></p>
+
+
+
+<p class="has-text-align-left">Lo acontecido el pasado 14 de julio en la Corporación Nacional de Telecomunicaciones no es nada nuevo, de hecho como hemos visto incluso grandes empresas como Telefónica han sido víctimas de ataques similares, lo verdaderamente preocupante es que no se hayan tomado las medidas necesarias para minimizar los riesgos y peor aún, que no se trate de un caso aislado, en los últimos años Ecuador ha dado indicios de ser uno de los países más vulnerables a este tipo de ataques. En febrero del 2021 el Banco Pichincha, la institución financiera más grande del país, reconoció que “hubo un acceso no autorizado a los sistemas de un proveedor que presta servicios de mercadeo del programa Pichincha Miles” y aunque los representantes del banco aseguraron no encontrar evidencia de afectación a los sistemas del banco, en una entrevista con <a href="https://www.bleepingcomputer.com/news/security/ransomware-gang-hacks-ecuadors-largest-private-bank-ministry-of-finance/" target="_blank" aria-label="undefined (abre en una nueva pestaña)" rel="noreferrer noopener">Bleeping Computer</a> los hackers de Hotarus Corp le daban 13 días al Banco para pagar el rescate por unos 80 gigabytes de información secuestrada y aseguraron que producían estos ataques para conseguir dinero a través de la venta de tarjetas de crédito de los clientes del banco e indicaron haber vendido unas 37.000 tarjetas. </p>
+
+
+
+<p class="has-text-align-left">Según el Índice Global de Ciberseguridad GCI Ecuador ha sido calificado con una puntuación de 0.36 sobre 1 ubicándose en un nivel medio aunque muy cercano al nivel bajo (considerado en 0.33 sobre 1) ocupando de esta manera el puesto número 15 del ranking en la región y el puesto 98 a escala mundial. A nivel de Sudamérica se ubica en la 8va casilla solo por encima de Venezuela y Bolivia, mientras que en el otro lado el mejor punteado es Uruguay como el más comprometido en temas de ciberseguridad. El GCI es desarrollado por la <a aria-label="undefined (abre en una nueva pestaña)" href="https://www.itu.int/" target="_blank" rel="noreferrer noopener">Unión Internacional de Telecomunicaciones ITU</a> y sirve para monitorear los niveles y el compromiso con la ciberseguridad de los 194 países miembros, este índice combina 25 indicadores agrupados en temas como: marco legal, entidades reguladoras, cooperación y programas de investigación y desarrollo.</p>
+
+
+
+<p><strong>Porque el ataque a CNT debe preocuparnos a todos</strong></p>
+
+
+
+<p class="has-text-align-left">Si bien podríamos pensar que esta clase de ataques nos perjudica únicamente en la medida que usemos los servicios de la empresa atacada, la verdad es que no estamos exentos de sufrir un ataque directo. Los cibercriminales no solo intentan vulnerar los sistemas informáticos de grandes empresas, si bien este tipo de ataques tienen un rendimiento económico superior, existen varios tipos de ataques que se ejecutan contra usuarios particulares y que también comprometen sus recursos económicos, desde <a aria-label="undefined (abre en una nueva pestaña)" href="https://www.instagram.com/p/CQzjrZenYyy/" target="_blank" rel="noreferrer noopener">estafas</a> a través de canales digitales hasta el propio ransomware utilizado contra los dispositivos electrónicos que utilizamos diariamente. El razonamiento más bien debería ir en el sentido de que, si una enorme institución como CNT o Banco Pichincha que cuentan con departamentos de Tics y expertos en ciberseguridad llegan a sufrir este tipo de ataques, cuál es el nivel de vulnerabilidad que puede esperar un usuario promedio de la red que en muchos de los casos ni siquiera tiene instalado un cortafuego o un antivirus en sus dispositivos personales. </p>
+
+
+
+<p class="has-text-align-left">Vivimos el siglo de la información, enormes cantidades de datos transitan y se comparten por la red. Nunca antes en la historia de la humanidad pudimos comunicarnos de una manera tan eficaz y rápida. La red de información digital interconectada se ha convertido en una parte integral de nuestra vida cotidiana y a medida que nos volvemos dependientes de esta red también crece nuestra vulnerabilidad. </p>
+
+
+
+<p class="has-text-align-left">La Ciberseguridad se convierte entonces en el método mediante el cual protegemos nuestros sistemas o dispositivos conectados a la red contra el uso indebido o no autorizado de nuestros datos, la concientización y sensibilización en estos temas a todos los usuarios de la internet debe ser una prioridad de instituciones, organismos y del propio Estado. En efecto, el caso de CNT debería preocuparnos a todos ya que el solo uso de la red mundial interconectada, ya sea utilizando redes sociales, WhatsApp, cuentas de email o servicios financieros nos convierte en usuarios vulnerables y potenciales víctimas de los ciberdelincuentes.</p>
+
+
+
+<p></p>
+
+
+
+<p>● Banco Interamericano de Desarrollo. (2020). Ciberseguridad. Riesgos, avances y el camino a seguir en América Latina y el Caribe. Reporte de Ciberseguridad 2020. BID, OEA: Observatorio de Ciberseguridad.</p>
+
+
+
+<p>● CISCO Network Academy. (2020). Introducción a la Ciberseguridad. NETCAD</p>
+
+
+
+<p>● Di Lorio, A. (2017). El rastro digital del delito, aspectos técnicos, legales y estratégicos de la informática forense. Mar del Plata: Universidad FASTA Ediciones</p>
+
+
+
+<p> ― <a data-type="URL" data-id="localhost/WordpressAgCriminslistica" href="https://www.agcriminalistica.com">www.agcriminalistica.com</a> </p>
+
+
+
+<figure class="wp-container-2 wp-block-gallery-1 wp-block-gallery columns-1 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img width="1024" height="1024" src="https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.06-2-1024x1024.jpeg" alt="" data-id="5416" data-full-url="https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.06-2.jpeg" data-link="https://www.agcriminalistica.com/un-ciberataque-que-deberia-preocuparnos-a-todos/whatsapp-image-2021-08-04-at-19-15-06-2/" class="wp-image-5416" srcset="https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.06-2-1024x1024.jpeg 1024w, https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.06-2-300x300.jpeg 300w, https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.06-2-150x150.jpeg 150w, https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.06-2-768x768.jpeg 768w, https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.06-2-100x100.jpeg 100w, https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.06-2.jpeg 1080w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure></li></ul></figure>
+
+
+
+<figure class="wp-container-4 wp-block-gallery-3 wp-block-gallery columns-1 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img width="1024" height="1024" src="https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.05-1024x1024.jpeg" alt="" data-id="5414" data-link="https://www.agcriminalistica.com/un-ciberataque-que-deberia-preocuparnos-a-todos/whatsapp-image-2021-08-04-at-19-15-05/" class="wp-image-5414" srcset="https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.05-1024x1024.jpeg 1024w, https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.05-300x300.jpeg 300w, https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.05-150x150.jpeg 150w, https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.05-768x768.jpeg 768w, https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.05-100x100.jpeg 100w, https://www.agcriminalistica.com/wp-content/uploads/2021/08/WhatsApp-Image-2021-08-04-at-19.15.05.jpeg 1080w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure></li></ul></figure>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/un-ciberataque-que-deberia-preocuparnos-a-todos/">CNT: Un ciberataque que debería preocuparnos a todos</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://www.agcriminalistica.com/un-ciberataque-que-deberia-preocuparnos-a-todos/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Investigación criminalística</title>
+		<link>https://www.agcriminalistica.com/investigacion-criminalistica/</link>
+					<comments>https://www.agcriminalistica.com/investigacion-criminalistica/#respond</comments>
+		
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<pubDate>Mon, 19 Jul 2021 21:10:13 +0000</pubDate>
+				<category><![CDATA[criminalística]]></category>
+		<guid isPermaLink="false">https://thepixelcurve.com/wp/edubin/learndash/?p=3027</guid>
+
+					<description><![CDATA[<p>Temas tratados: La investigación criminalística en Ecuador Crisis carcelaria y criminología Campo profesional y laboral de la criminalística Seguimos creando y compartiendo conocimiento científico forense por una sociedad más segura y justa ― www.agcriminalistica.com Abordamos la importancia de la Criminalística en la investigación del delito.</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/investigacion-criminalistica/">Investigación criminalística</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p>Temas tratados:</p>
+
+
+
+<p>La investigación criminalística en Ecuador </p>
+
+
+
+<p>Crisis carcelaria y criminología</p>
+
+
+
+<p>Campo profesional y laboral de la criminalística</p>
+
+
+
+<p></p>
+
+
+
+<p> </p>
+
+
+
+<blockquote class="wp-block-quote"><p>Seguimos creando y compartiendo conocimiento científico forense por una sociedad más segura y justa</p><cite>― www.agcriminalistica.com</cite></blockquote>
+
+
+
+<p>Abordamos la importancia de la Criminalística en la investigación del delito.</p>
+
+
+
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+<iframe title="CRIMINALÍSTICA: La Investigación Científica del DELITO ⎮ CARCELES en ECUADOR" width="525" height="295" src="https://www.youtube.com/embed/20wmp8Xt8rA?start=320&#038;feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div></figure>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/investigacion-criminalistica/">Investigación criminalística</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://www.agcriminalistica.com/investigacion-criminalistica/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Cadena de custodia</title>
+		<link>https://www.agcriminalistica.com/cadena-de-custodia/</link>
+					<comments>https://www.agcriminalistica.com/cadena-de-custodia/#respond</comments>
+		
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<pubDate>Fri, 19 Jul 2019 21:15:16 +0000</pubDate>
+				<category><![CDATA[criminalística]]></category>
+		<guid isPermaLink="false">https://thepixelcurve.com/wp/edubin/learndash/?p=3055</guid>
+
+					<description><![CDATA[<p>Se entiende por cadena de custodia a la documentación cronológica y minuciosa de las pruebas para establecer su vinculación con el presunto delito. Desde el inicio hasta el final de las pericias técnicas realizadas con el fin de garantizar la integridad y trazabilidad de las [&#8230;]</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/cadena-de-custodia/">Cadena de custodia</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p>Se entiende por cadena de custodia a la documentación cronológica y minuciosa de las pruebas para establecer su vinculación con el presunto delito.</p>
+
+
+
+<p>Desde el inicio hasta el final de las pericias técnicas realizadas con el fin de garantizar la integridad y trazabilidad de las pruebas desde la escena del delito hasta la sala del tribunal</p>
+
+
+
+<blockquote class="wp-block-quote"><p>A menudo se considera a la cadena de custodia como el punto débil de una investigación criminal.</p><cite>―<a href="https://www.agcriminalistica.com" data-type="URL" data-id="localhost/WordpressAgCriminslistica"> www.agcriminalistica.com</a></cite></blockquote>
+
+
+
+<p>Y es que incluso el valor de las pruebas recuperadas con el mayor esmero puede perderse sin un adecuado manejo de la cadena de custodia</p>
+
+
+
+<figure class="wp-block-image size-large is-resized"><img src="https://www.agcriminalistica.com/wp-content/uploads/2020/11/Criminalistica-Favicon.png" alt="Criminalística Favicon" class="wp-image-4117" width="512" height="512"/></figure>
+
+
+
+<p></p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/cadena-de-custodia/">Cadena de custodia</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://www.agcriminalistica.com/cadena-de-custodia/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Identificación Forense de la Voz</title>
+		<link>https://www.agcriminalistica.com/identificacion-forense-de-la-voz/</link>
+					<comments>https://www.agcriminalistica.com/identificacion-forense-de-la-voz/#respond</comments>
+		
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<pubDate>Fri, 19 Jul 2019 21:14:37 +0000</pubDate>
+				<category><![CDATA[criminalística]]></category>
+		<guid isPermaLink="false">https://thepixelcurve.com/wp/edubin/learndash/?p=3053</guid>
+
+					<description><![CDATA[<p>El análisis acústico de la voz humana para fines de identificación de personas, surge como una necesidad en las labores de investigación del crimen. Amenazas, extorsiones, estafas, fraudes y narcotráfico son algunas de las causas en las que el análisis de grabaciones y técnicas de [&#8230;]</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/identificacion-forense-de-la-voz/">Identificación Forense de la Voz</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p>El análisis acústico de la voz humana para fines de identificación de personas, surge como una necesidad en las labores de investigación del crimen.</p>
+
+
+
+<p>Amenazas, extorsiones, estafas, fraudes y narcotráfico son algunas de las causas en las que el análisis de grabaciones y técnicas de reducción de ruido resultan de mucha utilidad para los peritos</p>
+
+
+
+<blockquote class="wp-block-quote"><p>Aspectos técnicos de la identificación biométrica de la voz en la investigación forense</p><cite>― www.agcriminalistica.com</cite></blockquote>
+
+
+
+<p>Descarga nuestro Manual de <a href="https://www.agcriminalistica.com/id-forense-voz/" target="_blank" aria-label="undefined (abre en una nueva pestaña)" rel="noreferrer noopener">Identificación Forense de LA VOZ</a></p>
+
+
+
+<figure class="wp-container-6 wp-block-gallery-5 wp-block-gallery alignwide columns-1 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img src="https://www.agcriminalistica.com/wp-content/uploads/2020/11/Criminalistica-Favicon.png" alt="Criminalística Favicon" data-id="4117" data-full-url="https://www.agcriminalistica.com/wp-content/uploads/2020/11/Criminalistica-Favicon.png" data-link="https://www.agcriminalistica.com/criminalistica-favicon/" class="wp-image-4117"/></figure></li></ul></figure>
+
+
+
+<h4>Identificación Forense de LA VOZ</h4>
+
+
+
+<p>La teoría fundamental para la identificación de voz se basa en la premisa de que cada voz es característica individual suficiente para distinguirla de otras a través del análisis del registro de voz. Hay dos factores generales que intervienen en el proceso del habla humana <a href="https://www.agcriminalistica.com/id-forense-voz/" target="_blank" aria-label="undefined (abre en una nueva pestaña)" rel="noreferrer noopener">(Descarga nuestro Manual Aquí)</a>.</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/identificacion-forense-de-la-voz/">Identificación Forense de la Voz</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://www.agcriminalistica.com/identificacion-forense-de-la-voz/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>¿Cuál es el trabajo de un PERITO?</title>
+		<link>https://www.agcriminalistica.com/cual-es-el-trabajo-de-un-perito/</link>
+					<comments>https://www.agcriminalistica.com/cual-es-el-trabajo-de-un-perito/#respond</comments>
+		
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<pubDate>Fri, 19 Jul 2019 21:14:06 +0000</pubDate>
+				<category><![CDATA[criminalística]]></category>
+		<guid isPermaLink="false">https://thepixelcurve.com/wp/edubin/learndash/?p=3051</guid>
+
+					<description><![CDATA[<p>Se trata de un profesional con suficiente experticia en una determinada disciplina, ciencia, arte u oficio Actúa como auxiliar de la justicia aportando información técnica sobre su especialidad TAMBIEN DENOMINADO TESTIGO EXPERTO ― www.agcriminalistica.com Cualquiera sea la causa: penal, civil, administrativa o laboral, es muy [&#8230;]</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/cual-es-el-trabajo-de-un-perito/">¿Cuál es el trabajo de un PERITO?</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p>Se trata de un profesional con suficiente experticia en una determinada disciplina, ciencia, arte u oficio</p>
+
+
+
+<p>Actúa como auxiliar de la justicia aportando información técnica sobre su especialidad</p>
+
+
+
+<blockquote class="wp-block-quote"><p>TAMBIEN DENOMINADO TESTIGO EXPERTO </p><cite>― <a href="https://www.agcriminalistica.com" data-type="URL" data-id="localhost/WordpressAgCriminslistica">www.agcriminalistica.com</a></cite></blockquote>
+
+
+
+<p>Cualquiera sea la causa: penal, civil, administrativa o laboral, es muy probable que surja la necesidad de una opinión profesional calificada para entender determinados aspectos dentro de la investigación de un delito</p>
+
+
+
+<p>Así por ejemplo podemos encontrar peritos:</p>
+
+
+
+<p>-Contador</p>
+
+
+
+<p>-Informático</p>
+
+
+
+<p>-Psicólogo</p>
+
+
+
+<p>-Siniestros viales</p>
+
+
+
+<p>En este caso profesionales titulados, pero también pueden llegar a existir casos en los que se necesite del conocimiento técnico de expertos en un determinado oficio como un electricista o un bombero por dar unos ejemplos. En ambos casos actuarán ante un tribunal como peritos oficiales, de oficio o de parte.¿Qué te pareció? ¿Te animarías a colaborar con la justicia aportando tu experticia y conocimientos? </p>
+
+
+
+<p>Accede a nuestros cursos: <a href="https://www.agcriminalistica.com" data-type="URL" data-id="localhost/WordpressAgCriminslistica">www.agcriminalistica.com</a></p>
+
+
+
+<figure class="wp-container-8 wp-block-gallery-7 wp-block-gallery alignwide columns-1 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img src="https://www.agcriminalistica.com/wp-content/uploads/2020/11/Criminalistica-Favicon.png" alt="Criminalística Favicon" data-id="4117" data-full-url="https://www.agcriminalistica.com/wp-content/uploads/2020/11/Criminalistica-Favicon.png" data-link="https://www.agcriminalistica.com/criminalistica-favicon/" class="wp-image-4117"/></figure></li></ul></figure>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/cual-es-el-trabajo-de-un-perito/">¿Cuál es el trabajo de un PERITO?</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://www.agcriminalistica.com/cual-es-el-trabajo-de-un-perito/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>¿Por qué es importante la Investigación Pericial?</title>
+		<link>https://www.agcriminalistica.com/investigacion-pericial/</link>
+					<comments>https://www.agcriminalistica.com/investigacion-pericial/#respond</comments>
+		
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<pubDate>Fri, 19 Jul 2019 21:13:33 +0000</pubDate>
+				<category><![CDATA[criminalística]]></category>
+		<guid isPermaLink="false">https://thepixelcurve.com/wp/edubin/learndash/?p=3049</guid>
+
+					<description><![CDATA[<p>Los argumentos judiciales se componen de tres elementos fundamentales: -Los hechos invocados, -La prueba aportada que demuestre esos hechos y, -La Ley aplicable a los hechos probados UN CASO SÓLIDO SE SOTIENE CON ARGUMENTOS JUDICIALES FUERTES ― www.agcriminalistica.com Un caso sólido se manifestará entonces cuando: [&#8230;]</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/investigacion-pericial/">¿Por qué es importante la Investigación Pericial?</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p>Los argumentos judiciales se componen de tres elementos fundamentales:</p>
+
+
+
+<p>-Los hechos invocados,</p>
+
+
+
+<p>-La prueba aportada que demuestre esos hechos y,</p>
+
+
+
+<p>-La Ley aplicable a los hechos probados</p>
+
+
+
+<blockquote class="wp-block-quote"><p>UN CASO SÓLIDO SE SOTIENE CON ARGUMENTOS JUDICIALES FUERTES</p><cite>― <a href="https://www.agcriminalistica.com">www.agcriminalistica.com</a></cite></blockquote>
+
+
+
+<p>Un caso sólido se manifestará entonces cuando: Hechos, prueba y ley se encuentren suficientemente integrados y puedan resistir el contrapeso que pueda oponer la argumentación de la otra parte.</p>
+
+
+
+<p>Para la conformación de la prueba es primordial una ética y eficiente investigación criminalística.</p>
+
+
+
+<figure class="wp-container-10 wp-block-gallery-9 wp-block-gallery alignwide columns-1 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img src="https://www.agcriminalistica.com/wp-content/uploads/2020/11/Criminalistica-Favicon.png" alt="Criminalística Favicon" data-id="4117" data-full-url="https://www.agcriminalistica.com/wp-content/uploads/2020/11/Criminalistica-Favicon.png" data-link="https://www.agcriminalistica.com/criminalistica-favicon/" class="wp-image-4117"/></figure></li></ul></figure>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/investigacion-pericial/">¿Por qué es importante la Investigación Pericial?</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://www.agcriminalistica.com/investigacion-pericial/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>El informe Pericial</title>
+		<link>https://www.agcriminalistica.com/el-informe-pericial/</link>
+					<comments>https://www.agcriminalistica.com/el-informe-pericial/#respond</comments>
+		
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<pubDate>Fri, 19 Jul 2019 21:13:04 +0000</pubDate>
+				<category><![CDATA[criminalística]]></category>
+		<guid isPermaLink="false">https://thepixelcurve.com/wp/edubin/learndash/?p=3047</guid>
+
+					<description><![CDATA[<p>Las y los peritos deben presentar su informe de conformidad con lo establecido en los artículos 19 y 20 del Reglamento del Sistema Pericial Integral de la Función Judicial. Se trata del documento escrito en el cual los peritos exponen sus observaciones o valoraciones acerca [&#8230;]</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/el-informe-pericial/">El informe Pericial</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[		<div data-elementor-type="wp-post" data-elementor-id="3047" class="elementor elementor-3047" data-elementor-settings="[]">
+						<div class="elementor-inner">
+							<div class="elementor-section-wrap">
+							<section class="elementor-section elementor-top-section elementor-element elementor-element-6a410528 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="6a410528" data-element_type="section">
+						<div class="elementor-container elementor-column-gap-default">
+							<div class="elementor-row">
+					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-285d5060" data-id="285d5060" data-element_type="column">
+			<div class="elementor-column-wrap elementor-element-populated">
+							<div class="elementor-widget-wrap">
+						<div class="elementor-element elementor-element-73850304 elementor-widget elementor-widget-text-editor" data-id="73850304" data-element_type="widget" data-widget_type="text-editor.default">
+				<div class="elementor-widget-container">
+					<div class="elementor-text-editor elementor-clearfix"><!-- wp:paragraph -->
+<p>Las y los peritos deben presentar su informe de conformidad con lo establecido en los artículos 19 y 20 del Reglamento del Sistema Pericial Integral de la Función Judicial.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Se trata del documento escrito en el cual los peritos exponen sus observaciones o valoraciones acerca de los asuntos o hechos sometidos a examen durante su peritaje a pedido del tribunal o las partes</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><p>Se compone de las siguientes partes:</p><cite>―<a href="https://www.agcriminalistica.com" data-type="URL" data-id="www.agcriminalistica.com"> www.agcriminalistica.com</a></cite></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:paragraph -->
+<p><strong>Datos generales del juicio o indagación previa<br>Antecedentes<br>Consideraciones técnicas y metodología<br>Conclusiones<br>Respaldos y anexos<br>Firma y rúbrica del perito</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Esta estructura es una guía de los ítems que al menos deben considerar los auxiliares de justicia al momento de elaborar sus informes periciales</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:gallery {"ids":[4758],"align":"wide"} -->
+<figure class="wp-block-gallery alignwide columns-1 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img src="https://www.agcriminalistica.com/wp-content/uploads/2020/12/129517310_188119332974813_1155962167381329491_o-1024x1024.png" alt="" data-id="4758" data-full-url="https://www.agcriminalistica.com/wp-content/uploads/2020/12/129517310_188119332974813_1155962167381329491_o.png" data-link="https://www.agcriminalistica.com/?attachment_id=4758" class="wp-image-4758"/></figure></li></ul></figure>
+<!-- /wp:gallery -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph --></div>
+				</div>
+				</div>
+						</div>
+					</div>
+		</div>
+								</div>
+					</div>
+		</section>
+				<section class="elementor-section elementor-top-section elementor-element elementor-element-59fd5da elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="59fd5da" data-element_type="section">
+						<div class="elementor-container elementor-column-gap-default">
+							<div class="elementor-row">
+					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-b675b5c" data-id="b675b5c" data-element_type="column">
+			<div class="elementor-column-wrap elementor-element-populated">
+							<div class="elementor-widget-wrap">
+						<div class="elementor-element elementor-element-416bffd elementor-widget elementor-widget-heading" data-id="416bffd" data-element_type="widget" data-widget_type="heading.default">
+				<div class="elementor-widget-container">
+			<h3 class="elementor-heading-title elementor-size-default">Síguenos en nuestras Redes Sociales</h3>		</div>
+				</div>
+				<div class="elementor-element elementor-element-aeb1dc8 elementor-shape-rounded elementor-grid-0 elementor-widget elementor-widget-social-icons" data-id="aeb1dc8" data-element_type="widget" data-widget_type="social-icons.default">
+				<div class="elementor-widget-container">
+					<div class="elementor-social-icons-wrapper elementor-grid">
+							<div class="elementor-grid-item">
+					<a class="elementor-icon elementor-social-icon elementor-social-icon-facebook elementor-repeater-item-eee561e" href="https://www.facebook.com/agcriminalistica" target="_blank">
+						<span class="elementor-screen-only">Facebook</span>
+						<i class="fab fa-facebook"></i>					</a>
+				</div>
+							<div class="elementor-grid-item">
+					<a class="elementor-icon elementor-social-icon elementor-social-icon-instagram elementor-repeater-item-60c26ec" href="https://www.instagram.com/agcriminalistica/" target="_blank">
+						<span class="elementor-screen-only">Instagram</span>
+						<i class="fab fa-instagram"></i>					</a>
+				</div>
+							<div class="elementor-grid-item">
+					<a class="elementor-icon elementor-social-icon elementor-social-icon-linkedin elementor-repeater-item-ea6f295" href="https://www.linkedin.com/in/alberto-gutierrez-tigse/" target="_blank">
+						<span class="elementor-screen-only">Linkedin</span>
+						<i class="fab fa-linkedin"></i>					</a>
+				</div>
+					</div>
+				</div>
+				</div>
+						</div>
+					</div>
+		</div>
+								</div>
+					</div>
+		</section>
+						</div>
+						</div>
+					</div>
+		<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/el-informe-pericial/">El informe Pericial</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://www.agcriminalistica.com/el-informe-pericial/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Manual de Dactiloscopia</title>
+		<link>https://www.agcriminalistica.com/dactiloscopia/</link>
+					<comments>https://www.agcriminalistica.com/dactiloscopia/#respond</comments>
+		
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<pubDate>Fri, 19 Jul 2019 21:12:38 +0000</pubDate>
+				<category><![CDATA[criminalística]]></category>
+		<guid isPermaLink="false">https://thepixelcurve.com/wp/edubin/learndash/?p=3045</guid>
+
+					<description><![CDATA[<p>La dactiloscopia es una rama de la papiloscopía utilizada para la identificación humana a través del patrón que conforman los surcos y crestas papilares de la piel presente en los pulpejos de las terceras falanges de los dígitos de la mano. Su utilidad en la [&#8230;]</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/dactiloscopia/">Manual de Dactiloscopia</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p>La dactiloscopia es una rama de la papiloscopía utilizada para la identificación humana a través del patrón que conforman los surcos y crestas papilares de la piel presente en los pulpejos de las terceras falanges de los dígitos de la mano.</p>
+
+
+
+<p>Su utilidad en la investigación criminalística es de primera ratio y hasta ahora el único patrón biométrico del cuerpo con una probabilidad de identificación del 99,9%</p>
+
+
+
+<blockquote class="wp-block-quote"><p>En este manual introductorio te describimos las principales especificaciones técnicas sobre la identificación humana mediante el cotejo de las huellas dactilares</p><cite>―<a href="https://www.agcriminalistica.com">www.agcriminalistica.com</a></cite></blockquote>
+
+
+
+<p>INVESTIGACIÓN CRIMINALÍSTICA </p>
+
+
+
+<p>( <a href="https://www.agcriminalistica.com/manual-dactiloscopia/" target="_blank" aria-label="undefined (abre en una nueva pestaña)" rel="noreferrer noopener">DESCARGA EL MANUAL AQUÍ</a>  )</p>
+
+
+
+<figure class="wp-container-14 wp-block-gallery-13 wp-block-gallery alignwide columns-1 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img width="1024" height="858" src="https://www.agcriminalistica.com/wp-content/uploads/2020/12/Dactiloscopia-1024x858.jpg" alt="" data-id="5032" data-full-url="https://www.agcriminalistica.com/wp-content/uploads/2020/12/Dactiloscopia.jpg" data-link="https://www.agcriminalistica.com/?attachment_id=5032" class="wp-image-5032" srcset="https://www.agcriminalistica.com/wp-content/uploads/2020/12/Dactiloscopia-1024x858.jpg 1024w, https://www.agcriminalistica.com/wp-content/uploads/2020/12/Dactiloscopia-300x251.jpg 300w, https://www.agcriminalistica.com/wp-content/uploads/2020/12/Dactiloscopia-768x644.jpg 768w, https://www.agcriminalistica.com/wp-content/uploads/2020/12/Dactiloscopia.jpg 1080w" sizes="(max-width: 1024px) 100vw, 1024px" /></figure></li></ul></figure>
+
+
+
+<h4>                                                       <a href="https://www.agcriminalistica.com/manual-dactiloscopia/">Descarga &#8211; A G Criminalística (agcriminalistica.com)</a></h4>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/dactiloscopia/">Manual de Dactiloscopia</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://www.agcriminalistica.com/dactiloscopia/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Metadatos, materia prima de las plataformas digitales</title>
+		<link>https://www.agcriminalistica.com/privacidad-de-whatsapp/</link>
+					<comments>https://www.agcriminalistica.com/privacidad-de-whatsapp/#respond</comments>
+		
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<pubDate>Fri, 19 Jul 2019 21:11:59 +0000</pubDate>
+				<category><![CDATA[criminalística]]></category>
+		<guid isPermaLink="false">https://thepixelcurve.com/wp/edubin/learndash/?p=3043</guid>
+
+					<description><![CDATA[<p>El 04 de enero WhatsApp dio un ultimátum a sus usuarios, para continuar usando sus servicios debían aceptar las nuevas condiciones antes del 08 de febrero o abandonar la plataforma, fecha límite que posteriormente sería aplazada por los responsables de la compañía en vista de [&#8230;]</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/privacidad-de-whatsapp/">Metadatos, materia prima de las plataformas digitales</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p>El 04 de enero WhatsApp dio un ultimátum a sus usuarios, para continuar usando sus servicios debían aceptar las nuevas condiciones antes del 08 de febrero o abandonar la plataforma, fecha límite que posteriormente sería aplazada por los responsables de la compañía en vista de el aluvión de abandonos que empezó a tener la app de mensajería. Los últimos cambios en las condiciones del servicio por parte de WhatsApp dio lugar al debate sobre el uso que hacen estas plataformas con los datos de sus usuarios. Los metadatos se han convertido en la materia prima para que plataformas como Facebook, propietaria de WhatsApp desde el año 2014, identifiquen los gustos y necesidades de sus usuarios con el objetivo de monetizar sus aplicaciones.</p>
+
+
+
+<figure class="wp-container-16 wp-block-gallery-15 wp-block-gallery alignwide columns-1 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img width="1024" height="555" src="https://www.agcriminalistica.com/wp-content/uploads/2021/01/Privacidad-de-whatsapp-1024x555.jpg" alt="" data-id="5318" data-full-url="https://www.agcriminalistica.com/wp-content/uploads/2021/01/Privacidad-de-whatsapp.jpg" data-link="https://www.agcriminalistica.com/?attachment_id=5318" class="wp-image-5318" srcset="https://www.agcriminalistica.com/wp-content/uploads/2021/01/Privacidad-de-whatsapp-1024x555.jpg 1024w, https://www.agcriminalistica.com/wp-content/uploads/2021/01/Privacidad-de-whatsapp-300x163.jpg 300w, https://www.agcriminalistica.com/wp-content/uploads/2021/01/Privacidad-de-whatsapp-768x416.jpg 768w, https://www.agcriminalistica.com/wp-content/uploads/2021/01/Privacidad-de-whatsapp.jpg 1200w" sizes="(max-width: 1024px) 100vw, 1024px" /><figcaption class="blocks-gallery-item__caption">Whatsapp vs telegram</figcaption></figure></li></ul></figure>
+
+
+
+<h3>METADATOS</h3>
+
+
+
+<p>Podemos empezar por definirlos como&nbsp;<strong><em>datos acerca de los datos&nbsp;</em></strong>ya que suministran información, describen su contenido y caracterizan a un determinado dato. Altamente estructurados describen características como contenido, calidad, circunstancias y atributos además que pueden clasificarse en función de varios criterios como el contenido, la variabilidad o la función de un determinado dato.</p>
+
+
+
+<p>Nunca antes las personas estuvimos tan conectadas a la red, produciendo ingentes cantidades de información cuando enviamos un mensaje, un audio, un video, subimos una foto, damos un like o compartimos nuestros gustos y lugares los datos crecen de forma exponencial por lo que el Big Data, el internet de las cosas y el cloud computing han adquirido una gran relevancia ya que la gestión de los metadatos ayudan a mejorar la eficiencia operativa y la toma de mejores decisiones que permitan obtener ventajas competitivas. El análisis y manejo de la&nbsp;<strong>bigdata</strong>&nbsp;se ha impuesto como una de las actividades más rentables para las compañías que controlan este gran volumen de datos.</p>
+
+
+
+<blockquote class="wp-block-quote"><p>¿WhatsApp nos espía?</p><cite>― <a href="https://www.agcriminalistica.com/" target="_blank" aria-label="undefined (abre en una nueva pestaña)" rel="noreferrer noopener">www.agcriminalistica.com</a></cite></blockquote>
+
+
+
+<p>Según Ariadna Matamoros profesora de medios digitales de la Universidad Tecnológica de Queensland, Australia. El último cambio en las condiciones del servicio se trata de un intento por monetizar WhatsApp, y la única manera de hacerlo es transformándolo en un e-commerce y para esto los datos de los usuarios son muy importantes.</p>
+
+
+
+<p>Entre los datos que se recopilarán se encuentran el número de teléfono del usuario, idioma, modelo del dispositivo, ubicación, dirección IP, entre otros que se empezarán a compartir con las demás plataformas de Facebook, propietario de WhatsApp.</p>
+
+
+
+<p>Este anuncio de WhatsApp produjo una masiva migración de usuarios a otras plataformas como Signal o Telegram que al momento no han mostrado intenciones de seguir los pasos de la app de mensajería de Facebook además que han demostrado tratar de mejor manera la privacidad de sus usuarios y cuentan con más funcionalidades.</p>
+
+
+
+<p>Ante la masiva migración de usuarios, la app de mensajería ha extendido la fecha límite para la aceptación de las nuevas condiciones y ha advertido a sus usuarios que las comunicaciones siguen siendo privadas ya que se encriptan de extremo a extremo</p>
+
+
+
+<p>En un mundo cada vez más conectado necesitamos darle mayor relevancia al manejo que compañías como Facebook hacen con nuestros datos y tener en cuenta que si algún servicio como estos se pintan como<strong><em>&nbsp;&#8220;gratuito&#8221;</em></strong>&nbsp;al final sí que terminamos pagamos pero con nuestros datos y por extensión a costa de nuestra propia privacidad.</p>
+
+
+
+<p>Los metadatos se han convertido en la materia prima con la cual estas plataformas monetizan sus ganancias. ¿Hasta que punto estamos dispuestos a ceder nuestra privacidad a cambio de esta clase de servicios &#8220;gratuitos&#8221;?</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/privacidad-de-whatsapp/">Metadatos, materia prima de las plataformas digitales</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://www.agcriminalistica.com/privacidad-de-whatsapp/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>IMPORTANCIA DE LA PREVENCIÓN Y LA SEGURIDAD EN EL CIBERESPACIO</title>
+		<link>https://www.agcriminalistica.com/ciberseguridad/</link>
+					<comments>https://www.agcriminalistica.com/ciberseguridad/#respond</comments>
+		
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<pubDate>Fri, 19 Jul 2019 21:11:21 +0000</pubDate>
+				<category><![CDATA[criminalística]]></category>
+		<guid isPermaLink="false">https://thepixelcurve.com/wp/edubin/learndash/?p=3041</guid>
+
+					<description><![CDATA[<p>Vivimos el siglo de la información, enormes cantidades de datos transitan y se comparten por la red. Nunca antes en la historia de la humanidad pudimos comunicarnos de una manera tan eficaz y rápida. La red de información digital interconectada se ha convertido en una [&#8230;]</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/ciberseguridad/">IMPORTANCIA DE LA PREVENCIÓN Y LA SEGURIDAD EN EL CIBERESPACIO</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[
+<p></p>
+
+
+
+<p>Vivimos el siglo de la información, enormes cantidades de datos transitan y se comparten por la red. Nunca antes en la historia de la humanidad pudimos comunicarnos de una manera tan eficaz y rápida.</p>
+
+
+
+<p>La red de información digital interconectada se ha convertido en una parte integral de nuestra vida cotidiana y a medida que nos volvemos dependientes de esta red también crece nuestra vulnerabilidad.</p>
+
+
+
+<blockquote class="wp-block-quote"><p>Conoce este y más términos relacionados con la criminalística siguiendo nuestro hashtag en Facebook #crimidato</p><cite>― <a href="https://www.agcriminalistica.com/">www.agcriminalistica.com</a></cite></blockquote>
+
+
+
+<p>La Ciberseguridad se convierte entonces en el método mediante el cual protegemos nuestros sistemas o dispositivos conectados a la red contra el uso indebido o no autorizado de nuestros datos.</p>
+
+
+
+<figure class="wp-container-18 wp-block-gallery-17 wp-block-gallery alignwide columns-1 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img src="https://www.agcriminalistica.com/wp-content/uploads/2021/02/ciberseguridad-1024x1024.png" alt="" data-id="5322" data-full-url="https://www.agcriminalistica.com/wp-content/uploads/2021/02/ciberseguridad.png" data-link="https://www.agcriminalistica.com/?attachment_id=5322" class="wp-image-5322"/></figure></li></ul></figure>
+
+
+
+<figure class="wp-container-20 wp-block-gallery-19 wp-block-gallery alignwide columns-1 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img width="1024" height="1024" src="https://www.agcriminalistica.com/wp-content/uploads/2021/02/seguridad-en-internet-1024x1024.png" alt="" data-id="5323" data-full-url="https://www.agcriminalistica.com/wp-content/uploads/2021/02/seguridad-en-internet.png" data-link="https://www.agcriminalistica.com/?attachment_id=5323" class="wp-image-5323" srcset="https://www.agcriminalistica.com/wp-content/uploads/2021/02/seguridad-en-internet-1024x1024.png 1024w, https://www.agcriminalistica.com/wp-content/uploads/2021/02/seguridad-en-internet-300x300.png 300w, https://www.agcriminalistica.com/wp-content/uploads/2021/02/seguridad-en-internet-150x150.png 150w, https://www.agcriminalistica.com/wp-content/uploads/2021/02/seguridad-en-internet-768x768.png 768w, https://www.agcriminalistica.com/wp-content/uploads/2021/02/seguridad-en-internet-100x100.png 100w, https://www.agcriminalistica.com/wp-content/uploads/2021/02/seguridad-en-internet.png 1080w" sizes="(max-width: 1024px) 100vw, 1024px" /><figcaption class="blocks-gallery-item__caption"><br/><br/></figcaption></figure></li></ul></figure>
+
+
+
+<p><strong>CIBERSEGURIDAD:</strong></p>
+
+
+
+<p>MALWARE. Se trata de cualquier tipo de código malicioso diseñado para comprometer y vulnerar un dispositivo con el fin de ocasionar daños, robar datos o evitar controles de acceso.</p>
+<p>The post <a rel="nofollow" href="https://www.agcriminalistica.com/ciberseguridad/">IMPORTANCIA DE LA PREVENCIÓN Y LA SEGURIDAD EN EL CIBERESPACIO</a> appeared first on <a rel="nofollow" href="https://www.agcriminalistica.com">A G Criminal&iacute;stica</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://www.agcriminalistica.com/ciberseguridad/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+	</channel>
+</rss>
