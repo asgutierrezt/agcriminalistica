@@ -3,27 +3,53 @@
  * Interactive 3D crime scene (Three.js). The library is only downloaded after
  * the visitor's first interaction (or a few seconds after load) and once the
  * scene is near the viewport, so it never competes with the page's content.
- * Until then — or without WebGL/JS — the SVG poster and the HTML evidence
- * list are shown; the evidence cards work either way.
+ * Until then — or without WebGL/JS — a poster rendered from the scene's own
+ * first frame is shown, so the switch to live 3D is seamless. The evidence
+ * list and cards work either way.
  */
+import { getImage } from 'astro:assets';
 import { SCENE_EVIDENCE, SCENE_VIEWS } from '../data/sceneEvidence';
+// Posters: regenerate when the scene changes (first frame, orbital view).
+import posterCompact from '../assets/img/escena-3d-inicio.jpg';
+import posterWide from '../assets/img/escena-3d-servicio-lg.jpg';
+import posterTall from '../assets/img/escena-3d-servicio-sm.jpg';
 
-interface Props { caption?: string; class?: string; variant?: 'compact' | 'full' }
-const { caption, class: cls, variant = 'compact' } = Astro.props;
+interface Props { caption?: string; class?: string; variant?: 'compact' | 'full'; priority?: boolean }
+const { caption, class: cls, variant = 'compact', priority = false } = Astro.props;
 const full = variant === 'full';
+
+type Src = typeof posterCompact;
+const sources = async (src: Src, widths: number[]) => ({
+  avif: (await getImage({ src, widths, format: 'avif' })).srcSet.attribute,
+  webp: await getImage({ src, widths, format: 'webp' }),
+});
+const main = full
+  ? await sources(posterWide, [800, 1200, 1600, 2100])
+  : await sources(posterCompact, [480, 720, 1000]);
+const tall = full ? await sources(posterTall, [400, 600, 762]) : null;
+const mainSizes = full ? '(max-width: 1240px) calc(100vw - 40px), 1200px' : '(max-width: 1000px) calc(100vw - 40px), 572px';
+const posterAlt = full
+  ? 'Reconstrucción 3D de una escena del crimen: sala con la víctima, el arma y los indicios'
+  : 'Reconstrucción 3D de una escena del crimen: origen del disparo, trayectorias, víctima e indicios numerados';
 ---
 <figure class:list={['scene3d', cls, variant]} data-scene-root>
   <div class="stage" data-scene3d>
-    <svg class="poster" viewBox="0 0 400 300" aria-hidden="true">
-      <g fill="none" stroke="#1ba3e0" stroke-opacity=".35" stroke-width="1">
-        <path d="M60 190 200 120 340 190 200 260Z" />
-        <path d="M95 172.5 235 242.5M130 155 270 225M165 137.5 305 207.5M95 207.5 235 137.5M130 225 270 155M165 242.5 305 172.5" stroke-opacity=".18" />
-        <path d="M60 190V90L200 20V120M200 20 340 90V190" />
-      </g>
-      <path d="M175 205c8-4 18-2 22 4l14 6 8-8 6 3-6 9 12 8-4 5-16-6-10 3-10-7-14 2-4-6Z" fill="none" stroke="#fff" stroke-dasharray="4 3" stroke-width="1.5" />
-      <path d="M90 120 255 200" stroke="#f5b70a" stroke-width="1.5" stroke-dasharray="5 4" />
-      <g fill="#f5b70a"><path d="M150 228l7-12 7 12Z" /><path d="M250 212l7-12 7 12Z" /><path d="M215 170l7-12 7 12Z" /></g>
-    </svg>
+    <picture class="poster">
+      {tall && <source media="(max-width: 640px)" type="image/avif" srcset={tall.avif} sizes="calc(100vw - 32px)" />}
+      {tall && <source media="(max-width: 640px)" type="image/webp" srcset={tall.webp.srcSet.attribute} sizes="calc(100vw - 32px)" />}
+      <source type="image/avif" srcset={main.avif} sizes={mainSizes} />
+      <img
+        src={main.webp.src}
+        srcset={main.webp.srcSet.attribute}
+        sizes={mainSizes}
+        alt={posterAlt}
+        width={(full ? posterWide : posterCompact).width}
+        height={(full ? posterWide : posterCompact).height}
+        loading={priority ? 'eager' : 'lazy'}
+        fetchpriority={priority ? 'high' : 'auto'}
+        decoding="async"
+      />
+    </picture>
 
     <div class="views" role="toolbar" aria-label="Vista de la cámara">
       {SCENE_VIEWS.map((v, i) => (
@@ -116,6 +142,7 @@ const full = variant === 'full';
     const mount = async () => {
       const { mountCrimeScene } = await import('../lib/crimeScene');
       ctrl = mountCrimeScene(stage, {
+        intro: !!playBtn,
         onSelect: (i) => show(i),
         onTime: (t, playing) => {
           if (scrub && ctrl) scrub.value = String(Math.round((t / ctrl.duration) * 1000));
@@ -199,7 +226,8 @@ const full = variant === 'full';
   .full .stage { aspect-ratio: 16 / 10; }
   @media (max-width: 640px) { .full .stage { aspect-ratio: 4 / 4.6; } }
   .stage:active { cursor: grabbing; }
-  .poster { position: absolute; inset: 8%; width: 84%; height: 84%; transition: opacity 0.6s ease; }
+  .poster { position: absolute; inset: 0; transition: opacity 0.6s ease; }
+  .poster img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .is-live .poster { opacity: 0; }
   .stage :global(canvas) { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; animation: fade 0.8s ease both; }
   @keyframes fade { from { opacity: 0; } }

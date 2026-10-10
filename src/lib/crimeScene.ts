@@ -35,6 +35,8 @@ export interface CrimeSceneController {
 interface Options {
   onSelect?: (index: number) => void;
   onTime?: (t: number, playing: boolean) => void;
+  /** Play the build-up animation on load. Off: start on the finished scene (matches its poster). */
+  intro?: boolean;
 }
 
 const DURATION = 6.5;
@@ -169,7 +171,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   try {
     renderer = new WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'low-power' });
   } catch {
-    return null; // No WebGL: keep the SVG poster and the HTML evidence list.
+    return null; // No WebGL: keep the poster image and the HTML evidence list.
   }
   renderer.setPixelRatio(Math.min(devicePixelRatio, small ? 1.5 : 1.75));
   renderer.shadowMap.enabled = true;
@@ -457,23 +459,31 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   controls.maxAzimuthAngle = Math.PI / 2 + 0.05;
   controls.minPolarAngle = 0;
   controls.maxPolarAngle = 1.38;
-  controls.target.set(0, 0.5, -0.4);
+  const orbitTarget = new Vector3(0.3, 0.5, -0.7);
+  controls.target.copy(orbitTarget);
   renderer.domElement.style.touchAction = 'pan-y';
 
-  const orbitDistance = () => (el.clientWidth < 520 ? 11.2 : 10.5);
+  // Pull back on narrower frames (and look more from above on portrait ones) so the whole room fits.
+  const orbitPos = () => {
+    const aspect = el.clientWidth / Math.max(el.clientHeight, 1);
+    const dist = 10.5 * Math.min(1.6, Math.max(1, Math.pow(1.6 / aspect, 0.8)));
+    return new Vector3(7.4, aspect < 1 ? 8.4 : 5.6, 7.4).setLength(dist).add(orbitTarget);
+  };
   const VIEWS: Record<SceneViewId, () => { pos: Vector3; target: Vector3 }> = {
-    orbital: () => ({ pos: new Vector3(7.2, 5.6, 7.6).setLength(orbitDistance()), target: new Vector3(0, 0.5, -0.4) }),
+    orbital: () => ({ pos: orbitPos(), target: orbitTarget.clone() }),
     cenital: () => ({ pos: new Vector3(0.3, el.clientWidth < 520 ? 14 : 11.5, 0.9), target: new Vector3(0.1, 0, -0.1) }),
     testigo: () => ({ pos: new Vector3(-3.55, 1.62, 3.55), target: new Vector3(0.6, 0.6, -1.2) }),
     trayectoria: () => ({ pos: new Vector3(-3.82, 1.95, 2.35), target: new Vector3(1.8, 1.25, -2.6) }),
   };
   let view: SceneViewId = 'orbital';
   let sway = !reduceMotion; // gentle side-to-side drift in the orbital view
+  let swayFrom = -1; // time the drift (re)starts, so it begins at the resting angle
   let tween: { from: Vector3; to: Vector3; tFrom: Vector3; tTo: Vector3; start: number } | null = null;
 
   // --- Timeline & render-loop state (declared before anything calls wake()) --
-  let t = reduceMotion ? DURATION : 0;
-  let playing = !reduceMotion;
+  const intro = opts.intro !== false && !reduceMotion;
+  let t = intro ? 0 : DURATION;
+  let playing = intro;
   let last = performance.now();
   let visible = true;
   let raf = 0;
@@ -579,12 +589,17 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       const p = ease(clamp01((now - tween.start) / 1100));
       camera.position.lerpVectors(tween.from, tween.to, p);
       controls.target.lerpVectors(tween.tFrom, tween.tTo, p);
-      if (p >= 1) tween = null;
+      if (p >= 1) {
+        tween = null;
+        swayFrom = -1;
+      }
     } else if (sway && view === 'orbital') {
-      // Slow drift around the open corner of the room.
+      // Slow drift around the open corner of the room. It starts from the
+      // resting angle, which is also the angle of the static poster image.
+      if (swayFrom < 0) swayFrom = now;
       const off = camera.position.clone().sub(controls.target);
       sph.setFromVector3(off);
-      sph.theta = Math.PI / 4 + Math.sin(now / 5200) * 0.42;
+      sph.theta = Math.PI / 4 + Math.sin((now - swayFrom) / 5200) * 0.42;
       camera.position.copy(controls.target).add(new Vector3().setFromSpherical(sph));
     }
     if (selected !== null) {
