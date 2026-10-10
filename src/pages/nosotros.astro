@@ -24,14 +24,14 @@ const values = [
 ] as const;
 ---
 <Base
-  title="Nosotros: expertos en Criminalística y Ciencias Forenses"
-  description="Conoce a AG Criminalística: equipo de expertos en criminalística dirigido por el Lcdo. Alberto Gutiérrez, dedicado a la capacitación, investigación y consultoría pericial."
+  title="Nosotros: peritos criminalísticos en Ecuador"
+  description="Conoce a AG Criminalística: equipo de expertos en criminalística dirigido por el Lcdo. Alberto Gutiérrez. Peritaje, reconstrucción 3D de hechos, consultoría y capacitación."
   schema={[person, breadcrumbSchema(crumbs)]}
 >
   <PageHero
     label="Conócenos"
     title="La verdad, demostrada de forma técnica."
-    lead="Un espacio de creación y difusión de conocimiento científico forense en Ecuador."
+    lead="Peritaje criminalístico, reconstrucción 3D de los hechos, consultoría pericial y formación de peritos en todo Ecuador."
     crumbs={crumbs}
   />
 
@@ -56,6 +56,12 @@ const values = [
           A través de nuestra oferta de formación profesional queremos potenciar tus recursos personales bajo un
           enfoque de competencias dinámicas que incorporen comprensión y acción a la vez.
           <strong>Saber pensar, saber ser y saber hacer</strong> es la premisa básica de nuestros procesos de formación.
+        </p>
+        <p>
+          Hoy ponemos esa experiencia al servicio de abogados, instituciones y particulares con
+          <a href="/servicios/peritaje-criminalistico/">peritajes criminalísticos</a>,
+          <a href="/servicios/reconstruccion-3d-de-hechos/">reconstrucciones 3D de los hechos</a> y
+          <a href="/servicios/consultoria-para-abogados/">consultoría pericial</a>.
         </p>
       </div>
       <figure class="logo-fig">
@@ -110,6 +116,7 @@ const values = [
   .two { display: grid; gap: 2.5rem; align-items: center; }
   @media (min-width: 900px) { .two { grid-template-columns: 1.2fr 0.8fr; } .ink .two { grid-template-columns: 0.8fr 1.2fr; } }
   .copy p + p { margin-top: 1rem; }
+  .copy a { color: var(--cyan-ink); font-weight: 600; }
   .copy > p:not(.label) { color: var(--muted); }
   .ink .copy > p:not(.label) { color: var(--muted-on-ink); }
   .ink h2 { color: var(--white); }

@@ -36,7 +36,9 @@ const {
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
-const fullTitle = title.includes('AG Criminalística') ? title : `${title} | AG Criminalística`;
+// Append the brand only while the title stays within what Google displays (~60 chars).
+const branded = `${title} | AG Criminalística`;
+const fullTitle = title.includes('AG Criminalística') || branded.length > 62 ? title : branded;
 const og = await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 80 });
 const ogUrl = new URL(og.src, SITE.url).href;
 

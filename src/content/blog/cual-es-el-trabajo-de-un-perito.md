@@ -31,3 +31,5 @@ En estos casos se trata de profesionales titulados, pero también pueden existir
 ## ¿Te animarías a colaborar con la justicia?
 
 Si quieres aportar tu experticia y conocimientos al sistema de justicia, nuestro [curso de Criminalística para la formación de peritos](/courses/criminalistica/) te prepara para acreditarte y elaborar informes periciales sólidos.
+
+¿Necesitas un perito para tu caso? Conoce nuestro servicio de [peritaje criminalístico](/servicios/peritaje-criminalistico/) en todo Ecuador.

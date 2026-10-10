@@ -20,3 +20,10 @@ export function readingTime(body = '') {
 
 const fmt = new Intl.DateTimeFormat('es-EC', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 export const formatDate = (d: Date) => fmt.format(d);
+
+export type Service = CollectionEntry<'services'>;
+
+export async function getServices() {
+  const services = await getCollection('services');
+  return services.sort((a, b) => a.data.order - b.data.order);
+}

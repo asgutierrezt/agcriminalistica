@@ -9,22 +9,21 @@ import { SITE, whatsappLink } from '../../data/site';
 const crumbs = [{ name: 'Inicio', path: '/' }, { name: 'Contacto', path: '/contacto/' }];
 const contactPage = { '@type': 'ContactPage', name: 'Contacto AG Criminalística', url: `${SITE.url}/contacto/` };
 const channels = [
-  { icon: 'whatsapp', t: 'WhatsApp', v: SITE.phoneDisplay, href: whatsappLink('Hola AG Criminalística, quisiera información.'), ext: true },
-  { icon: 'phone', t: 'Teléfono', v: SITE.phoneDisplay, href: `tel:${SITE.phone}`, ext: false },
-  { icon: 'mail', t: 'Correo', v: SITE.email, href: `mailto:${SITE.email}`, ext: false },
+  { icon: 'whatsapp', t: 'WhatsApp', v: 'Respuesta rápida', href: whatsappLink(), ext: true },
   { icon: 'instagram', t: 'Instagram', v: '@agcriminalistica', href: SITE.social.instagram, ext: true },
   { icon: 'facebook', t: 'Facebook', v: '/agcriminalistica', href: SITE.social.facebook, ext: true },
+  { icon: 'linkedin', t: 'LinkedIn', v: 'Alberto Gutiérrez', href: SITE.social.linkedin, ext: true },
 ] as const;
 ---
 <Base
-  title="Contacto: solicita información de cursos y peritajes"
-  description="Contacta a AG Criminalística por WhatsApp, teléfono o formulario. Te enviamos fechas, costos y modalidad de nuestros cursos de criminalística y consultoría pericial."
+  title="Contacto: solicita un peritaje o reconstrucción 3D"
+  description="Cuéntanos tu caso: peritaje criminalístico, reconstrucción 3D de los hechos, consultoría para abogados o cursos. Respondemos por WhatsApp o correo en todo Ecuador."
   schema={[contactPage, breadcrumbSchema(crumbs)]}
 >
   <PageHero
     label="Contacto"
-    title="Hablemos de tu formación forense."
-    lead="Respondemos personalmente cada consulta, normalmente en menos de 24 horas hábiles."
+    title="Cuéntanos tu caso."
+    lead="Escríbenos por el formulario o por WhatsApp. Tu consulta es confidencial y la responde directamente un especialista."
     crumbs={crumbs}
   />
   <section class="section">
@@ -35,6 +34,7 @@ const channels = [
       </div>
       <aside>
         <h2 class="side-title">Otros canales</h2>
+        <a class="btn btn-wa" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /> Escribir por WhatsApp</a>
         <ul class="channels">
           {channels.map((c) => (
             <li>
@@ -45,7 +45,7 @@ const channels = [
             </li>
           ))}
         </ul>
-        <p class="note"><Icon name="pin" size={18} /> Ecuador · Atención y clases 100% online.</p>
+        <p class="note"><Icon name="shield" size={18} /> Consultas confidenciales · Atención en todo Ecuador.</p>
       </aside>
     </div>
   </section>
@@ -57,6 +57,8 @@ const channels = [
   .form-card { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: clamp(1.25rem, 1rem + 2vw, 2.25rem); }
   h2 { font-size: var(--step-2); margin-bottom: 1.25rem; }
   .side-title { font-size: var(--step-1); }
+  .btn-wa { width: 100%; background: #25d366; color: #062b14; margin-bottom: 1rem; }
+  .btn-wa:hover { background: #3ddc7a; }
   .channels { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
   .channels a { display: flex; gap: 0.9rem; align-items: center; padding: 0.8rem; border-radius: 12px; text-decoration: none; border: 1px solid var(--line); background: var(--white); word-break: break-word; }
   .channels a:hover { border-color: var(--cyan); }

@@ -1,13 +1,18 @@
 # AG Criminalística
 
-> Escuela online de criminalística y ciencias forenses en Ecuador. Ofrece cursos para la formación de peritos judiciales, informática forense e investigación del crimen, además de consultoría pericial en colaboración con SIAF Cía. Ltda. Dirección académica: Lcdo. Alberto Gutiérrez.
+> Servicios periciales en todo Ecuador: peritaje criminalístico, reconstrucción 3D de los hechos (videos y animaciones forenses) y consultoría pericial para abogados (revisión de informes y contrapericia). También forma peritos con cursos online de criminalística. Dirección: Lcdo. Alberto Gutiérrez. Colabora con la consultora pericial SIAF Cía. Ltda.
 
-Contacto: asgutierrezt@gmail.com · WhatsApp +593 95 885 3625 · https://agcriminalistica.com/contacto/
+Contacto: formulario en https://agcriminalistica.com/contacto/ o WhatsApp desde el sitio.
 
-## Cursos
-- [Criminalística: formación de peritos](https://agcriminalistica.com/courses/criminalistica/): inspección ocular, cadena de custodia, normativa del sistema pericial y redacción del informe pericial.
-- [Informática forense](https://agcriminalistica.com/courses/informatica-forense/): evidencia digital, imágenes forenses y dictamen pericial informático.
-- [Investigación del crimen](https://agcriminalistica.com/courses/investigacion-del-crimen/): método científico y aspectos legales de la investigación penal (gratuito).
+## Servicios
+- [Reconstrucción 3D de los hechos](https://agcriminalistica.com/servicios/reconstruccion-3d-de-hechos/): recreación forense 3D de escenas del crimen, accidentes de tránsito y trayectorias a partir de la evidencia del expediente.
+- [Peritaje criminalístico](https://agcriminalistica.com/servicios/peritaje-criminalistico/): inspección ocular técnica, análisis de indicios, cadena de custodia e informe pericial de parte.
+- [Consultoría pericial para abogados](https://agcriminalistica.com/servicios/consultoria-para-abogados/): revisión de informes periciales, contrapericia, estrategia probatoria y preparación del interrogatorio a peritos.
+
+## Capacitación
+- [Criminalística: formación de peritos](https://agcriminalistica.com/courses/criminalistica/)
+- [Informática forense](https://agcriminalistica.com/courses/informatica-forense/)
+- [Investigación del crimen](https://agcriminalistica.com/courses/investigacion-del-crimen/) (gratuito)
 
 ## Artículos destacados
 - [¿Cuál es el trabajo de un perito?](https://agcriminalistica.com/cual-es-el-trabajo-de-un-perito/)
@@ -15,7 +20,3 @@ Contacto: asgutierrezt@gmail.com · WhatsApp +593 95 885 3625 · https://agcrimi
 - [Cadena de custodia](https://agcriminalistica.com/cadena-de-custodia/)
 - [Retos en la investigación de los casos de femicidio](https://agcriminalistica.com/feminicidios/)
 - [CNT: un ciberataque que debería preocuparnos a todos](https://agcriminalistica.com/un-ciberataque-que-deberia-preocuparnos-a-todos/)
-
-## Recursos
-- [Manual de dactiloscopia](https://agcriminalistica.com/manual-dactiloscopia/)
-- [Manual de identificación forense de la voz](https://agcriminalistica.com/manual-identificacion-forense-de-la-voz/)

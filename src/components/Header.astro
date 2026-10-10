@@ -2,11 +2,14 @@
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import { NAV } from '../data/nav';
-import { SITE } from '../data/site';
+import { whatsappLink } from '../data/site';
 
 const path = Astro.url.pathname;
-const isActive = (href: string) =>
-  href === '/' ? path === '/' : !href.includes('#') && path.startsWith(href);
+// Longest matching prefix wins, so "Reconstrucción 3D" is active instead of "Servicios".
+const active = NAV.map((n) => n.href)
+  .filter((h) => (h === '/' ? path === '/' : path.startsWith(h)))
+  .sort((a, b) => b.length - a.length)[0];
+const isActive = (href: string) => href === active;
 ---
 <header class="site-header">
   <div class="container bar">
@@ -24,7 +27,7 @@ const isActive = (href: string) =>
       </ul>
     </nav>
 
-    <a class="btn btn-primary header-cta" href="/contacto/">Solicitar información</a>
+    <a class="btn btn-primary header-cta" href="/contacto/">Solicitar peritaje</a>
 
     <button class="menu-btn" popovertarget="mobile-menu" aria-label="Abrir menú">
       <Icon name="menu" size={26} />
@@ -51,8 +54,8 @@ const isActive = (href: string) =>
       </ol>
     </nav>
     <div class="mobile-actions">
-      <a class="btn btn-primary" href="/contacto/">Solicitar información</a>
-      <a class="btn btn-ghost" href={SITE.whatsapp} rel="noopener" target="_blank">
+      <a class="btn btn-primary" href="/contacto/">Solicitar peritaje</a>
+      <a class="btn btn-ghost" href={whatsappLink()} rel="noopener" target="_blank">
         <Icon name="whatsapp" /> WhatsApp
       </a>
     </div>
@@ -73,7 +76,7 @@ const isActive = (href: string) =>
   .desktop-nav { display: none; }
   .desktop-nav ul { display: flex; gap: 0.25rem; list-style: none; padding: 0; }
   .desktop-nav a {
-    display: block; padding: 0.5rem 0.8rem; border-radius: 8px;
+    display: block; padding: 0.5rem 0.65rem; border-radius: 8px;
     text-decoration: none; font-weight: 600; font-size: 0.95rem; color: var(--muted-on-ink);
   }
   .desktop-nav a:hover { color: var(--white); background: rgba(255,255,255,0.06); }
@@ -83,7 +86,7 @@ const isActive = (href: string) =>
     display: grid; place-items: center; width: 48px; height: 48px;
     background: transparent; border: 1px solid var(--line-on-ink); border-radius: 12px; cursor: pointer; color: inherit;
   }
-  @media (min-width: 1000px) {
+  @media (min-width: 1180px) {
     .desktop-nav { display: block; }
     .header-cta { display: inline-flex; }
     .menu-btn { display: none; }

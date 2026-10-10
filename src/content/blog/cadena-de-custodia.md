@@ -26,3 +26,5 @@ Y es que incluso el valor de las pruebas recuperadas con el mayor esmero puede p
 - **Preservación:** que el embalaje y el almacenamiento sean adecuados a la naturaleza de la evidencia.
 
 Un error en cualquiera de estos eslabones puede llevar a que el tribunal excluya una prueba técnicamente impecable. Por eso, la formación del perito en el manejo de la cadena de custodia es tan importante como su conocimiento técnico.
+
+¿Dudas sobre la cadena de custodia en tu caso? Nuestra [consultoría pericial para abogados](/servicios/consultoria-para-abogados/) revisa la integridad y trazabilidad de los indicios.
