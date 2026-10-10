@@ -30,6 +30,7 @@ const ttlSize = Math.min(15, 158 / longest).toFixed(1);
   {isBook ? (
     <>
       <span class="band">{item.topic}</span>
+      <span class="rule"></span>
       <span class="ttl">{short}</span>
       {item.author && <span class="aut">{item.author.split(' y ')[0]}</span>}
       <span class="mark">AG · Selección</span>
@@ -51,15 +52,16 @@ const ttlSize = Math.min(15, 158 / longest).toFixed(1);
     transform: perspective(600px) rotateY(-8deg); transform-origin: left center; transition: transform 0.25s ease;
   }
   :global(a:hover) .cover, :global(article:hover) .cover { transform: perspective(600px) rotateY(0deg); }
-  .cover::before { content: ''; position: absolute; left: 0; right: 0; top: 30%; height: 4px; background: var(--ac); }
   .cover::after { content: ''; position: absolute; right: -30%; bottom: -20%; width: 90%; aspect-ratio: 1; border-radius: 50%; border: 10px solid var(--ac); opacity: 0.12; }
   .band { font-family: var(--font-mono); font-size: 0.5em; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ac); line-height: 1.2; }
-  .ttl { margin-top: 32%; font-weight: 900; line-height: 1.02; letter-spacing: -0.02em; font-size: var(--ttl, 1em); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  /* Accent rule sits in the flow between topic and title, so it never crosses the text. */
+  .rule { flex: none; height: 4px; margin: 18% -9% 0.55em; background: var(--ac); }
+  .ttl { font-weight: 900; line-height: 1.02; letter-spacing: -0.02em; font-size: var(--ttl, 1em); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .aut { margin-top: auto; font-size: 0.52em; opacity: 0.85; font-weight: 600; }
   .mark { margin-top: 0.35em; font-family: var(--font-mono); font-size: 0.42em; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ac); }
   .sm { font-size: 0.5rem; padding: 9% 7% 8% 11%; }
   .sm .band, .sm .aut { display: none; }
-  .sm .ttl { margin-top: 52%; }
+  .sm .rule { height: 3px; margin: 40% -7% 0.5em -11%; }
   .md { font-size: 0.95rem; }
   .lg { font-size: 1.25rem; }
   .gear { aspect-ratio: 1; border-radius: 14px; transform: none; justify-content: space-between; }
