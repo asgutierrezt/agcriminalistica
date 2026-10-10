@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { SITE } from '../data/site';
+const crumbs = [{ name: 'Inicio', path: '/' }, { name: 'Política de privacidad', path: '/privacidad/' }];
+---
+<Base title="Política de privacidad" description="Cómo AG Criminalística trata los datos personales que envías a través del formulario de contacto, conforme a la Ley Orgánica de Protección de Datos Personales del Ecuador.">
+  <PageHero label="Legal" title="Política de privacidad." crumbs={crumbs} />
+  <section class="section">
+    <div class="narrow legal">
+      <p><em>Última actualización: octubre de 2026.</em></p>
+      <h2>Responsable del tratamiento</h2>
+      <p>{SITE.legalName}, contacto: <a href={`mailto:${SITE.email}`}>{SITE.email}</a> · {SITE.phoneDisplay}.</p>
+      <h2>Qué datos recogemos</h2>
+      <p>Este sitio no tiene registro de usuarios ni utiliza cookies de seguimiento. Solo recogemos los datos que nos envías voluntariamente en el formulario de contacto: nombre, correo electrónico, teléfono (opcional), tema de interés y mensaje.</p>
+      <h2>Para qué los usamos</h2>
+      <p>Exclusivamente para responder tu consulta y enviarte la información que solicitaste sobre nuestros cursos, manuales o servicios. No vendemos ni cedemos tus datos a terceros con fines comerciales.</p>
+      <h2>Encargados del tratamiento</h2>
+      <p>El formulario se envía mediante el servicio Web3Forms, que reenvía el mensaje a nuestro correo sin almacenarlo con otros fines. El sitio está alojado en GitHub Pages. Si nos escribes por WhatsApp, aplican además las condiciones de ese servicio.</p>
+      <h2>Conservación</h2>
+      <p>Conservamos tus datos durante el tiempo necesario para atender tu consulta y, como máximo, dos años desde el último contacto, salvo que nos pidas eliminarlos antes.</p>
+      <h2>Tus derechos</h2>
+      <p>Conforme a la Ley Orgánica de Protección de Datos Personales del Ecuador, puedes ejercer tus derechos de acceso, rectificación, eliminación, oposición y portabilidad escribiendo a <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .legal h2 { font-size: var(--step-1); margin-block: 2rem 0.6rem; }
+  .legal p { color: #1b2733; }
+  .legal a { color: var(--cyan-ink); }
+</style>

@@ -1,0 +1,30 @@
+---
+// Decorative fingerprint drawn from broken concentric ridges (pure SVG, ~2 KB).
+interface Props { class?: string }
+const { class: cls } = Astro.props;
+const ridges = Array.from({ length: 16 }, (_, i) => {
+  const rx = 14 + i * 9.5;
+  const ry = 20 + i * 11.5;
+  const cx = 160 + Math.sin(i * 0.7) * 2.5;
+  const cy = 190 - i * 2.2;
+  const len = Math.PI * (rx + ry);
+  const dash = `${(len * (0.22 + ((i * 37) % 11) / 40)).toFixed(1)} ${(6 + ((i * 13) % 5) * 4).toFixed(1)}`;
+  const offset = ((i * 53) % 90).toFixed(1);
+  return { rx, ry, cx, cy, dash, offset };
+});
+---
+<svg class={cls} viewBox="0 0 320 400" fill="none" aria-hidden="true" focusable="false">
+  {ridges.map((r) => (
+    <ellipse
+      cx={r.cx}
+      cy={r.cy}
+      rx={r.rx}
+      ry={r.ry}
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linecap="round"
+      stroke-dasharray={r.dash}
+      stroke-dashoffset={r.offset}
+    />
+  ))}
+</svg>

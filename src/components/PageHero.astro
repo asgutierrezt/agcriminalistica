@@ -1,0 +1,23 @@
+---
+import Breadcrumbs from './Breadcrumbs.astro';
+import Fingerprint from './Fingerprint.astro';
+interface Props { label: string; title: string; lead?: string; crumbs: { name: string; path: string }[] }
+const { label, title, lead, crumbs } = Astro.props;
+---
+<section class="page-hero ink grid-bg">
+  <Fingerprint class="fp" />
+  <div class="container inner">
+    <Breadcrumbs items={crumbs} />
+    <p class="label cyan">{label}</p>
+    <h1 class="h-display">{title}</h1>
+    {lead && <p class="lead">{lead}</p>}
+    <slot />
+  </div>
+</section>
+
+<style>
+  .page-hero { position: relative; overflow: hidden; padding-block: clamp(2.5rem, 2rem + 4vw, 5rem) clamp(3rem, 2rem + 4vw, 5.5rem); }
+  .inner { position: relative; display: grid; gap: 1.1rem; }
+  .h-display { font-size: clamp(2.1rem, 1.5rem + 3.2vw, 4rem); max-width: 18ch; color: var(--white); }
+  .page-hero :global(.fp) { position: absolute; right: -60px; top: -30px; width: min(60vw, 380px); color: var(--cyan); opacity: 0.12; }
+</style>

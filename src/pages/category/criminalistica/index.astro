@@ -1,0 +1,25 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import PostList from '../../../components/PostList.astro';
+import { getPosts } from '../../../lib/utils';
+import { breadcrumbSchema } from '../../../lib/schema';
+
+// The old WordPress "criminalística" category held every article.
+const posts = await getPosts();
+const crumbs = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Blog', path: '/blog/' },
+  { name: 'Criminalística', path: '/category/criminalistica/' },
+];
+---
+<Base
+  title="Artículos de Criminalística"
+  description="Todos los artículos de AG Criminalística sobre investigación criminalística, peritaje judicial, evidencia y ciencias forenses."
+  schema={[breadcrumbSchema(crumbs)]}
+>
+  <PageHero label="Categoría" title="Criminalística." lead="Investigación científica del delito, evidencia y labor pericial." crumbs={crumbs} />
+  <section class="section">
+    <div class="container"><PostList posts={posts} /></div>
+  </section>
+</Base>

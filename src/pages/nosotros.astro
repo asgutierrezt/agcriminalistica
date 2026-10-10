@@ -1,0 +1,125 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import { breadcrumbSchema } from '../lib/schema';
+import { SITE } from '../data/site';
+import alberto from '../assets/img/investigacion-criminalistica-ecuador.jpg';
+import logoGreen from '../assets/img/criminalistica-6.png';
+
+const crumbs = [{ name: 'Inicio', path: '/' }, { name: 'Nosotros', path: '/nosotros/' }];
+const person = {
+  '@type': 'Person',
+  name: 'Alberto Gutiérrez',
+  honorificPrefix: 'Lcdo.',
+  jobTitle: 'Licenciado en Criminalística',
+  worksFor: { '@id': `${SITE.url}/#organization` },
+  sameAs: [SITE.social.linkedin],
+};
+const values = [
+  { icon: 'cap', t: 'Formación', d: 'Somos expertos en investigación forense y, además, contamos con las destrezas y competencias didácticas necesarias para dirigir procesos de enseñanza y formación de adultos profesionales.' },
+  { icon: 'lightbulb', t: 'Innovación', d: 'Somos amigos de la tecnología y utilizamos todo el potencial de las herramientas digitales para innovar nuestros procesos de formación.' },
+  { icon: 'users', t: 'Comunidad', d: 'Construimos una comunidad profesional para el intercambio de ideas y experiencias que impulsen el desarrollo de tu carrera, dentro de una red de contactos amplia y dinámica.' },
+] as const;
+---
+<Base
+  title="Nosotros: expertos en Criminalística y Ciencias Forenses"
+  description="Conoce a AG Criminalística: equipo de expertos en criminalística dirigido por el Lcdo. Alberto Gutiérrez, dedicado a la capacitación, investigación y consultoría pericial."
+  schema={[person, breadcrumbSchema(crumbs)]}
+>
+  <PageHero
+    label="Conócenos"
+    title="La verdad, demostrada de forma técnica."
+    lead="Un espacio de creación y difusión de conocimiento científico forense en Ecuador."
+    crumbs={crumbs}
+  />
+
+  <section class="section">
+    <div class="container two">
+      <div class="copy">
+        <p class="label cyan">Quiénes somos</p>
+        <h2 class="h-section">Expertos comprometidos con la labor pericial.</h2>
+        <p>
+          Somos un equipo de expertos en el área de la criminalística y las ciencias forenses comprometidos con el
+          desarrollo de la labor pericial a través de la capacitación, investigación y divulgación de conocimiento
+          científico forense enfocado en el peritaje técnico profesional, la seguridad y la prevención del delito.
+        </p>
+        <p>
+          Creamos un espacio para el intercambio de ideas y experiencia en el ámbito forense con el objetivo de crear
+          una comunidad de expertos que colaboren con la justicia en la búsqueda de la verdad demostrada de forma
+          técnica ante los tribunales. Estamos convencidos de que los casos se construyen a partir de los hechos, y
+          que la investigación criminalística es el método que aporta las pruebas que los sustentan y determinan
+          finalmente la norma jurídica aplicable.
+        </p>
+        <p>
+          A través de nuestra oferta de formación profesional queremos potenciar tus recursos personales bajo un
+          enfoque de competencias dinámicas que incorporen comprensión y acción a la vez.
+          <strong>Saber pensar, saber ser y saber hacer</strong> es la premisa básica de nuestros procesos de formación.
+        </p>
+      </div>
+      <figure class="logo-fig">
+        <Image src={logoGreen} alt="Logotipo de AG Criminalística" widths={[320, 520]} sizes="(min-width: 900px) 420px, 80vw" class="logo-img" />
+      </figure>
+    </div>
+  </section>
+
+  <section class="section paper-2">
+    <div class="container">
+      <p class="label cyan">Nuestros valores</p>
+      <h2 class="h-section">Tres pilares, un propósito.</h2>
+      <ol class="values">
+        {values.map((v, i) => (
+          <li>
+            <span class="marker">{i + 1}</span>
+            <h3><Icon name={v.icon} size={22} /> {v.t}</h3>
+            <p>{v.d}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section ink grid-bg">
+    <div class="container two">
+      <figure class="founder-fig">
+        <Image src={alberto} alt="Lcdo. Alberto Gutiérrez, invitado en el programa Jurista Habla sobre investigación criminalística" widths={[360, 560, 760]} sizes="(min-width: 900px) 460px, 92vw" class="founder-img" />
+      </figure>
+      <div class="copy">
+        <p class="label cyan">Dirección académica</p>
+        <h2 class="h-section">Lcdo. Alberto Gutiérrez</h2>
+        <p>
+          Licenciado en Criminalística, autor de los artículos de nuestro blog y divulgador de la investigación
+          científica del delito en medios y programas como <em>#HablandoConUnJurista</em>, donde ha abordado la
+          investigación criminalística en Ecuador, la crisis carcelaria y el campo laboral del criminalista.
+        </p>
+        <p>
+          AG Criminalística trabaja en colaboración con la empresa de consultoría y asesoramiento pericial
+          <strong class="w">{SITE.partner}</strong>
+        </p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="/contacto/">Contáctanos <Icon name="arrow" /></a>
+          <a class="btn btn-ghost" href={SITE.social.linkedin} target="_blank" rel="noopener"><Icon name="linkedin" /> LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .two { display: grid; gap: 2.5rem; align-items: center; }
+  @media (min-width: 900px) { .two { grid-template-columns: 1.2fr 0.8fr; } .ink .two { grid-template-columns: 0.8fr 1.2fr; } }
+  .copy p + p { margin-top: 1rem; }
+  .copy > p:not(.label) { color: var(--muted); }
+  .ink .copy > p:not(.label) { color: var(--muted-on-ink); }
+  .ink h2 { color: var(--white); }
+  .w { color: var(--white); }
+  .copy .btn-row { margin-top: 1.5rem; }
+  .logo-img { width: 100%; max-width: 420px; margin-inline: auto; border-radius: 20px; }
+  .founder-img { width: 100%; border-radius: 18px; }
+  .values { list-style: none; padding: 0; display: grid; gap: 1.25rem; margin-top: 1.5rem; }
+  @media (min-width: 900px) { .values { grid-template-columns: repeat(3, 1fr); } }
+  .values li { display: grid; gap: 0.7rem; align-content: start; padding: 1.5rem; background: var(--paper); border-radius: var(--radius); border-top: 4px solid var(--cyan); }
+  .values h3 { display: flex; gap: 0.5rem; align-items: center; font-size: 1.25rem; }
+  .values p { color: var(--muted); }
+</style>

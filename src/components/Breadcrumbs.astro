@@ -1,0 +1,21 @@
+---
+interface Props { items: { name: string; path: string }[] }
+const { items } = Astro.props;
+---
+<nav class="crumbs" aria-label="Ruta de navegación">
+  <ol>
+    {items.map((it, i) => (
+      <li>
+        {i < items.length - 1 ? <a href={it.path}>{it.name}</a> : <span aria-current="page">{it.name}</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .crumbs ol { display: flex; flex-wrap: wrap; gap: 0.35rem; list-style: none; padding: 0; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .crumbs li + li::before { content: '/'; margin-right: 0.35rem; opacity: 0.5; }
+  .crumbs a { color: inherit; opacity: 0.75; text-decoration: none; }
+  .crumbs a:hover { opacity: 1; text-decoration: underline; }
+  .crumbs span { opacity: 1; }
+</style>

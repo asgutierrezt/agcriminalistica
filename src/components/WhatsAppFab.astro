@@ -1,0 +1,28 @@
+---
+import Icon from './Icon.astro';
+import { whatsappLink } from '../data/site';
+---
+<a
+  class="wa-fab"
+  href={whatsappLink('Hola AG Criminalística, quisiera información sobre sus cursos.')}
+  target="_blank"
+  rel="noopener"
+  aria-label="Escríbenos por WhatsApp"
+>
+  <Icon name="whatsapp" size={30} />
+  <span class="wa-text">¿Dudas? Escríbenos</span>
+</a>
+
+<style>
+  .wa-fab {
+    position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 40;
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    height: 58px; min-width: 58px; padding: 0 14px;
+    border-radius: 999px; background: #25d366; color: #062b14; text-decoration: none; font-weight: 700;
+    box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.45);
+    transition: transform 0.2s ease;
+  }
+  .wa-fab:hover { transform: translateY(-2px); }
+  .wa-text { display: none; padding-right: 6px; }
+  @media (min-width: 720px) { .wa-text { display: inline; } }
+</style>

@@ -1,0 +1,73 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import CourseCard from '../../components/CourseCard.astro';
+import Icon from '../../components/Icon.astro';
+import { getCourses } from '../../lib/utils';
+import { breadcrumbSchema, ORG_ID } from '../../lib/schema';
+import { SITE } from '../../data/site';
+
+const courses = await getCourses();
+const crumbs = [{ name: 'Inicio', path: '/' }, { name: 'Cursos', path: '/cursos/' }];
+const itemList = {
+  '@type': 'ItemList',
+  itemListElement: courses.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'Course',
+      name: c.data.title,
+      description: c.data.description,
+      url: `${SITE.url}/courses/${c.id}/`,
+      provider: { '@id': ORG_ID },
+    },
+  })),
+};
+const steps = [
+  { t: 'Escríbenos', d: 'Cuéntanos qué curso te interesa por el formulario o WhatsApp.' },
+  { t: 'Recibe la información', d: 'Te enviamos fechas, modalidad, contenidos y costos.' },
+  { t: 'Empieza a formarte', d: 'Te acompañamos con tutorías y biblioteca digital.' },
+];
+---
+<Base
+  title="Cursos de Criminalística, Informática Forense e Investigación del Crimen"
+  description="Cursos online de criminalística en Ecuador: formación de peritos judiciales, informática forense e investigación del crimen. Solicita fechas y costos."
+  schema={[itemList, breadcrumbSchema(crumbs)]}
+>
+  <PageHero
+    label="Programas de capacitación"
+    title="Cursos de ciencias forenses 100% online."
+    lead="Formación práctica con enfoque en competencias: saber pensar, saber ser y saber hacer."
+    crumbs={crumbs}
+  />
+  <section class="section ink">
+    <div class="container grid">
+      {courses.map((c) => <CourseCard course={c} headingLevel={2} />)}
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <p class="label cyan">Sin registros ni cuentas</p>
+      <h2 class="h-section">¿Cómo inscribirte?</h2>
+      <ol class="steps">
+        {steps.map((s, i) => (
+          <li><span class="marker">{i + 1}</span><div><h3>{s.t}</h3><p>{s.d}</p></div></li>
+        ))}
+      </ol>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/contacto/">Solicitar información <Icon name="arrow" /></a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .grid { display: grid; gap: 1.25rem; }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1040px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  .steps { list-style: none; padding: 0; display: grid; gap: 1rem; margin-block: 1.5rem 2rem; }
+  @media (min-width: 800px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+  .steps li { display: flex; gap: 1rem; padding: 1.3rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); }
+  .steps h3 { font-size: 1.15rem; margin-bottom: 0.3rem; }
+  .steps p { color: var(--muted); }
+</style>

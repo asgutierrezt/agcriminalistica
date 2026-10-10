@@ -1,0 +1,136 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Icon from '../../components/Icon.astro';
+import CourseCard from '../../components/CourseCard.astro';
+import { getCourses, type Course } from '../../lib/utils';
+import { breadcrumbSchema, ORG_ID } from '../../lib/schema';
+import { SITE, whatsappLink } from '../../data/site';
+
+export async function getStaticPaths() {
+  const courses = await getCourses();
+  return courses.map((course) => ({ params: { slug: course.id }, props: { course, courses } }));
+}
+interface Props { course: Course; courses: Course[] }
+const { course, courses } = Astro.props;
+const { Content } = await render(course);
+const d = course.data;
+const others = courses.filter((c) => c.id !== course.id);
+
+const crumbs = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Cursos', path: '/cursos/' },
+  { name: d.title, path: `/courses/${course.id}/` },
+];
+const courseSchema = {
+  '@type': 'Course',
+  name: d.title,
+  description: d.description,
+  url: `${SITE.url}/courses/${course.id}/`,
+  image: new URL(d.cover.src, SITE.url).href,
+  inLanguage: SITE.lang,
+  provider: { '@id': ORG_ID },
+  isAccessibleForFree: d.price === 'Gratis',
+  teaches: d.outcomes,
+  syllabusSections: d.modules.map((m) => ({ '@type': 'Syllabus', name: m })),
+  hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'Online' },
+  ...(d.price === 'Gratis'
+    ? { offers: { '@type': 'Offer', category: 'Free', price: 0, priceCurrency: 'USD' } }
+    : {}),
+};
+const wa = whatsappLink(`Hola, quisiera información sobre el curso "${d.title}".`);
+---
+<Base
+  title={d.seoTitle}
+  description={d.description}
+  image={d.cover}
+  imageAlt={d.coverAlt}
+  schema={[courseSchema, breadcrumbSchema(crumbs)]}
+>
+  <PageHero label={`${d.code} · ${d.status}`} title={d.title} lead={d.tagline} crumbs={crumbs}>
+    <ul class="facts">
+      <li><span>Modalidad</span><strong>{d.modality}</strong></li>
+      <li><span>Estado</span><strong>{d.status}</strong></li>
+      <li><span>Inversión</span><strong>{d.price}</strong></li>
+      <li><span>Módulos</span><strong>{d.modules.length}</strong></li>
+    </ul>
+    <div class="btn-row hero-cta">
+      <a class="btn btn-primary" href={`/contacto/?interes=${course.id}`}>Solicitar información <Icon name="arrow" /></a>
+      <a class="btn btn-ghost" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container layout">
+      <div class="main">
+        <Image src={d.cover} alt={d.coverAlt} widths={[480, 760, 1080]} sizes="(min-width: 1000px) 680px, 92vw" loading="eager" class="cover" />
+        <h2>Descripción del curso</h2>
+        <div class="prose"><Content /></div>
+
+        <h2>¿A quién está dirigido?</h2>
+        <ul class="checks">{d.audience.map((a) => <li><Icon name="check" size={20} /> <span>{a}</span></li>)}</ul>
+
+        <h2>Lo que aprenderás</h2>
+        <ul class="checks">{d.outcomes.map((a) => <li><Icon name="check" size={20} /> <span>{a}</span></li>)}</ul>
+
+        <h2>Temario</h2>
+        <ol class="modules">
+          {d.modules.map((m, i) => <li><span class="marker square" style="--s:36px">{i + 1}</span> {m}</li>)}
+        </ol>
+      </div>
+
+      <aside class="side">
+        <div class="box ink grid-bg">
+          <p class="label cyan">Inscripciones</p>
+          <p class="big">{d.status}</p>
+          <p>Déjanos tus datos y te avisaremos de las próximas fechas, modalidad y costos.</p>
+          <a class="btn btn-primary" href={`/contacto/?interes=${course.id}`}>Solicitar información <Icon name="arrow" /></a>
+          <a class="btn btn-ghost" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" /> Consultar por WhatsApp</a>
+          <ul class="incl">
+            <li><Icon name="chat" size={18} /> Seguimiento académico</li>
+            <li><Icon name="book" size={18} /> Biblioteca online</li>
+            <li><Icon name="users" size={18} /> Comunidad profesional</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section ink">
+    <div class="container">
+      <p class="label cyan">También te puede interesar</p>
+      <h2 class="h-section">Otros cursos</h2>
+      <div class="grid">{others.map((c) => <CourseCard course={c} />)}</div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .facts { list-style: none; padding: 0; margin-top: 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line-on-ink); border: 1px solid var(--line-on-ink); border-radius: 12px; overflow: hidden; max-width: 720px; }
+  @media (min-width: 720px) { .facts { grid-template-columns: repeat(4, 1fr); } }
+  .facts li { background: var(--ink); padding: 0.9rem 1rem; display: grid; gap: 0.15rem; }
+  .facts span { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-on-ink); }
+  .facts strong { color: var(--white); font-size: 1.05rem; }
+  .hero-cta { margin-top: 0.5rem; }
+  .layout { display: grid; gap: 2.5rem; }
+  @media (min-width: 1000px) { .layout { grid-template-columns: 1fr 360px; align-items: start; } }
+  .cover { width: 100%; border-radius: 16px; margin-bottom: 1rem; }
+  .main h2 { font-size: var(--step-2); margin-block: 2.2rem 1rem; }
+  .prose { font-size: 1.08rem; line-height: 1.75; color: #1b2733; }
+  .prose :global(p + p) { margin-top: 1em; }
+  .checks { list-style: none; padding: 0; display: grid; gap: 0.8rem; }
+  .checks li { display: flex; gap: 0.7rem; align-items: flex-start; }
+  .checks :global(svg) { color: var(--cyan-ink); flex: none; margin-top: 3px; }
+  .modules { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
+  .modules li { display: flex; gap: 1rem; align-items: center; padding: 0.9rem 1rem; background: var(--white); border: 1px solid var(--line); border-radius: 12px; font-weight: 600; }
+  .side { position: sticky; top: calc(var(--header-h) + 1rem); }
+  .box { display: grid; gap: 0.9rem; padding: 1.6rem; border-radius: 18px; }
+  .big { font-size: 1.8rem; font-weight: 850; color: var(--amber) !important; line-height: 1.1; }
+  .box .btn { width: 100%; }
+  .incl { list-style: none; padding: 0; display: grid; gap: 0.5rem; margin-top: 0.5rem; font-size: 0.92rem; color: var(--muted-on-ink); }
+  .incl li { display: flex; gap: 0.5rem; align-items: center; }
+  .grid { display: grid; gap: 1.25rem; }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+</style>

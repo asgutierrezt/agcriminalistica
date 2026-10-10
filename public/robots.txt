@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /contacto/gracias/
+
+Sitemap: https://agcriminalistica.com/sitemap.xml
