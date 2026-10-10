@@ -16,6 +16,8 @@ const blog = defineCollection({
       tags: z.array(z.string()).default([]),
       author: z.string().default('Lcdo. Alberto Gutiérrez'),
       featured: z.boolean().default(false),
+      /** Contains Amazon affiliate links: shows the disclosure at the top. */
+      affiliate: z.boolean().default(false),
     }),
 });
 

@@ -22,6 +22,7 @@ export const GET: APIRoute = async () => {
       priority: '0.7',
     })),
     { loc: '/glosario/', lastmod: today, priority: '0.8' },
+    { loc: '/biblioteca/', lastmod: today, priority: '0.8' },
     { loc: '/manual-dactiloscopia/', lastmod: today, priority: '0.7' },
     { loc: '/manual-identificacion-forense-de-la-voz/', lastmod: today, priority: '0.7' },
     { loc: '/nosotros/', lastmod: today, priority: '0.6' },

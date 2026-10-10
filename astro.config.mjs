@@ -21,7 +21,26 @@ const legacyRedirects = {
   '/about': '/nosotros/',
 };
 
+/**
+ * Marks Amazon affiliate links written in Markdown as sponsored and opens
+ * them in a new tab (required by Google and good UX). Plain tree walk, no deps.
+ */
+function rehypeAffiliateLinks() {
+  /** @param {any} node */
+  const walk = (node) => {
+    if (node.type === 'element' && node.tagName === 'a' && /amazon\.com\//.test(String(node.properties?.href ?? ''))) {
+      node.properties.rel = ['sponsored', 'nofollow', 'noopener'];
+      node.properties.target = '_blank';
+      node.properties.className = ['amz-link'];
+    }
+    (node.children ?? []).forEach(walk);
+  };
+  /** @param {any} tree */
+  return (tree) => walk(tree);
+}
+
 export default defineConfig({
+  markdown: { rehypePlugins: [rehypeAffiliateLinks] },
   site: 'https://agcriminalistica.com',
   trailingSlash: 'always',
   build: { format: 'directory', inlineStylesheets: 'always' },

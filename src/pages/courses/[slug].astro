@@ -5,6 +5,7 @@ import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
 import CourseCard from '../../components/CourseCard.astro';
+import ReadMore from '../../components/ReadMore.astro';
 import { getCourses, type Course } from '../../lib/utils';
 import { breadcrumbSchema, ORG_ID } from '../../lib/schema';
 import { SITE, whatsappLink } from '../../data/site';
@@ -18,6 +19,11 @@ const { course, courses } = Astro.props;
 const { Content } = await render(course);
 const d = course.data;
 const others = courses.filter((c) => c.id !== course.id);
+const BIBLIO: Record<string, string[]> = {
+  criminalistica: ['montiel-criminalistica', 'saferstein', 'fisher', 'es-peritaje'],
+  'informatica-forense': ['casey', 'saferstein'],
+  'investigacion-del-crimen': ['moreno-introduccion', 'rodriguez-criminologia', 'geberth', 'bertino'],
+};
 
 const crumbs = [
   { name: 'Inicio', path: '/' },
@@ -79,6 +85,8 @@ const wa = whatsappLink();
         <ol class="modules">
           {d.modules.map((m, i) => <li><span class="marker square" style="--s:36px">{i + 1}</span> {m}</li>)}
         </ol>
+
+        <div class="biblio"><ReadMore ids={BIBLIO[course.id] ?? []} title="Bibliografía recomendada" /></div>
       </div>
 
       <aside class="side">
@@ -125,6 +133,7 @@ const wa = whatsappLink();
   .checks :global(svg) { color: var(--cyan-ink); flex: none; margin-top: 3px; }
   .modules { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
   .modules li { display: flex; gap: 1rem; align-items: center; padding: 0.9rem 1rem; background: var(--white); border: 1px solid var(--line); border-radius: 12px; font-weight: 600; }
+  .biblio { margin-top: 2.5rem; }
   .side { position: sticky; top: calc(var(--header-h) + 1rem); }
   .box { display: grid; gap: 0.9rem; padding: 1.6rem; border-radius: 18px; }
   .big { font-size: 1.8rem; font-weight: 850; color: var(--amber) !important; line-height: 1.1; }

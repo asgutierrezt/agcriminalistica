@@ -15,6 +15,7 @@ export const NAV: NavItem[] = [
     children: [
       { href: '/blog/', label: 'Blog forense', desc: 'Artículos de criminalística' },
       { href: '/glosario/', label: 'Glosario forense', desc: 'Términos explicados de la A a la Z' },
+      { href: '/biblioteca/', label: 'Biblioteca forense', desc: 'Libros y equipo recomendados' },
       { href: '/manual-dactiloscopia/', label: 'Manual de dactiloscopia', desc: 'Gratis' },
       { href: '/manual-identificacion-forense-de-la-voz/', label: 'Manual de voz', desc: 'Gratis' },
     ],
