@@ -1,0 +1,24 @@
+# Dependabot: one grouped pull request per month with dependency updates.
+# Security fixes are proposed as soon as an advisory is published (once
+# "Dependabot security updates" is enabled in the repository settings).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    groups:
+      dependencias:
+        update-types: [minor, patch]
+    ignore:
+      # Major versions (Astro 8, three.js…) need manual review.
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      acciones:
+        patterns: ['*']

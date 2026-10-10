@@ -1,0 +1,36 @@
+name: Comprobar cambios
+
+# Builds every pull request (including Dependabot's) before it reaches main,
+# so a broken change never interrupts the published site.
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tipos
+        run: npm run check
+      - name: Compilar
+        run: npm run build
+      - name: Dependencias sin vulnerabilidades altas
+        run: npm audit --omit=dev --audit-level=high
