@@ -1,0 +1,21 @@
+---
+import ManualPage from '../components/ManualPage.astro';
+import cover from '../assets/img/dactiloscopia.jpg';
+---
+<ManualPage
+  slug="manual-dactiloscopia"
+  interes="manual-dactiloscopia"
+  title="Manual de Dactiloscopia"
+  seoTitle="Manual de Dactiloscopia gratis (PDF): identificación por huellas dactilares"
+  description="Descarga gratis el manual introductorio de dactiloscopia: especificaciones técnicas sobre la identificación humana mediante el cotejo de huellas dactilares."
+  lead="Manual introductorio con las especificaciones técnicas sobre la identificación humana mediante el cotejo de las huellas dactilares."
+  cover={cover}
+  coverAlt="Descarga gratis el manual de identificación humana: dactiloscopia"
+  topics={[
+    'Qué es la dactiloscopia y su relación con la papiloscopía.',
+    'Surcos y crestas papilares: el patrón que nos hace únicos.',
+    'Fundamentos del cotejo dactilar para la identificación humana.',
+    'Utilidad de la huella dactilar en la investigación criminalística.',
+  ]}
+  related={{ href: '/dactiloscopia/', label: 'Dactiloscopia: identificación humana mediante huellas dactilares' }}
+/>

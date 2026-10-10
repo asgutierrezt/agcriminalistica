@@ -1,0 +1,157 @@
+---
+import Icon from './Icon.astro';
+import { SITE } from '../data/site';
+
+const hasKey = SITE.web3formsKey.length > 0;
+const action = hasKey ? 'https://api.web3forms.com/submit' : `mailto:${SITE.email}`;
+const thanks = new URL('/contacto/gracias/', SITE.url).href;
+const topics = [
+  { value: 'criminalistica', label: 'Curso: Criminalística (formación de peritos)' },
+  { value: 'informatica-forense', label: 'Curso: Informática forense' },
+  { value: 'investigacion-del-crimen', label: 'Curso: Investigación del crimen' },
+  { value: 'manual-dactiloscopia', label: 'Manual de dactiloscopia' },
+  { value: 'manual-voz', label: 'Manual de identificación forense de la voz' },
+  { value: 'consultoria', label: 'Consultoría o peritaje' },
+  { value: 'instituciones', label: 'Capacitación para empresas e instituciones' },
+  { value: 'otro', label: 'Otro tema' },
+];
+---
+<form
+  class="contact-form"
+  action={action}
+  method="POST"
+  enctype={hasKey ? undefined : 'text/plain'}
+  data-web3forms={hasKey ? 'true' : 'false'}
+  data-email={SITE.email}
+>
+  {hasKey && (
+    <>
+      <input type="hidden" name="access_key" value={SITE.web3formsKey} />
+      <input type="hidden" name="subject" value="Nuevo mensaje desde agcriminalistica.com" />
+      <input type="hidden" name="from_name" value="Web AG Criminalística" />
+      <input type="hidden" name="redirect" value={thanks} />
+      <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    </>
+  )}
+
+  <div class="row two">
+    <label>
+      <span>Nombre completo *</span>
+      <input name="nombre" type="text" autocomplete="name" required maxlength="80" />
+    </label>
+    <label>
+      <span>Correo electrónico *</span>
+      <input name="email" type="email" autocomplete="email" inputmode="email" required maxlength="120" />
+    </label>
+  </div>
+  <div class="row two">
+    <label>
+      <span>Teléfono / WhatsApp</span>
+      <input name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" />
+    </label>
+    <label>
+      <span>Me interesa *</span>
+      <select name="interes" required>
+        <option value="" disabled selected>Selecciona una opción</option>
+        {topics.map((t) => <option value={t.label}>{t.label}</option>)}
+      </select>
+    </label>
+  </div>
+  <label>
+    <span>Mensaje *</span>
+    <textarea name="mensaje" rows="5" required maxlength="2000" placeholder="Cuéntanos en qué podemos ayudarte"></textarea>
+  </label>
+  <label class="consent">
+    <input type="checkbox" name="acepta_privacidad" value="Sí" required />
+    <span>Acepto la <a href="/privacidad/">política de privacidad</a> y que me contacten para responder mi consulta.</span>
+  </label>
+
+  <button class="btn btn-primary submit" type="submit">
+    <Icon name="arrow" /> Enviar mensaje
+  </button>
+  <p class="status" role="status" aria-live="polite"></p>
+</form>
+
+<script>
+  const TOPIC_PARAM: Record<string, string> = {
+    criminalistica: 'Curso: Criminalística (formación de peritos)',
+    'informatica-forense': 'Curso: Informática forense',
+    'investigacion-del-crimen': 'Curso: Investigación del crimen',
+    'manual-dactiloscopia': 'Manual de dactiloscopia',
+    'manual-voz': 'Manual de identificación forense de la voz',
+  };
+
+  for (const form of document.querySelectorAll<HTMLFormElement>('.contact-form')) {
+    const select = form.querySelector<HTMLSelectElement>('select[name="interes"]')!;
+    const status = form.querySelector<HTMLElement>('.status')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+    const preset = new URLSearchParams(location.search).get('interes');
+    if (preset && TOPIC_PARAM[preset]) select.value = TOPIC_PARAM[preset];
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+
+      if (form.dataset.web3forms !== 'true') {
+        // No Web3Forms key yet: hand the message to the visitor's mail app.
+        const body = [...data.entries()]
+          .map(([k, v]) => `${k}: ${v}`)
+          .join('\n');
+        location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(
+          'Consulta desde agcriminalistica.com',
+        )}&body=${encodeURIComponent(body)}`;
+        return;
+      }
+
+      button.disabled = true;
+      status.className = 'status';
+      status.textContent = 'Enviando…';
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: data,
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) throw new Error(json.message);
+        form.reset();
+        status.classList.add('ok');
+        status.textContent = '¡Gracias! Recibimos tu mensaje y te responderemos muy pronto.';
+      } catch {
+        status.classList.add('err');
+        status.textContent = 'No pudimos enviar el mensaje. Inténtalo de nuevo o escríbenos por WhatsApp.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .contact-form { display: grid; gap: 1rem; }
+  .row { display: grid; gap: 1rem; }
+  @media (min-width: 640px) { .row.two { grid-template-columns: 1fr 1fr; } }
+  label { display: grid; gap: 0.4rem; }
+  label > span { font-weight: 600; font-size: 0.92rem; }
+  input:not([type='checkbox']), select, textarea {
+    width: 100%; min-height: 52px; padding: 0.8rem 1rem;
+    font-size: 16px; /* prevents iOS zoom on focus */
+    background: var(--white); color: var(--text);
+    border: 1.5px solid var(--line); border-radius: 10px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  textarea { resize: vertical; min-height: 140px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(27, 163, 224, 0.2); }
+  .consent { display: flex; gap: 0.7rem; align-items: flex-start; font-size: 0.9rem; }
+  .consent span { font-weight: 400; }
+  .consent input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--cyan-ink); flex: none; }
+  .submit { justify-self: start; }
+  @media (max-width: 479px) { .submit { justify-self: stretch; } }
+  .submit:disabled { opacity: 0.6; cursor: wait; }
+  .hp { position: absolute; left: -9999px; opacity: 0; }
+  .status:empty { display: none; }
+  .status { font-weight: 600; padding: 0.8rem 1rem; border-radius: 10px; background: rgba(27, 163, 224, 0.1); }
+  .status.ok { background: rgba(37, 211, 102, 0.15); color: #0b5a2a; }
+  .status.err { background: rgba(220, 53, 69, 0.12); color: #8a1622; }
+</style>

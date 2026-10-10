@@ -1,0 +1,21 @@
+---
+import ManualPage from '../components/ManualPage.astro';
+import cover from '../assets/img/identificacion-forense-voz.jpg';
+---
+<ManualPage
+  slug="manual-identificacion-forense-de-la-voz"
+  interes="manual-voz"
+  title="Manual de Identificación Forense de la Voz"
+  seoTitle="Manual de Identificación Forense de la Voz gratis (PDF)"
+  description="Solicita gratis el manual de identificación forense de la voz de AG Criminalística: fundamentos de la identificación de hablantes aplicada a la investigación criminal."
+  lead="Fundamentos de la identificación de hablantes como herramienta de la investigación criminalística."
+  cover={cover}
+  coverAlt="Descarga gratis el manual de identificación forense de la voz"
+  topics={[
+    'La voz como rasgo de identificación humana.',
+    'Principios de la identificación forense de hablantes.',
+    'Aplicación de la evidencia de voz en la investigación criminal.',
+    'Preservación de grabaciones como evidencia y cadena de custodia.',
+  ]}
+  related={{ href: '/cadena-de-custodia/', label: 'Cadena de custodia: qué es y por qué es clave' }}
+/>

@@ -1,0 +1,189 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import PostCard from '../components/PostCard.astro';
+import Icon from '../components/Icon.astro';
+import { getPosts, formatDate, readingTime, type Post } from '../lib/utils';
+import { breadcrumbSchema, ORG_ID } from '../lib/schema';
+import { SITE, whatsappLink } from '../data/site';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post, posts } }));
+}
+
+interface Props { post: Post; posts: Post[] }
+const { post, posts } = Astro.props;
+const { Content, headings } = await render(post);
+const d = post.data;
+const url = new URL(`/${post.id}/`, SITE.url).href;
+const toc = headings.filter((h) => h.depth === 2);
+const minutes = readingTime(post.body);
+
+const related = posts
+  .filter((p) => p.id !== post.id)
+  .map((p) => ({ p, score: (p.data.category === d.category ? 2 : 0) + p.data.tags.filter((t) => d.tags.includes(t)).length }))
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3)
+  .map((x) => x.p);
+
+const crumbs = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Blog', path: '/blog/' },
+  { name: d.title, path: `/${post.id}/` },
+];
+
+const articleSchema = {
+  '@type': 'BlogPosting',
+  headline: d.title,
+  description: d.description,
+  image: new URL(d.cover.src, SITE.url).href,
+  datePublished: d.pubDate.toISOString(),
+  dateModified: (d.updatedDate ?? d.pubDate).toISOString(),
+  author: { '@type': 'Person', name: d.author, url: `${SITE.url}/nosotros/` },
+  publisher: { '@id': ORG_ID },
+  mainEntityOfPage: url,
+  articleSection: d.category,
+  keywords: d.tags.join(', '),
+  inLanguage: SITE.lang,
+  wordCount: post.body?.split(/\s+/).length,
+};
+
+const share = encodeURIComponent(url);
+const shareText = encodeURIComponent(d.title);
+---
+<Base
+  title={d.seoTitle ?? d.title}
+  description={d.description}
+  image={d.cover}
+  imageAlt={d.coverAlt}
+  type="article"
+  published={d.pubDate}
+  modified={d.updatedDate}
+  schema={[articleSchema, breadcrumbSchema(crumbs)]}
+  serif
+>
+  <article>
+    <header class="post-hero ink grid-bg">
+      <div class="narrow inner">
+        <Breadcrumbs items={crumbs} />
+        <p class="label cyan">{d.category}</p>
+        <h1>{d.title}</h1>
+        <p class="lead">{d.description}</p>
+        <p class="meta">
+          <span>Por <strong>{d.author}</strong></span>
+          <span><time datetime={d.pubDate.toISOString()}>{formatDate(d.pubDate)}</time></span>
+          {d.updatedDate && d.updatedDate > d.pubDate && (
+            <span>Actualizado: <time datetime={d.updatedDate.toISOString()}>{formatDate(d.updatedDate)}</time></span>
+          )}
+          <span><Icon name="clock" size={16} /> {minutes} min</span>
+        </p>
+      </div>
+    </header>
+
+    <div class="cover-wrap">
+      <div class="narrow">
+        <Image
+          src={d.cover}
+          alt={d.coverAlt}
+          widths={[480, 760, 1080, 1520]}
+          sizes="(min-width: 800px) 760px, 92vw"
+          loading="eager"
+          fetchpriority="high"
+          class="cover"
+        />
+      </div>
+    </div>
+
+    <div class="narrow layout">
+      {toc.length > 2 && (
+        <nav class="toc" aria-label="Contenido del artículo">
+          <details open>
+            <summary>En este artículo</summary>
+            <ol>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+          </details>
+        </nav>
+      )}
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <aside class="share" aria-label="Compartir">
+        <span class="label">Compartir</span>
+        <a href={`https://wa.me/?text=${shareText}%20${share}`} target="_blank" rel="noopener" aria-label="Compartir en WhatsApp"><Icon name="whatsapp" /></a>
+        <a href={`https://www.facebook.com/sharer/sharer.php?u=${share}`} target="_blank" rel="noopener" aria-label="Compartir en Facebook"><Icon name="facebook" /></a>
+        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${share}`} target="_blank" rel="noopener" aria-label="Compartir en LinkedIn"><Icon name="linkedin" /></a>
+        <a href={`https://x.com/intent/post?url=${share}&text=${shareText}`} target="_blank" rel="noopener" aria-label="Compartir en X"><Icon name="x" /></a>
+      </aside>
+
+      <section class="cta ink grid-bg">
+        <p class="label cyan">Fórmate con nosotros</p>
+        <h2>¿Te interesa la investigación forense?</h2>
+        <p>Conoce nuestros cursos online de criminalística, informática forense e investigación del crimen.</p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="/cursos/">Ver cursos <Icon name="arrow" /></a>
+          <a class="btn btn-ghost" href={whatsappLink(`Hola, leí "${d.title}" y quisiera información sobre los cursos.`)} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
+        </div>
+      </section>
+    </div>
+  </article>
+
+  <section class="section paper-2">
+    <div class="container">
+      <p class="label cyan">Sigue leyendo</p>
+      <h2 class="h-section">Artículos relacionados</h2>
+      <div class="related">
+        {related.map((p) => <PostCard post={p} />)}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .post-hero { padding-block: clamp(2.2rem, 1.5rem + 3vw, 4rem) clamp(6rem, 5rem + 5vw, 9rem); }
+  .inner { display: grid; gap: 1rem; }
+  h1 { font-size: clamp(2rem, 1.4rem + 2.8vw, 3.4rem); color: var(--white); letter-spacing: -0.03em; }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-size: 0.88rem; color: var(--muted-on-ink); }
+  .meta span { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .meta strong { color: var(--white); }
+  .cover-wrap { margin-top: clamp(-7.5rem, -4rem - 4vw, -5rem); }
+  .cover { width: 100%; height: auto; border-radius: 16px; box-shadow: 0 30px 60px -30px rgba(8, 19, 31, 0.6); background: var(--paper-2); }
+  .layout { display: grid; gap: 2rem; padding-block: 2.5rem 4rem; }
+
+  .toc details { background: var(--white); border: 1px solid var(--line); border-left: 4px solid var(--amber); border-radius: 12px; padding: 1rem 1.2rem; }
+  .toc summary { font-weight: 800; cursor: pointer; min-height: 32px; }
+  .toc ol { margin-top: 0.6rem; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+  .toc a { color: var(--cyan-ink); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  .prose { font-family: var(--font-serif); font-size: clamp(1.08rem, 1rem + 0.3vw, 1.2rem); line-height: 1.75; color: #1b2733; }
+  .prose :global(> * + *) { margin-top: 1.15em; }
+  .prose :global(h2) { font-family: var(--font-sans); font-size: var(--step-2); margin-top: 2em; color: var(--ink); }
+  .prose :global(h3) { font-family: var(--font-sans); font-size: var(--step-1); margin-top: 1.6em; color: var(--ink); }
+  .prose :global(a) { color: var(--cyan-ink); text-decoration-thickness: 1.5px; }
+  .prose :global(strong) { color: var(--ink); }
+  .prose :global(ul), .prose :global(ol) { padding-left: 1.3em; }
+  .prose :global(li + li) { margin-top: 0.4em; }
+  .prose :global(li::marker) { color: var(--cyan-ink); font-weight: 700; }
+  .prose :global(blockquote) {
+    position: relative; margin-block: 2em; padding: 1.4rem 1.4rem 1.4rem 1.6rem;
+    background: var(--ink); color: var(--white); border-radius: 14px; border-left: 6px solid var(--amber);
+    font-family: var(--font-sans); font-size: 1.2rem; font-weight: 700; line-height: 1.4;
+  }
+  .prose :global(blockquote strong) { color: var(--white); }
+  .prose :global(img) { border-radius: 12px; margin-inline: auto; width: 100%; max-width: 560px; height: auto; }
+
+  .share { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+  .share .label { margin-right: 0.5rem; color: var(--muted); }
+  .share a { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); color: var(--ink); }
+  .share a:hover { background: var(--ink); color: var(--white); }
+
+  .cta { border-radius: 18px; padding: clamp(1.5rem, 1rem + 3vw, 2.5rem); display: grid; gap: 0.9rem; }
+  .cta h2 { color: var(--white); font-size: var(--step-2); }
+  .related { display: grid; gap: 1.25rem; }
+  @media (min-width: 720px) { .related { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1040px) { .related { grid-template-columns: repeat(3, 1fr); } }
+</style>

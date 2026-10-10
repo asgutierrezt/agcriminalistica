@@ -1,0 +1,27 @@
+---
+// Vector redraw of the AG Criminalística mark (four squares: Λ, shield, blank, G).
+interface Props { size?: number; withText?: boolean; class?: string }
+const { size = 40, withText = true, class: cls } = Astro.props;
+---
+<span class:list={['logo', cls]}>
+  <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
+    <rect x="0" y="0" width="30" height="30" rx="3" fill="#1ba3e0" />
+    <path d="M8.5 22 15 8l6.5 14" fill="none" stroke="#08131f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M47 4.5 37 8.4v7.2c0 6 4.2 11 10 12.4 5.8-1.4 10-6.4 10-12.4V8.4L47 4.5Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" />
+    <path d="M44.5 12.5h4.5M46.7 12.5v8M43 21.5h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+    <rect x="0" y="34" width="30" height="30" rx="3" fill="#2c5c80" />
+    <rect x="34" y="34" width="30" height="30" rx="3" fill="#1ba3e0" />
+    <path d="M55.5 44.6a8 8 0 1 0 1 6.2h-7.5" fill="none" stroke="#08131f" stroke-width="2.6" stroke-linecap="round" />
+  </svg>
+  {withText && (
+    <span class="logo-text">
+      <strong>AG</strong> Criminalística
+    </span>
+  )}
+</span>
+
+<style>
+  .logo { display: inline-flex; align-items: center; gap: 0.7rem; text-decoration: none; }
+  .logo-text { font-weight: 600; font-size: 1.08rem; letter-spacing: -0.01em; white-space: nowrap; }
+  .logo-text strong { font-weight: 900; }
+</style>

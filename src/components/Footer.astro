@@ -1,0 +1,91 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { SITE } from '../data/site';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer ink grid-bg">
+  <div class="tape" aria-hidden="true">
+    <span>{'AG CRIMINALÍSTICA · ESCENA PROTEGIDA · EVIDENCIA · CADENA DE CUSTODIA · '.repeat(6)}</span>
+  </div>
+  <div class="container cols">
+    <div class="about">
+      <Logo size={44} />
+      <p>
+        Institución online de capacitación y consultoría en Criminalística y Ciencias Forenses, con enfoque en
+        investigación pericial, seguridad y prevención del delito. Trabajamos en colaboración con la consultora
+        pericial <strong>{SITE.partner}</strong>
+      </p>
+      <ul class="social" aria-label="Redes sociales">
+        <li><a href={SITE.social.facebook} rel="noopener" target="_blank" aria-label="Facebook"><Icon name="facebook" /></a></li>
+        <li><a href={SITE.social.instagram} rel="noopener" target="_blank" aria-label="Instagram"><Icon name="instagram" /></a></li>
+        <li><a href={SITE.social.linkedin} rel="noopener" target="_blank" aria-label="LinkedIn"><Icon name="linkedin" /></a></li>
+      </ul>
+    </div>
+    <nav aria-label="Cursos">
+      <h2>Cursos</h2>
+      <ul>
+        <li><a href="/courses/criminalistica/">Criminalística: formación de peritos</a></li>
+        <li><a href="/courses/informatica-forense/">Informática forense</a></li>
+        <li><a href="/courses/investigacion-del-crimen/">Investigación del crimen</a></li>
+        <li><a href="/manual-dactiloscopia/">Manual de dactiloscopia</a></li>
+        <li><a href="/manual-identificacion-forense-de-la-voz/">Manual de identificación de voz</a></li>
+      </ul>
+    </nav>
+    <nav aria-label="Sitio">
+      <h2>Explorar</h2>
+      <ul>
+        <li><a href="/nosotros/">Nosotros</a></li>
+        <li><a href="/blog/">Blog forense</a></li>
+        <li><a href="/#preguntas">Preguntas frecuentes</a></li>
+        <li><a href="/contacto/">Contacto</a></li>
+        <li><a href="/privacidad/">Política de privacidad</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2>Contacto</h2>
+      <ul class="contact">
+        <li><a href={`tel:${SITE.phone}`}><Icon name="phone" size={20} /> {SITE.phoneDisplay}</a></li>
+        <li><a href={SITE.whatsapp} rel="noopener" target="_blank"><Icon name="whatsapp" size={20} /> WhatsApp</a></li>
+        <li><a href={`mailto:${SITE.email}`}><Icon name="mail" size={20} /> {SITE.email}</a></li>
+        <li><span><Icon name="pin" size={20} /> Ecuador · Clases 100% online</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container legal">
+    <p>© {year} {SITE.legalName}. Todos los derechos reservados.</p>
+    <p><a href="/privacidad/">Privacidad</a></p>
+  </div>
+</footer>
+
+<style>
+  .site-footer { padding-bottom: 6rem; overflow: hidden; }
+  .tape {
+    background: var(--amber); color: var(--ink);
+    font-family: var(--font-mono); font-weight: 800; font-size: 0.78rem; letter-spacing: 0.18em;
+    white-space: nowrap; overflow: hidden; padding: 0.55rem 0;
+    transform: rotate(-1.2deg) scale(1.03); margin: 0 -2rem 3.5rem;
+  }
+  .cols { display: grid; gap: 2.5rem; }
+  @media (min-width: 720px) { .cols { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1040px) { .cols { grid-template-columns: 1.5fr 1fr 0.8fr 1.1fr; } }
+  .about p { margin-top: 1.1rem; font-size: 0.95rem; max-width: 44ch; }
+  .about strong { color: var(--white); }
+  h2 { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--amber); margin-bottom: 1rem; font-weight: 700; }
+  ul { list-style: none; padding: 0; display: grid; gap: 0.15rem; }
+  nav a, .contact a, .contact span {
+    display: inline-flex; align-items: center; gap: 0.6rem; min-height: 40px;
+    color: var(--muted-on-ink); text-decoration: none; font-size: 0.95rem; word-break: break-word;
+  }
+  nav a:hover, .contact a:hover { color: var(--white); }
+  .social { display: flex; gap: 0.5rem; margin-top: 1.25rem; }
+  .social a {
+    display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%;
+    border: 1px solid var(--line-on-ink); color: var(--white);
+  }
+  .social a:hover { background: var(--cyan); color: var(--ink); border-color: var(--cyan); }
+  .legal {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem;
+    margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line-on-ink); font-size: 0.85rem;
+  }
+</style>

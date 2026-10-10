@@ -1,0 +1,21 @@
+# AG Criminalística
+
+> Escuela online de criminalística y ciencias forenses en Ecuador. Ofrece cursos para la formación de peritos judiciales, informática forense e investigación del crimen, además de consultoría pericial en colaboración con SIAF Cía. Ltda. Dirección académica: Lcdo. Alberto Gutiérrez.
+
+Contacto: asgutierrezt@gmail.com · WhatsApp +593 95 885 3625 · https://agcriminalistica.com/contacto/
+
+## Cursos
+- [Criminalística: formación de peritos](https://agcriminalistica.com/courses/criminalistica/): inspección ocular, cadena de custodia, normativa del sistema pericial y redacción del informe pericial.
+- [Informática forense](https://agcriminalistica.com/courses/informatica-forense/): evidencia digital, imágenes forenses y dictamen pericial informático.
+- [Investigación del crimen](https://agcriminalistica.com/courses/investigacion-del-crimen/): método científico y aspectos legales de la investigación penal (gratuito).
+
+## Artículos destacados
+- [¿Cuál es el trabajo de un perito?](https://agcriminalistica.com/cual-es-el-trabajo-de-un-perito/)
+- [El informe pericial](https://agcriminalistica.com/el-informe-pericial/)
+- [Cadena de custodia](https://agcriminalistica.com/cadena-de-custodia/)
+- [Retos en la investigación de los casos de femicidio](https://agcriminalistica.com/feminicidios/)
+- [CNT: un ciberataque que debería preocuparnos a todos](https://agcriminalistica.com/un-ciberataque-que-deberia-preocuparnos-a-todos/)
+
+## Recursos
+- [Manual de dactiloscopia](https://agcriminalistica.com/manual-dactiloscopia/)
+- [Manual de identificación forense de la voz](https://agcriminalistica.com/manual-identificacion-forense-de-la-voz/)
