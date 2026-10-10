@@ -5,6 +5,7 @@ import Base from '../layouts/Base.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import PostCard from '../components/PostCard.astro';
 import Icon from '../components/Icon.astro';
+import ReadingProgress from '../components/ReadingProgress.astro';
 import { getPosts, formatDate, readingTime, type Post } from '../lib/utils';
 import { breadcrumbSchema, ORG_ID } from '../lib/schema';
 import { SITE, whatsappLink } from '../data/site';
@@ -22,8 +23,11 @@ const url = new URL(`/${post.id}/`, SITE.url).href;
 const toc = headings.filter((h) => h.depth === 2);
 const minutes = readingTime(post.body);
 
+// Next (older) article, wrapping around to the newest.
+const next = posts[(posts.findIndex((p) => p.id === post.id) + 1) % posts.length];
+
 const related = posts
-  .filter((p) => p.id !== post.id)
+  .filter((p) => p.id !== post.id && p.id !== next.id)
   .map((p) => ({ p, score: (p.data.category === d.category ? 2 : 0) + p.data.tags.filter((t) => d.tags.includes(t)).length }))
   .sort((a, b) => b.score - a.score)
   .slice(0, 3)
@@ -46,6 +50,7 @@ const articleSchema = {
   publisher: { '@id': ORG_ID },
   mainEntityOfPage: url,
   articleSection: d.category,
+  about: d.tags.map((name) => ({ '@type': 'Thing', name })),
   keywords: d.tags.join(', '),
   inLanguage: SITE.lang,
   wordCount: post.body?.split(/\s+/).length,
@@ -63,9 +68,12 @@ const shareText = encodeURIComponent(d.title);
   published={d.pubDate}
   modified={d.updatedDate}
   schema={[articleSchema, breadcrumbSchema(crumbs)]}
+  section={d.category}
+  tags={d.tags}
   serif
 >
-  <article>
+  <ReadingProgress />
+  <article data-article>
     <header class="post-hero ink grid-bg">
       <div class="narrow inner">
         <Breadcrumbs items={crumbs} />
@@ -118,6 +126,17 @@ const shareText = encodeURIComponent(d.title);
         <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${share}`} target="_blank" rel="noopener" aria-label="Compartir en LinkedIn"><Icon name="linkedin" /></a>
         <a href={`https://x.com/intent/post?url=${share}&text=${shareText}`} target="_blank" rel="noopener" aria-label="Compartir en X"><Icon name="x" /></a>
       </aside>
+
+      <a class="next" href={`/${next.id}/`}>
+        <span class="next-label">Siguiente artículo <Icon name="arrow" size={18} /></span>
+        <span class="next-body">
+          <Image src={next.data.cover} alt="" widths={[240, 400]} sizes="160px" class="next-img" />
+          <span>
+            <span class="next-cat">{next.data.category}</span>
+            <strong>{next.data.title}</strong>
+          </span>
+        </span>
+      </a>
 
       <section class="cta ink grid-bg">
         <p class="label cyan">¿Tienes un caso?</p>
@@ -181,6 +200,14 @@ const shareText = encodeURIComponent(d.title);
   .share a { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); color: var(--ink); }
   .share a:hover { background: var(--ink); color: var(--white); }
 
+  .next { display: grid; gap: 0.7rem; padding: 1.1rem; border-radius: 16px; text-decoration: none; background: var(--white); border: 1px solid var(--line); transition: border-color 0.2s ease, transform 0.2s ease; }
+  .next:hover { border-color: var(--cyan); transform: translateY(-2px); }
+  .next-label { display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan-ink); font-weight: 700; }
+  .next-body { display: grid; grid-template-columns: 110px 1fr; gap: 1rem; align-items: center; }
+  @media (min-width: 560px) { .next-body { grid-template-columns: 160px 1fr; } }
+  .next-img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 10px; }
+  .next-cat { display: block; font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.25rem; }
+  .next strong { font-size: 1.15rem; line-height: 1.25; color: var(--ink); }
   .cta { border-radius: 18px; padding: clamp(1.5rem, 1rem + 3vw, 2.5rem); display: grid; gap: 0.9rem; }
   .cta h2 { color: var(--white); font-size: var(--step-2); }
   .related { display: grid; gap: 1.25rem; }

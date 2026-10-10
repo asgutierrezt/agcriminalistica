@@ -32,3 +32,5 @@ Se trata de cualquier tipo de **código malicioso** diseñado para comprometer y
 - Realiza copias de seguridad periódicas de tu información importante.
 
 Si quieres profundizar en la investigación de delitos informáticos, revisa nuestro [curso de Informática Forense](/courses/informatica-forense/).
+
+**Términos del glosario:** [Evidencia digital](/glosario/#evidencia-digital) · [Informática forense](/glosario/#informatica-forense)

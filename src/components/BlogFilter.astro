@@ -1,0 +1,65 @@
+---
+// Category chips + text search over the post grid rendered right after it.
+// Without JS every post stays visible.
+import Icon from './Icon.astro';
+interface Props { categories: string[] }
+const { categories } = Astro.props;
+---
+<div class="filter" data-filter>
+  <div class="chips" role="group" aria-label="Filtrar por categoría">
+    <button type="button" data-cat="" aria-pressed="true">Todas</button>
+    {categories.map((c) => <button type="button" data-cat={c} aria-pressed="false">{c}</button>)}
+  </div>
+  <label class="q">
+    <Icon name="search" size={20} />
+    <span class="sr-only">Buscar en el blog</span>
+    <input type="search" placeholder="Buscar artículos…" autocomplete="off" data-q />
+  </label>
+</div>
+<p class="none" data-none hidden>No hay artículos que coincidan. Prueba con otra palabra o revisa el <a href="/glosario/">glosario</a>.</p>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-filter]');
+  if (root) {
+    const chips = [...root.querySelectorAll<HTMLButtonElement>('[data-cat]')];
+    const input = root.querySelector<HTMLInputElement>('[data-q]')!;
+    const posts = [...document.querySelectorAll<HTMLElement>('[data-post]')];
+    const none = document.querySelector<HTMLElement>('[data-none]')!;
+    const fold = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    let cat = '';
+    const apply = () => {
+      const q = fold(input.value.trim());
+      let shown = 0;
+      for (const p of posts) {
+        const ok = (!cat || p.dataset.cat === cat) && (!q || fold(p.dataset.q ?? '').includes(q));
+        p.hidden = !ok;
+        if (ok) shown++;
+      }
+      none.hidden = shown > 0;
+    };
+    chips.forEach((b) =>
+      b.addEventListener('click', () => {
+        cat = b.dataset.cat ?? '';
+        chips.forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+        apply();
+      }),
+    );
+    input.addEventListener('input', apply);
+  }
+</script>
+
+<style>
+  .filter { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chips button {
+    min-height: 42px; padding: 0.4rem 1rem; border-radius: 999px; cursor: pointer; font: inherit; font-size: 0.9rem; font-weight: 600;
+    border: 1.5px solid var(--line); background: var(--white); color: var(--text); transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .chips button:hover { border-color: var(--ink); }
+  .chips button[aria-pressed='true'] { background: var(--ink); color: var(--white); border-color: var(--ink); }
+  .q { display: flex; align-items: center; gap: 0.5rem; flex: 1 1 260px; max-width: 360px; padding: 0 0.9rem; min-height: 46px; border-radius: 12px; background: var(--white); border: 1.5px solid var(--line); color: var(--muted); }
+  .q:focus-within { border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(27, 163, 224, 0.2); }
+  .q input { flex: 1; border: 0; outline: none; background: transparent; font-size: 16px; min-height: 44px; color: var(--text); min-width: 0; }
+  .none { padding: 1rem 1.2rem; border: 1px dashed var(--line); border-radius: 12px; background: var(--white); margin-bottom: 1.5rem; }
+  .none a { color: var(--cyan-ink); font-weight: 700; }
+</style>

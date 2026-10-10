@@ -21,6 +21,7 @@ export const GET: APIRoute = async () => {
       lastmod: (p.data.updatedDate ?? p.data.pubDate).toISOString().slice(0, 10),
       priority: '0.7',
     })),
+    { loc: '/glosario/', lastmod: today, priority: '0.8' },
     { loc: '/manual-dactiloscopia/', lastmod: today, priority: '0.7' },
     { loc: '/manual-identificacion-forense-de-la-voz/', lastmod: today, priority: '0.7' },
     { loc: '/nosotros/', lastmod: today, priority: '0.6' },

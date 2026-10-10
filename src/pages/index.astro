@@ -11,6 +11,7 @@ import ContactForm from '../components/ContactForm.astro';
 import { getCourses, getPosts, getServices } from '../lib/utils';
 import { FAQ } from '../data/faq';
 import { whatsappLink } from '../data/site';
+import { GLOSSARY } from '../data/glossary';
 import scene3d from '../assets/img/escena-del-crimen-digital.jpg';
 
 const services = await getServices();
@@ -196,6 +197,36 @@ const faqSchema = {
     </div>
   </section>
 
+  <!-- SIGUE EXPLORANDO -->
+  <section class="section grid-bg-light explore-sec">
+    <div class="container">
+      <div class="head reveal">
+        <p class="label cyan">Sigue explorando</p>
+        <h2 class="h-section">Aprende criminalística a tu ritmo.</h2>
+      </div>
+      <div class="explore">
+        <a class="ex reveal" href="/servicios/reconstruccion-3d-de-hechos/">
+          <span class="ex-ic"><Icon name="cube" size={28} /></span>
+          <strong>Explora una escena en 3D</strong>
+          <span>Cambia de vista, reproduce la secuencia y descubre qué significa cada indicio.</span>
+          <em>Abrir demostración →</em>
+        </a>
+        <a class="ex reveal" href="/glosario/">
+          <span class="ex-ic"><Icon name="book" size={28} /></span>
+          <strong>Glosario forense</strong>
+          <span>{GLOSSARY.length} términos explicados: de la cadena de custodia a la trayectoria balística.</span>
+          <em>Consultar glosario →</em>
+        </a>
+        <a class="ex reveal" href="/manual-dactiloscopia/">
+          <span class="ex-ic"><Icon name="fingerprint" size={28} /></span>
+          <strong>Manuales gratuitos</strong>
+          <span>Dactiloscopia e identificación forense de la voz, para estudiar desde cero.</span>
+          <em>Solicitar manual →</em>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- FAQ -->
   <section class="section" id="preguntas">
     <div class="narrow">
@@ -303,6 +334,19 @@ const faqSchema = {
   .aud-ic { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 12px; background: var(--ink); color: var(--cyan); }
   .aud h3 { font-size: 1.12rem; }
   .aud p { color: var(--muted); font-size: 0.95rem; }
+
+  /* EXPLORE */
+  .explore { display: grid; gap: 1rem; }
+  @media (min-width: 900px) { .explore { grid-template-columns: repeat(3, 1fr); } }
+  .ex {
+    display: grid; gap: 0.5rem; align-content: start; padding: 1.5rem; border-radius: var(--radius); text-decoration: none;
+    background: var(--white); border: 1px solid var(--line); transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ex:hover { transform: translateY(-3px); border-color: var(--cyan); box-shadow: 0 20px 40px -26px rgba(8, 19, 31, 0.5); }
+  .ex-ic { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 14px; background: var(--ink); color: var(--amber); margin-bottom: 0.4rem; }
+  .ex strong { font-size: 1.2rem; color: var(--ink); }
+  .ex span:not(.ex-ic) { color: var(--muted); font-size: 0.95rem; }
+  .ex em { font-style: normal; font-weight: 700; color: var(--cyan-ink); margin-top: 0.3rem; }
 
   /* FAQ */
   .faq { border-top: 1px solid var(--line); }

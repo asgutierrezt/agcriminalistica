@@ -5,11 +5,16 @@ interface Props { posts: Post[] }
 const { posts } = Astro.props;
 ---
 <div class="post-grid">
-  {posts.map((p, i) => <PostCard post={p} index={i} eager={i < 2} headingLevel={2} />)}
+  {posts.map((p, i) => (
+    <div class="item" data-post data-cat={p.data.category} data-q={`${p.data.title} ${p.data.description} ${p.data.tags.join(' ')}`}>
+      <PostCard post={p} index={i} eager={i < 2} headingLevel={2} />
+    </div>
+  ))}
 </div>
 
 <style>
   .post-grid { display: grid; gap: 1.25rem; }
+  .item { display: grid; }
   @media (min-width: 720px) { .post-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 1040px) { .post-grid { grid-template-columns: repeat(3, 1fr); } }
 </style>

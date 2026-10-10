@@ -21,3 +21,5 @@ Participamos en **#HablandoConUnJurista**, donde abordamos la importancia de la 
 > Seguimos creando y compartiendo conocimiento científico forense por una sociedad más segura y justa.
 
 Si te interesa desarrollarte profesionalmente en esta área, conoce nuestros [cursos de criminalística](/cursos/).
+
+**Términos del glosario:** [Criminalística](/glosario/#criminalistica) · [Criminología](/glosario/#criminologia)

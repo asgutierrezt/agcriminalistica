@@ -20,6 +20,8 @@ interface Props {
   schema?: Record<string, unknown>[];
   noindex?: boolean;
   serif?: boolean;
+  section?: string;
+  tags?: string[];
 }
 
 const {
@@ -33,6 +35,8 @@ const {
   schema = [],
   noindex = false,
   serif = false,
+  section,
+  tags = [],
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
@@ -55,6 +59,8 @@ const jsonLd = {
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="es-EC" href={canonical} />
+    <link rel="alternate" hreflang="x-default" href={canonical} />
     {noindex && <meta name="robots" content="noindex, follow" />}
     <meta name="theme-color" content="#08131f" />
     <meta name="author" content={SITE.legalName} />
@@ -81,6 +87,8 @@ const jsonLd = {
     <meta property="og:image:alt" content={imageAlt} />
     {published && <meta property="article:published_time" content={published.toISOString()} />}
     {modified && <meta property="article:modified_time" content={modified.toISOString()} />}
+    {section && <meta property="article:section" content={section} />}
+    {tags.map((tag) => <meta property="article:tag" content={tag} />)}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
@@ -97,6 +105,9 @@ const jsonLd = {
     </main>
     <Footer />
     <WhatsAppFab />
+    <a href="#contenido" class="to-top" aria-label="Volver arriba" data-totop hidden>
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    </a>
     <script>
       // Reveal-on-scroll; elements stay visible if JS or IntersectionObserver is missing.
       const els = document.querySelectorAll('.reveal');
@@ -115,6 +126,24 @@ const jsonLd = {
         els.forEach((el) => io.observe(el));
       } else {
         els.forEach((el) => el.classList.add('is-in'));
+      }
+
+      // "Back to top" button on long pages.
+      const toTop = document.querySelector<HTMLElement>('[data-totop]');
+      if (toTop && document.body.scrollHeight > innerHeight * 3) {
+        let ticking = false;
+        addEventListener('scroll', () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(() => {
+            toTop.hidden = scrollY < innerHeight * 1.5;
+            ticking = false;
+          });
+        }, { passive: true });
+        toTop.addEventListener('click', (e) => {
+          e.preventDefault();
+          scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        });
       }
     </script>
   </body>
