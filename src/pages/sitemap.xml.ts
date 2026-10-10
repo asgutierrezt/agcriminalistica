@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getCourses, getPosts, getServices } from '../lib/utils';
 import { SITE } from '../data/site';
+import { PUBLIC_INFO_REVIEWED } from '../data/publicInstitutions';
 
 export const GET: APIRoute = async () => {
   const posts = await getPosts();
@@ -28,6 +29,8 @@ export const GET: APIRoute = async () => {
     { loc: '/nosotros/', lastmod: today, priority: '0.6' },
     { loc: '/contacto/', lastmod: today, priority: '0.6' },
     { loc: '/category/criminalistica/', priority: '0.4' },
+    // Standalone page (not linked from the menu), shared by WhatsApp.
+    { loc: '/informacion-util/', lastmod: PUBLIC_INFO_REVIEWED.toISOString().slice(0, 10), priority: '0.4' },
     { loc: '/privacidad/', priority: '0.2' },
   ];
 
