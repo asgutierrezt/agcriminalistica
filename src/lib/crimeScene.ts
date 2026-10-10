@@ -476,7 +476,10 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     trayectoria: () => ({ pos: new Vector3(-3.82, 1.95, 2.35), target: new Vector3(1.8, 1.25, -2.6) }),
   };
   let view: SceneViewId = 'orbital';
-  let sway = !reduceMotion; // gentle side-to-side drift in the orbital view
+  // Phones (and reduced motion) render on demand: the scene stays still and only
+  // redraws while something moves, so the CPU and battery stay idle.
+  const onDemand = small || reduceMotion;
+  let sway = !onDemand; // gentle side-to-side drift in the orbital view
   let swayFrom = -1; // time the drift (re)starts, so it begins at the resting angle
   let tween: { from: Vector3; to: Vector3; tFrom: Vector3; tTo: Vector3; start: number } | null = null;
 
@@ -491,7 +494,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
 
   const setView = (v: SceneViewId) => {
     view = v;
-    sway = v === 'orbital' && !reduceMotion;
+    sway = v === 'orbital' && !onDemand;
     const { pos, target } = VIEWS[v]();
     if (reduceMotion) {
       camera.position.copy(pos);
@@ -606,10 +609,11 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       const pulse = 1 + Math.sin(now / 260) * 0.08;
       selRing.scale.set(pulse, pulse, 1);
     }
-    impact.scale.setScalar(1 + (reduceMotion ? 0 : Math.sin(now / 330) * 0.12));
-    controls.update();
+    if (!onDemand) impact.scale.setScalar(1 + Math.sin(now / 330) * 0.12);
+    const moved = controls.update();
     renderer.render(scene, camera);
-    raf = visible && !document.hidden ? requestAnimationFrame(tick) : 0;
+    const busy = !onDemand || playing || tween !== null || moved || selected !== null;
+    raf = busy && visible && !document.hidden ? requestAnimationFrame(tick) : 0;
   };
   function wake() {
     if (ready && !raf && visible && !document.hidden) {
@@ -621,6 +625,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     visible = e.isIntersecting;
     wake();
   }).observe(el);
+  controls.addEventListener('change', wake); // dragging restarts an idle on-demand loop
   document.addEventListener('visibilitychange', wake);
   ready = true;
   wake();

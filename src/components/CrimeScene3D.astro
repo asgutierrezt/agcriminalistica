@@ -1,8 +1,8 @@
 ---
 /**
  * Interactive 3D crime scene (Three.js). The library is only downloaded after
- * the visitor's first interaction (or a few seconds after load) and once the
- * scene is near the viewport, so it never competes with the page's content.
+ * the visitor's first interaction and once the scene is near the viewport, so
+ * it never competes with the page's content.
  * Until then — or without WebGL/JS — a poster rendered from the scene's own
  * first frame is shown, so the switch to live 3D is seamless. The evidence
  * list and cards work either way.
@@ -187,10 +187,12 @@ const posterAlt = full
     mount: wire(root),
   }));
 
-  // Start the 3D scene on the visitor's first interaction, or a few seconds
-  // after load, so three.js never competes with the page becoming interactive.
+  // Start the 3D scene only on the visitor's first real interaction (touch,
+  // mouse, wheel or keyboard). Until then the poster, rendered from the scene's
+  // own first frame, looks identical, and three.js costs nothing: no timers,
+  // and no programmatic scroll can start it.
   let started = false;
-  const EVENTS = ['pointerdown', 'touchstart', 'scroll', 'keydown', 'mousemove'];
+  const EVENTS = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove'];
   const start = () => {
     if (started) return;
     started = true;
@@ -208,8 +210,6 @@ const posterAlt = full
     }
   };
   EVENTS.forEach((ev) => addEventListener(ev, start, { once: true, passive: true }));
-  if (document.readyState === 'complete') setTimeout(start, 3500);
-  else addEventListener('load', () => setTimeout(start, 3500), { once: true });
 </script>
 
 <style>
