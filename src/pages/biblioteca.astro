@@ -1,0 +1,96 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import LibraryCard from '../components/LibraryCard.astro';
+import AffiliateNote from '../components/AffiliateNote.astro';
+import Icon from '../components/Icon.astro';
+import { LIBRARY, LIBRARY_CATEGORIES } from '../data/library';
+import { breadcrumbSchema } from '../lib/schema';
+import { SITE } from '../data/site';
+
+const crumbs = [{ name: 'Inicio', path: '/' }, { name: 'Biblioteca forense', path: '/biblioteca/' }];
+const books = LIBRARY.filter((i) => i.cat !== 'equipo' && i.author);
+const itemList = {
+  '@type': 'ItemList',
+  name: 'Libros recomendados de criminalística y ciencias forenses',
+  url: `${SITE.url}/biblioteca/`,
+  itemListElement: books.map((b, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: { '@type': 'Book', name: b.title, author: { '@type': 'Person', name: b.author } },
+  })),
+};
+---
+<Base
+  title="Biblioteca forense: libros de criminalística recomendados"
+  description="Los mejores libros de criminalística, criminología, balística, dactiloscopia e informática forense, más el equipo básico para estudiantes. Selección de AG Criminalística."
+  schema={[itemList, breadcrumbSchema(crumbs)]}
+>
+  <PageHero
+    label="Recursos · Biblioteca"
+    title="Biblioteca forense."
+    lead="Los libros y el equipo que recomendamos a nuestros alumnos y colegas, elegidos por un criminalista."
+    crumbs={crumbs}
+  >
+    <nav class="jump" aria-label="Secciones de la biblioteca">
+      {LIBRARY_CATEGORIES.map((c) => <a href={`#${c.id}`}>{c.label}</a>)}
+      <a href="/mejores-libros-de-criminalistica/">Guía: mejores libros</a>
+    </nav>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <AffiliateNote class="note" />
+      {LIBRARY_CATEGORIES.map((c) => (
+        <section class="cat" id={c.id}>
+          <div class="cat-head">
+            <h2>{c.label}</h2>
+            <p class="muted">{c.desc}</p>
+          </div>
+          <div class="grid">
+            {LIBRARY.filter((i) => i.cat === c.id).map((i) => <LibraryCard item={i} />)}
+          </div>
+          {c.id === 'equipo' && (
+            <p class="more"><a href="/kit-basico-de-criminalistica-para-estudiantes/">Lee la guía: kit básico de criminalística para estudiantes →</a></p>
+          )}
+        </section>
+      ))}
+    </div>
+  </section>
+
+  <section class="section ink grid-bg">
+    <div class="container cta">
+      <div>
+        <p class="label cyan">Del libro a la práctica</p>
+        <h2 class="h-section">Fórmate con nosotros.</h2>
+        <p class="lead">Cursos online de criminalística, informática forense e investigación del crimen, y un glosario con 45 términos.</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/cursos/">Ver cursos <Icon name="arrow" /></a>
+        <a class="btn btn-ghost" href="/glosario/">Glosario forense</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .jump { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.4rem; }
+  .jump a {
+    display: inline-flex; align-items: center; min-height: 40px; padding: 0.4rem 0.9rem; border-radius: 999px; text-decoration: none;
+    border: 1px solid var(--line-on-ink); color: var(--white); font-weight: 600; font-size: 0.9rem;
+  }
+  .jump a:hover { border-color: var(--amber); }
+  .container :global(.note) { margin-bottom: 2.5rem; max-width: 760px; }
+  .cat { scroll-margin-top: calc(var(--header-h) + 20px); }
+  .cat + .cat { margin-top: 3.5rem; }
+  .cat-head { margin-bottom: 1.2rem; }
+  .cat-head h2 { font-size: var(--step-2); }
+  .grid { display: grid; gap: 1rem; }
+  @media (min-width: 760px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1150px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  .more { margin-top: 1.2rem; }
+  .more a { color: var(--cyan-ink); font-weight: 700; }
+  .cta { display: grid; gap: 1.5rem; align-items: end; }
+  @media (min-width: 900px) { .cta { grid-template-columns: 1fr auto; } }
+  .cta h2 { color: var(--white); }
+</style>

@@ -47,6 +47,7 @@ const year = new Date().getFullYear();
         <li><a href="/nosotros/">Nosotros</a></li>
         <li><a href="/blog/">Blog forense</a></li>
         <li><a href="/glosario/">Glosario forense</a></li>
+        <li><a href="/biblioteca/">Biblioteca forense</a></li>
         <li><a href="/#preguntas">Preguntas frecuentes</a></li>
         <li><a href="/privacidad/">Política de privacidad</a></li>
       </ul>
@@ -61,6 +62,7 @@ const year = new Date().getFullYear();
   <div class="container legal">
     <p>© {year} {SITE.legalName}. Todos los derechos reservados.</p>
     <p><a href="/privacidad/">Privacidad</a></p>
+    <p class="aff">Como afiliado de Amazon, AG Criminalística gana con las compras que cumplen los requisitos.</p>
   </div>
 </footer>
 
@@ -91,6 +93,7 @@ const year = new Date().getFullYear();
     border: 1px solid var(--line-on-ink); color: var(--white);
   }
   .social a:hover { background: var(--cyan); color: var(--ink); border-color: var(--cyan); }
+  .aff { flex-basis: 100%; font-size: 0.8rem; opacity: 0.8; }
   .legal {
     display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem;
     margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line-on-ink); font-size: 0.85rem;

@@ -12,6 +12,10 @@ Contacto: formulario en https://agcriminalistica.com/contacto/ o WhatsApp desde 
 ## Recursos
 - [Glosario forense](https://agcriminalistica.com/glosario/): más de 40 términos de criminalística explicados (indicio, cadena de custodia, balística, trayectoria, informe pericial, contrapericia, reconstrucción 3D…).
 
+- [Biblioteca forense](https://agcriminalistica.com/biblioteca/): libros recomendados de criminalística, ciencias forenses, balística, dactiloscopia e informática forense, y equipo básico para estudiantes.
+- [Mejores libros de criminalística](https://agcriminalistica.com/mejores-libros-de-criminalistica/)
+- [Kit básico de criminalística para estudiantes](https://agcriminalistica.com/kit-basico-de-criminalistica-para-estudiantes/)
+
 ## Capacitación
 - [Criminalística: formación de peritos](https://agcriminalistica.com/courses/criminalistica/)
 - [Informática forense](https://agcriminalistica.com/courses/informatica-forense/)

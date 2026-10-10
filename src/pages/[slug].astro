@@ -6,6 +6,8 @@ import Breadcrumbs from '../components/Breadcrumbs.astro';
 import PostCard from '../components/PostCard.astro';
 import Icon from '../components/Icon.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
+import AffiliateNote from '../components/AffiliateNote.astro';
+import ReadMore from '../components/ReadMore.astro';
 import { getPosts, formatDate, readingTime, type Post } from '../lib/utils';
 import { breadcrumbSchema, ORG_ID } from '../lib/schema';
 import { SITE, whatsappLink } from '../data/site';
@@ -22,6 +24,21 @@ const d = post.data;
 const url = new URL(`/${post.id}/`, SITE.url).href;
 const toc = headings.filter((h) => h.depth === 2);
 const minutes = readingTime(post.body);
+
+// Curated reading for each article ("Para profundizar"); guides already link products inline.
+const READING: Record<string, string[]> = {
+  'cadena-de-custodia': ['fisher', 'bolsas-evidencia'],
+  'cual-es-el-trabajo-de-un-perito': ['es-peritaje', 'saferstein'],
+  'el-informe-pericial': ['es-peritaje', 'montiel-criminalistica'],
+  'investigacion-pericial': ['montiel-criminalistica', 'fisher'],
+  'investigacion-criminalistica': ['moreno-introduccion', 'rodriguez-criminologia'],
+  dactiloscopia: ['es-dactiloscopia', 'kit-huellas'],
+  feminicidios: ['geberth', 'bevel-gardner'],
+  ciberseguridad: ['casey', 'saferstein'],
+  'un-ciberataque-que-deberia-preocuparnos-a-todos': ['casey', 'bertino'],
+  'privacidad-de-whatsapp': ['casey', 'bertino'],
+};
+const reading = d.affiliate ? [] : READING[post.id] ?? ['saferstein', 'montiel-criminalistica'];
 
 // Next (older) article, wrapping around to the newest.
 const next = posts[(posts.findIndex((p) => p.id === post.id) + 1) % posts.length];
@@ -115,9 +132,13 @@ const shareText = encodeURIComponent(d.title);
         </nav>
       )}
 
+      {d.affiliate && <AffiliateNote />}
+
       <div class="prose">
         <Content />
       </div>
+
+      {reading.length > 0 && <ReadMore ids={reading} />}
 
       <aside class="share" aria-label="Compartir">
         <span class="label">Compartir</span>
@@ -193,6 +214,12 @@ const shareText = encodeURIComponent(d.title);
     font-family: var(--font-sans); font-size: 1.2rem; font-weight: 700; line-height: 1.4;
   }
   .prose :global(blockquote strong) { color: var(--white); }
+  .prose :global(a.amz-link) {
+    display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.75rem; border-radius: 999px;
+    background: var(--amber); color: var(--ink); text-decoration: none; font-family: var(--font-sans); font-weight: 700; font-size: 0.88em;
+  }
+  .prose :global(a.amz-link::after) { content: '↗'; }
+  .prose :global(a.amz-link:hover) { background: #ffc933; }
   .prose :global(img) { border-radius: 12px; margin-inline: auto; width: 100%; max-width: 560px; height: auto; }
 
   .share { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; padding-top: 1.5rem; border-top: 1px solid var(--line); }

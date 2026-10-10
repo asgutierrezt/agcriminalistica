@@ -1,0 +1,25 @@
+---
+// "Para profundizar" box: a few curated Amazon recommendations with disclosure.
+import LibraryCard from './LibraryCard.astro';
+import { pickFor } from '../data/library';
+import { AFFILIATE_DISCLOSURE } from '../data/affiliate';
+interface Props { ids: string[]; title?: string }
+const { ids, title = 'Para profundizar' } = Astro.props;
+const items = pickFor(ids);
+---
+{items.length > 0 && (
+  <aside class="readmore" aria-label={title}>
+    <p class="label cyan">{title}</p>
+    <div class="grid">{items.map((i) => <LibraryCard item={i} compact />)}</div>
+    <p class="foot"><a href="/biblioteca/">Ver la biblioteca forense completa →</a></p>
+    <p class="disc">{AFFILIATE_DISCLOSURE}</p>
+  </aside>
+)}
+
+<style>
+  .readmore { padding: 1.3rem; border-radius: 18px; background: var(--paper-2); border: 1px solid var(--line); display: grid; gap: 0.9rem; }
+  .grid { display: grid; gap: 0.75rem; }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  .foot a { color: var(--cyan-ink); font-weight: 700; }
+  .disc { font-size: 0.78rem; color: var(--muted); }
+</style>
