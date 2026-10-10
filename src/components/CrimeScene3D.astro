@@ -1,15 +1,19 @@
 ---
 /**
- * Minimal line-art 3D crime scene (Three.js). The library is only downloaded
- * once the container scrolls into view and the browser is idle, so it never
- * competes with the page's main content. Until then — or without WebGL/JS —
- * the static SVG poster below is shown.
+ * Interactive 3D crime scene (Three.js). The library is only downloaded after
+ * the visitor's first interaction (or a few seconds after load) and once the
+ * scene is near the viewport, so it never competes with the page's content.
+ * Until then — or without WebGL/JS — the SVG poster and the HTML evidence
+ * list are shown; the evidence cards work either way.
  */
-interface Props { caption?: string; class?: string; tall?: boolean }
-const { caption, class: cls, tall = false } = Astro.props;
+import { SCENE_EVIDENCE, SCENE_VIEWS } from '../data/sceneEvidence';
+
+interface Props { caption?: string; class?: string; variant?: 'compact' | 'full' }
+const { caption, class: cls, variant = 'compact' } = Astro.props;
+const full = variant === 'full';
 ---
-<figure class:list={['scene3d', cls, { tall }]}>
-  <div class="stage" data-scene3d role="img" aria-label="Reconstrucción 3D animada de una escena del crimen: habitación, silueta, marcadores de evidencia y trayectorias">
+<figure class:list={['scene3d', cls, variant]} data-scene-root>
+  <div class="stage" data-scene3d>
     <svg class="poster" viewBox="0 0 400 300" aria-hidden="true">
       <g fill="none" stroke="#1ba3e0" stroke-opacity=".35" stroke-width="1">
         <path d="M60 190 200 120 340 190 200 260Z" />
@@ -20,54 +24,273 @@ const { caption, class: cls, tall = false } = Astro.props;
       <path d="M90 120 255 200" stroke="#f5b70a" stroke-width="1.5" stroke-dasharray="5 4" />
       <g fill="#f5b70a"><path d="M150 228l7-12 7 12Z" /><path d="M250 212l7-12 7 12Z" /><path d="M215 170l7-12 7 12Z" /></g>
     </svg>
+
+    <div class="views" role="toolbar" aria-label="Vista de la cámara">
+      {SCENE_VIEWS.map((v, i) => (
+        <button type="button" data-view={v.id} aria-pressed={i === 0 ? 'true' : 'false'}>{v.label}</button>
+      ))}
+    </div>
+
+    <p class="hint" aria-hidden="true">Toca un marcador ▲</p>
+
+    {full && (
+      <div class="timeline">
+        <button type="button" class="play" data-play aria-label="Reproducir reconstrucción">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path class="i-play" d="M7 5v14l12-7Z" fill="currentColor" /><path class="i-pause" d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" /></svg>
+        </button>
+        <input type="range" min="0" max="1000" value="0" step="1" data-scrub aria-label="Línea de tiempo de la reconstrucción" />
+        <span class="tc" data-tc>00:00</span>
+      </div>
+    )}
   </div>
+
+  <div class="cards">
+      {SCENE_EVIDENCE.map((ev, i) => (
+        <article class="card" data-card={i} hidden aria-live="polite">
+          <header>
+            <span class="mk">{ev.n}</span>
+            <h3>{ev.title}</h3>
+            <button type="button" class="x" data-close aria-label="Cerrar ficha">×</button>
+          </header>
+          <p>{ev.text}</p>
+          <footer>
+            <a href={ev.link.href}>{ev.link.label} →</a>
+            <span class="nav">
+              <button type="button" data-step="-1" aria-label="Indicio anterior">‹</button>
+              <button type="button" data-step="1" aria-label="Indicio siguiente">›</button>
+            </span>
+          </footer>
+        </article>
+      ))}
+
+  </div>
+
+  <ol class="evidence" aria-label="Indicios de la escena">
+    {SCENE_EVIDENCE.map((ev, i) => (
+      <li><button type="button" data-ev={i}><span class="mk">{ev.n}</span>{ev.title}</button></li>
+    ))}
+  </ol>
   {caption && <figcaption><span class="dot"></span>{caption}</figcaption>}
 </figure>
 
 <script>
-  const mount = async (el: HTMLElement) => (await import('../lib/crimeScene')).mountCrimeScene(el);
+  import type { CrimeSceneController } from '../lib/crimeScene';
 
-  // Start the scene on the visitor's first interaction, or a few seconds after
-  // load, so three.js never competes with the page becoming interactive.
+  const fmt = (s: number) => `00:${String(Math.floor(s)).padStart(2, '0')}`;
+
+  function wire(root: HTMLElement) {
+    const stage = root.querySelector<HTMLElement>('[data-scene3d]')!;
+    const cards = [...root.querySelectorAll<HTMLElement>('[data-card]')];
+    const evButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-ev]')];
+    const viewButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-view]')];
+    const playBtn = root.querySelector<HTMLButtonElement>('[data-play]');
+    const scrub = root.querySelector<HTMLInputElement>('[data-scrub]');
+    const tc = root.querySelector<HTMLElement>('[data-tc]');
+    let ctrl: CrimeSceneController | null = null;
+    let current: number | null = null;
+
+    const show = (i: number | null) => {
+      current = i;
+      cards.forEach((c, k) => (c.hidden = k !== i));
+      evButtons.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
+      ctrl?.select(i);
+      root.classList.toggle('has-card', i !== null);
+    };
+    evButtons.forEach((b, i) => b.addEventListener('click', () => show(current === i ? null : i)));
+    root.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => show(null)));
+    root.querySelectorAll<HTMLButtonElement>('[data-step]').forEach((b) =>
+      b.addEventListener('click', () => {
+        const n = cards.length;
+        show((((current ?? 0) + Number(b.dataset.step)) % n + n) % n);
+      }),
+    );
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && current !== null) show(null);
+    });
+
+    const setPlaying = (p: boolean) => {
+      root.classList.toggle('is-playing', p);
+      playBtn?.setAttribute('aria-label', p ? 'Pausar reconstrucción' : 'Reproducir reconstrucción');
+    };
+
+    const mount = async () => {
+      const { mountCrimeScene } = await import('../lib/crimeScene');
+      ctrl = mountCrimeScene(stage, {
+        onSelect: (i) => show(i),
+        onTime: (t, playing) => {
+          if (scrub && ctrl) scrub.value = String(Math.round((t / ctrl.duration) * 1000));
+          if (tc) tc.textContent = fmt(t);
+          setPlaying(playing);
+        },
+      });
+      if (!ctrl) return;
+      root.classList.add('is-live');
+      setPlaying(ctrl.playing);
+      if (current !== null) ctrl.select(current);
+    };
+
+    viewButtons.forEach((b) =>
+      b.addEventListener('click', () => {
+        viewButtons.forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+        ctrl?.setView(b.dataset.view as Parameters<CrimeSceneController['setView']>[0]);
+      }),
+    );
+    playBtn?.addEventListener('click', () => {
+      if (!ctrl) return;
+      if (ctrl.playing) ctrl.pause();
+      else {
+        show(null);
+        ctrl.play();
+      }
+      setPlaying(ctrl.playing);
+    });
+    scrub?.addEventListener('input', () => {
+      if (!ctrl) return;
+      const t = (Number(scrub.value) / 1000) * ctrl.duration;
+      ctrl.setTime(t);
+      if (tc) tc.textContent = fmt(t);
+      setPlaying(false);
+    });
+
+    return mount;
+  }
+
+  const mounts = [...document.querySelectorAll<HTMLElement>('[data-scene-root]')].map((root) => ({
+    root,
+    mount: wire(root),
+  }));
+
+  // Start the 3D scene on the visitor's first interaction, or a few seconds
+  // after load, so three.js never competes with the page becoming interactive.
   let started = false;
+  const EVENTS = ['pointerdown', 'touchstart', 'scroll', 'keydown', 'mousemove'];
   const start = () => {
     if (started) return;
     started = true;
-    for (const ev of ['pointerdown', 'touchstart', 'scroll', 'keydown', 'mousemove']) removeEventListener(ev, start);
-    for (const el of document.querySelectorAll<HTMLElement>('[data-scene3d]')) {
+    EVENTS.forEach((ev) => removeEventListener(ev, start));
+    for (const { root, mount } of mounts) {
       const io = new IntersectionObserver(
         ([entry]) => {
           if (!entry.isIntersecting) return;
           io.disconnect();
-          void mount(el);
+          void mount();
         },
         { rootMargin: '200px' },
       );
-      io.observe(el);
+      io.observe(root);
     }
   };
-  for (const ev of ['pointerdown', 'touchstart', 'scroll', 'keydown', 'mousemove']) addEventListener(ev, start, { once: true, passive: true });
+  EVENTS.forEach((ev) => addEventListener(ev, start, { once: true, passive: true }));
   if (document.readyState === 'complete') setTimeout(start, 3500);
   else addEventListener('load', () => setTimeout(start, 3500), { once: true });
 </script>
 
 <style>
-  .scene3d { position: relative; margin: 0; }
+  .scene3d { position: relative; margin: 0; --ink-glass: rgba(8, 19, 31, 0.78); }
   .stage {
     position: relative; width: 100%; aspect-ratio: 4 / 3.3; border-radius: 18px; overflow: hidden;
     background:
-      radial-gradient(120% 90% at 50% 40%, rgba(27, 163, 224, 0.14), transparent 60%),
+      radial-gradient(120% 90% at 50% 40%, rgba(27, 163, 224, 0.16), transparent 60%),
       linear-gradient(180deg, #0c1c2c, #08131f);
     border: 1px solid var(--line-on-ink);
     cursor: grab;
+    color: var(--white);
   }
-  .tall .stage { aspect-ratio: 16 / 10; }
-  @media (max-width: 640px) { .tall .stage { aspect-ratio: 4 / 3.6; } }
+  .full .stage { aspect-ratio: 16 / 10; }
+  @media (max-width: 640px) { .full .stage { aspect-ratio: 4 / 4.2; } }
   .stage:active { cursor: grabbing; }
   .poster { position: absolute; inset: 8%; width: 84%; height: 84%; transition: opacity 0.6s ease; }
-  .stage.is-live .poster { opacity: 0; }
+  .is-live .poster { opacity: 0; }
   .stage :global(canvas) { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; animation: fade 0.8s ease both; }
   @keyframes fade { from { opacity: 0; } }
+
+  /* Overlay controls */
+  .views {
+    position: absolute; z-index: 2; top: 10px; left: 10px; right: 10px;
+    display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+    opacity: 0; transform: translateY(-6px); transition: opacity 0.4s ease, transform 0.4s ease; pointer-events: none;
+  }
+  .views::-webkit-scrollbar { display: none; }
+  .is-live .views { opacity: 1; transform: none; pointer-events: auto; }
+  .views button, .timeline button, .nav button, .x {
+    font: inherit; color: inherit; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.16);
+    background: var(--ink-glass); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .views button {
+    flex: none; min-height: 36px; padding: 0.35rem 0.8rem; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .views button:hover { border-color: var(--cyan); }
+  .views button[aria-pressed='true'] { background: var(--cyan); color: var(--ink); border-color: var(--cyan); font-weight: 700; }
+
+  .hint {
+    position: absolute; z-index: 1; right: 12px; bottom: 12px; margin: 0;
+    font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--amber); background: var(--ink-glass); padding: 0.3rem 0.6rem; border-radius: 6px;
+    opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
+  }
+  .is-live:not(.has-card) .hint { opacity: 1; animation: nudge 2.4s ease-in-out infinite; }
+  .full .hint { bottom: 64px; }
+  @keyframes nudge { 50% { transform: translateY(-3px); } }
+
+  /* Desktop: cards float over the stage (same box as the stage). Mobile: below it. */
+  .cards { position: absolute; z-index: 3; top: 0; left: 0; right: 0; aspect-ratio: 4 / 3.3; pointer-events: none; }
+  .full .cards { aspect-ratio: 16 / 10; }
+  .card {
+    position: absolute; left: 10px; right: 10px; bottom: 10px; pointer-events: auto;
+    max-width: 380px; padding: 0.9rem 1rem 0.8rem; border-radius: 14px;
+    background: rgba(8, 19, 31, 0.92); border: 1px solid rgba(245, 183, 10, 0.5);
+    box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.8); cursor: auto;
+    animation: card-in 0.22s ease-out;
+  }
+  .full .card { bottom: 64px; }
+  @media (max-width: 640px) {
+    .cards, .full .cards { position: static; aspect-ratio: auto; }
+    .card, .full .card { position: relative; left: auto; right: auto; bottom: auto; max-width: none; margin-top: 0.6rem; }
+  }
+  @keyframes card-in { from { opacity: 0; transform: translateY(8px); } }
+  .card header { display: flex; align-items: center; gap: 0.6rem; }
+  .card h3 { font-size: 1.05rem; color: var(--white); flex: 1; }
+  .card p { margin: 0.5rem 0 0.7rem; font-size: 0.9rem; line-height: 1.5; color: #c9d6e2; }
+  .card footer { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+  .card a { color: var(--amber); font-weight: 700; font-size: 0.88rem; text-decoration: none; }
+  .card a:hover { text-decoration: underline; }
+  .x { width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; line-height: 1; }
+  .nav { display: flex; gap: 6px; }
+  .nav button { width: 36px; height: 36px; border-radius: 10px; font-size: 1.2rem; }
+  .mk {
+    display: inline-grid; place-items: center; width: 26px; height: 26px; flex: none;
+    background: var(--amber); color: var(--ink); font-family: var(--font-mono); font-weight: 800; font-size: 0.8rem;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%); padding-top: 8px;
+  }
+
+  .timeline {
+    position: absolute; z-index: 2; left: 10px; right: 10px; bottom: 10px;
+    display: flex; align-items: center; gap: 0.75rem; padding: 0.45rem 0.8rem 0.45rem 0.45rem; border-radius: 999px;
+    background: var(--ink-glass); border: 1px solid rgba(255, 255, 255, 0.14); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+  }
+  .is-live .timeline { opacity: 1; pointer-events: auto; }
+  .play { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%; background: var(--amber) !important; color: var(--ink) !important; border: 0 !important; }
+  .i-pause { display: none; }
+  .is-playing .i-play { display: none; }
+  .is-playing .i-pause { display: inline; }
+  .timeline input { flex: 1; accent-color: var(--amber); min-width: 0; height: 32px; }
+  .tc { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted-on-ink); min-width: 3.2em; }
+
+  /* Evidence list (always available, also without WebGL) */
+  .evidence { list-style: none; padding: 0; margin: 0.8rem 0 0; display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .evidence button {
+    display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; padding: 0.3rem 0.8rem 0.3rem 0.4rem;
+    border-radius: 999px; cursor: pointer; font: inherit; font-size: 0.85rem; font-weight: 600;
+    color: var(--ev-fg, var(--white)); background: var(--ev-bg, rgba(255, 255, 255, 0.06)); border: 1px solid var(--ev-line, var(--line-on-ink));
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .evidence button:hover { border-color: var(--amber); }
+  .evidence button[aria-pressed='true'] { border-color: var(--amber); background: rgba(245, 183, 10, 0.16); }
+  .evidence .mk { width: 24px; height: 24px; padding-top: 7px; font-size: 0.72rem; }
+
   figcaption {
     display: flex; align-items: center; gap: 0.5rem; margin-top: 0.7rem;
     font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fig-caption, var(--muted-on-ink));

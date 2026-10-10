@@ -68,15 +68,28 @@ const wa = whatsappLink();
     </div>
   </PageHero>
 
-  <section class="section">
-    <div class="container intro">
-      <div class="visual">
-        {is3D ? (
-          <CrimeScene3D caption="Demostración interactiva · arrastra para girar" />
-        ) : (
-          <Image src={d.cover} alt={d.coverAlt} widths={[480, 760, 1080]} sizes="(min-width: 960px) 560px, 92vw" loading="eager" class="cover" />
-        )}
+  {is3D && (
+    <section class="section ink grid-bg scene-sec">
+      <div class="container">
+        <div class="scene-head">
+          <p class="label cyan">Demostración interactiva</p>
+          <h2 class="h-section">Explora una reconstrucción.</h2>
+          <p class="lead">Cambia de vista, reproduce la secuencia y toca cada marcador para ver qué indicio representa. Es un ejemplo ilustrativo, no un caso real.</p>
+        </div>
+        <div class="visual">
+          <CrimeScene3D variant="full" caption="Arrastra para girar · toca los marcadores" />
+        </div>
       </div>
+    </section>
+  )}
+
+  <section class="section">
+    <div class:list={['container', 'intro', { solo: is3D }]}>
+      {!is3D && (
+        <div>
+          <Image src={d.cover} alt={d.coverAlt} widths={[480, 760, 1080]} sizes="(min-width: 960px) 560px, 92vw" loading="eager" class="cover" />
+        </div>
+      )}
       <div class="prose">
         <p class="label cyan">En qué consiste</p>
         <Content />
@@ -186,8 +199,10 @@ const wa = whatsappLink();
 
 <style>
   .intro { display: grid; gap: 2.5rem; align-items: center; }
-  @media (min-width: 960px) { .intro { grid-template-columns: 1.1fr 0.9fr; } }
-  .visual { --fig-caption: var(--muted); }
+  @media (min-width: 960px) { .intro:not(.solo) { grid-template-columns: 1.1fr 0.9fr; } }
+  .intro.solo { max-width: 780px; }
+  .scene-head { max-width: 680px; margin-bottom: 1.5rem; }
+  .scene-head h2 { color: var(--white); }
   .cover { width: 100%; border-radius: 18px; }
   .prose { font-size: 1.08rem; line-height: 1.75; color: #1b2733; }
   .prose :global(p + p) { margin-top: 1em; }

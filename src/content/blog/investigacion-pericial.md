@@ -23,3 +23,5 @@ Un caso sólido se manifestará entonces cuando hechos, prueba y ley se encuentr
 Para la conformación de la prueba es primordial una **investigación criminalística ética y eficiente**. Ahí es donde el trabajo del [perito](/cual-es-el-trabajo-de-un-perito/) y su [informe pericial](/el-informe-pericial/) marcan la diferencia.
 
 Cuando la ubicación de personas, objetos y trayectorias es clave, una [reconstrucción 3D de los hechos](/servicios/reconstruccion-3d-de-hechos/) ayuda al tribunal a ver lo ocurrido.
+
+**Términos del glosario:** [Prueba pericial](/glosario/#prueba-pericial) · [Método científico](/glosario/#metodo-cientifico) · [Reconstrucción de los hechos](/glosario/#reconstruccion-de-los-hechos)

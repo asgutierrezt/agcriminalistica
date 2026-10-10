@@ -29,3 +29,5 @@ Se trata del documento escrito en el cual los peritos exponen sus observaciones 
 Aprende a redactar dictámenes sólidos y defendibles ante el tribunal en nuestro [curso de Criminalística](/courses/criminalistica/).
 
 Si necesitas un informe pericial de parte o revisar el de la contraparte, consulta nuestros servicios de [peritaje criminalístico](/servicios/peritaje-criminalistico/) y [consultoría para abogados](/servicios/consultoria-para-abogados/).
+
+**Términos del glosario:** [Informe pericial](/glosario/#informe-pericial) · [Dictamen pericial](/glosario/#dictamen-pericial) · [Contrapericia](/glosario/#contrapericia)

@@ -21,3 +21,5 @@ Su utilidad en la investigación criminalística es de primer orden y, hasta aho
 Hemos preparado un manual introductorio con los fundamentos técnicos del cotejo dactilar.
 
 [Solicita el manual de dactiloscopia aquí →](/manual-dactiloscopia/)
+
+**Términos del glosario:** [Dactiloscopia](/glosario/#dactiloscopia) · [Papiloscopía](/glosario/#papiloscopia) · [Huella dactilar](/glosario/#huella-dactilar)

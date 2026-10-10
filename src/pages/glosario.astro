@@ -1,0 +1,166 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import { GLOSSARY_SORTED, fold } from '../data/glossary';
+import { breadcrumbSchema } from '../lib/schema';
+import { SITE } from '../data/site';
+
+const crumbs = [{ name: 'Inicio', path: '/' }, { name: 'Glosario forense', path: '/glosario/' }];
+const url = `${SITE.url}/glosario/`;
+
+// Group by first letter (accents folded).
+const groups = new Map<string, typeof GLOSSARY_SORTED>();
+for (const t of GLOSSARY_SORTED) {
+  const letter = fold(t.term)[0].toUpperCase();
+  groups.set(letter, [...(groups.get(letter) ?? []), t]);
+}
+const letters = [...groups.keys()];
+
+const termSet = {
+  '@type': 'DefinedTermSet',
+  '@id': `${url}#glosario`,
+  name: 'Glosario de criminalística y ciencias forenses',
+  url,
+  inLanguage: SITE.lang,
+  hasDefinedTerm: GLOSSARY_SORTED.map((t) => ({
+    '@type': 'DefinedTerm',
+    '@id': `${url}#${t.id}`,
+    name: t.term,
+    description: t.def,
+    url: `${url}#${t.id}`,
+    inDefinedTermSet: `${url}#glosario`,
+  })),
+};
+---
+<Base
+  title="Glosario de criminalística y ciencias forenses"
+  description={`Glosario forense con ${GLOSSARY_SORTED.length} términos explicados: indicio, cadena de custodia, balística, trayectoria, informe pericial, contrapericia, reconstrucción 3D y más.`}
+  schema={[termSet, breadcrumbSchema(crumbs)]}
+>
+  <PageHero
+    label="Recursos · Glosario"
+    title="Glosario forense."
+    lead={`${GLOSSARY_SORTED.length} términos de criminalística explicados con claridad, para estudiantes, abogados y curiosos.`}
+    crumbs={crumbs}
+  >
+    <label class="search">
+      <Icon name="search" size={22} />
+      <span class="sr-only">Buscar un término</span>
+      <input type="search" placeholder="Buscar: custodia, balística, perito…" autocomplete="off" data-gsearch />
+    </label>
+  </PageHero>
+
+  <nav class="az" aria-label="Índice alfabético">
+    <div class="container az-inner">
+      {letters.map((l) => <a href={`#letra-${l}`} data-letter={l}>{l}</a>)}
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="narrow">
+      <p class="empty" data-gempty hidden>No encontramos ese término. <a href="/contacto/">Pregúntanos</a> y lo agregamos.</p>
+      {letters.map((l) => (
+        <section class="group" id={`letra-${l}`} data-group={l}>
+          <h2 class="letter">{l}</h2>
+          <dl>
+            {groups.get(l)!.map((t) => (
+              <div class="term" id={t.id} data-term={fold(`${t.term} ${t.def}`)}>
+                <dt><a href={`#${t.id}`} class="anchor" aria-label={`Enlace a ${t.term}`}>#</a>{t.term}</dt>
+                <dd>
+                  <p>{t.def}</p>
+                  {t.see && (
+                    <p class="see">
+                      Ver: {t.see.map((s, i) => (<>{i > 0 && ' · '}<a href={s.href}>{s.label}</a></>))}
+                    </p>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))}
+
+      <aside class="cta ink grid-bg">
+        <p class="label cyan">¿Tienes un caso?</p>
+        <h2>Del concepto a la prueba.</h2>
+        <p>Aplicamos estos conceptos en peritajes criminalísticos y reconstrucciones 3D en todo Ecuador.</p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="/servicios/">Ver servicios <Icon name="arrow" /></a>
+          <a class="btn btn-ghost" href="/blog/">Leer el blog</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('[data-gsearch]');
+  const terms = [...document.querySelectorAll<HTMLElement>('[data-term]')];
+  const groups = [...document.querySelectorAll<HTMLElement>('[data-group]')];
+  const letters = [...document.querySelectorAll<HTMLElement>('[data-letter]')];
+  const empty = document.querySelector<HTMLElement>('[data-gempty]')!;
+  const fold = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+  input?.addEventListener('input', () => {
+    const q = fold(input.value.trim());
+    terms.forEach((t) => (t.hidden = q !== '' && !t.dataset.term!.includes(q)));
+    groups.forEach((g) => (g.hidden = !g.querySelector('[data-term]:not([hidden])')));
+    letters.forEach((a) => a.classList.toggle('off', !!document.getElementById(`letra-${a.dataset.letter}`)?.hidden));
+    empty.hidden = terms.some((t) => !t.hidden);
+  });
+
+  // Highlight the term targeted by the URL hash (e.g. /glosario/#vaina).
+  const mark = () => {
+    document.querySelectorAll('.term.is-target').forEach((e) => e.classList.remove('is-target'));
+    const el = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+    if (el?.classList.contains('term')) el.classList.add('is-target');
+  };
+  addEventListener('hashchange', mark);
+  mark();
+</script>
+
+<style>
+  .search {
+    display: flex; align-items: center; gap: 0.6rem; margin-top: 0.6rem; max-width: 560px;
+    padding: 0 1rem; min-height: 56px; border-radius: 14px; background: var(--white); color: var(--muted);
+    box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.6);
+  }
+  .search input { flex: 1; border: 0; outline: none; background: transparent; font-size: 16px; color: var(--text); min-height: 54px; }
+  .search:focus-within { box-shadow: 0 0 0 4px rgba(245, 183, 10, 0.5); }
+
+  .az { position: sticky; top: var(--header-h); z-index: 20; background: rgba(244, 242, 237, 0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .az-inner { display: flex; gap: 0.25rem; overflow-x: auto; padding-block: 0.5rem; scrollbar-width: none; }
+  .az-inner::-webkit-scrollbar { display: none; }
+  .az a {
+    flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px;
+    font-family: var(--font-mono); font-weight: 800; text-decoration: none; color: var(--ink);
+  }
+  .az a:hover { background: var(--ink); color: var(--white); }
+  .az a.off { opacity: 0.25; pointer-events: none; }
+
+  .group { scroll-margin-top: calc(var(--header-h) + 70px); }
+  .group + .group { margin-top: 2.5rem; }
+  .letter {
+    display: inline-grid; place-items: center; width: 54px; height: 54px; margin-bottom: 0.8rem;
+    background: var(--ink); color: var(--amber); border-radius: 12px; font-family: var(--font-mono); font-size: 1.6rem;
+  }
+  dl { display: grid; gap: 0.8rem; }
+  .term {
+    scroll-margin-top: calc(var(--header-h) + 80px);
+    padding: 1.1rem 1.2rem; background: var(--white); border: 1px solid var(--line); border-radius: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .term.is-target { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(245, 183, 10, 0.25); }
+  dt { font-weight: 800; font-size: 1.15rem; display: flex; align-items: baseline; gap: 0.4rem; }
+  .anchor { color: var(--cyan-ink); text-decoration: none; font-family: var(--font-mono); opacity: 0.5; }
+  .term:hover .anchor { opacity: 1; }
+  dd { margin: 0.35rem 0 0; color: #26323e; }
+  .see { margin-top: 0.5rem; font-size: 0.9rem; color: var(--muted); }
+  .see a { color: var(--cyan-ink); font-weight: 600; }
+  .empty { padding: 1rem 1.2rem; background: var(--white); border-radius: 12px; border: 1px dashed var(--line); }
+  .empty a { color: var(--cyan-ink); font-weight: 700; }
+
+  .cta { margin-top: 3rem; border-radius: 18px; padding: clamp(1.5rem, 1rem + 3vw, 2.5rem); display: grid; gap: 0.9rem; }
+  .cta h2 { color: var(--white); font-size: var(--step-2); }
+</style>

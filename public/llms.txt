@@ -9,6 +9,9 @@ Contacto: formulario en https://agcriminalistica.com/contacto/ o WhatsApp desde 
 - [Peritaje criminalístico](https://agcriminalistica.com/servicios/peritaje-criminalistico/): inspección ocular técnica, análisis de indicios, cadena de custodia e informe pericial de parte.
 - [Consultoría pericial para abogados](https://agcriminalistica.com/servicios/consultoria-para-abogados/): revisión de informes periciales, contrapericia, estrategia probatoria y preparación del interrogatorio a peritos.
 
+## Recursos
+- [Glosario forense](https://agcriminalistica.com/glosario/): más de 40 términos de criminalística explicados (indicio, cadena de custodia, balística, trayectoria, informe pericial, contrapericia, reconstrucción 3D…).
+
 ## Capacitación
 - [Criminalística: formación de peritos](https://agcriminalistica.com/courses/criminalistica/)
 - [Informática forense](https://agcriminalistica.com/courses/informatica-forense/)

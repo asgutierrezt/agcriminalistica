@@ -68,3 +68,5 @@ La [ciberseguridad](/ciberseguridad/) es el método mediante el cual protegemos 
 - Banco Interamericano de Desarrollo (2020). *Ciberseguridad. Riesgos, avances y el camino a seguir en América Latina y el Caribe. Reporte de Ciberseguridad 2020.* BID, OEA: Observatorio de Ciberseguridad.
 - CISCO Networking Academy (2020). *Introducción a la Ciberseguridad.* NETACAD.
 - Di Iorio, A. (2017). *El rastro digital del delito: aspectos técnicos, legales y estratégicos de la informática forense.* Mar del Plata: Universidad FASTA Ediciones.
+
+**Términos del glosario:** [Ransomware](/glosario/#ransomware) · [Evidencia digital](/glosario/#evidencia-digital) · [Informática forense](/glosario/#informatica-forense)
