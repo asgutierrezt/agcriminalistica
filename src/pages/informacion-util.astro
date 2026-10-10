@@ -1,0 +1,249 @@
+---
+/**
+ * Standalone page shared by WhatsApp with people who think AG Criminalística is a
+ * public institution. Not linked from the site (no header, footer or menu): it
+ * lists the public offices they are really looking for. Websites are shown as
+ * plain text; only phone numbers are tappable.
+ */
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import Icon from '../components/Icon.astro';
+import banner from '../assets/img/informacion-util.jpg';
+import { INSTITUTION_GROUPS, ONLINE_PROCEDURES, PUBLIC_INFO_REVIEWED } from '../data/publicInstitutions';
+import { ORG_ID } from '../lib/schema';
+import { SITE } from '../data/site';
+
+const reviewed = PUBLIC_INFO_REVIEWED.toLocaleDateString('es-EC', { month: 'long', year: 'numeric' });
+const title = 'Información útil: contactos de instituciones públicas de Ecuador';
+const description =
+  'Teléfonos y direcciones de la Fiscalía, el Consejo de la Judicatura, Medicina Legal, la Defensoría Pública y el ECU 911. AG Criminalística es una empresa privada.';
+
+const schema = [
+  {
+    '@type': 'WebPage',
+    '@id': `${SITE.url}/informacion-util/#webpage`,
+    url: `${SITE.url}/informacion-util/`,
+    name: title,
+    description,
+    inLanguage: SITE.lang,
+    dateModified: PUBLIC_INFO_REVIEWED.toISOString().slice(0, 10),
+    publisher: { '@id': ORG_ID },
+    mentions: INSTITUTION_GROUPS.flatMap((g) => g.items).map((i) => ({
+      '@type': 'GovernmentOrganization',
+      name: i.name,
+      url: `https://${i.web}`,
+      telephone: i.phones[0].tel,
+      ...(i.address ? { address: { '@type': 'PostalAddress', streetAddress: i.address[0], addressCountry: 'EC' } } : {}),
+    })),
+  },
+];
+---
+<Base title={title} description={description} image={banner} imageAlt="Información útil: contactos de instituciones públicas del Ecuador" schema={schema} bare>
+  <div class="topbar">
+    <div class="container topbar-in">
+      <Logo size={34} />
+      <span class="private">Empresa privada</span>
+    </div>
+  </div>
+
+  <section class="hero ink">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="label cyan">Guía de contactos · Ecuador</p>
+        <h1>Información útil</h1>
+        <p class="lead">
+          Aquí encontrarás información útil: los teléfonos y las direcciones de las instituciones públicas del Ecuador
+          para emergencias, denuncias, procesos judiciales y asesoría legal gratuita.
+        </p>
+      </div>
+      <Image
+        src={banner}
+        alt="Información útil: emergencias, denuncias, procesos judiciales y asesoría legal gratuita"
+        widths={[480, 800, 1200]}
+        sizes="(min-width: 960px) 560px, 100vw"
+        loading="eager"
+        fetchpriority="high"
+        class="banner"
+      />
+    </div>
+  </section>
+
+  <div class="container">
+    <aside class="notice" aria-labelledby="aviso">
+      <Icon name="building" size={28} class="notice-ico" />
+      <div>
+        <h2 id="aviso">AG Criminalística es una empresa privada</h2>
+        <p>
+          No somos una institución pública. No pertenecemos a la Policía Nacional, a la Fiscalía General del Estado, al
+          Consejo de la Judicatura ni al Servicio Nacional de Medicina Legal y Ciencias Forenses.
+        </p>
+        <p>
+          No recibimos denuncias, no tramitamos procesos judiciales y no emitimos certificados ni documentos oficiales.
+          Para esos trámites, comunícate directamente con la institución que corresponde: aquí tienes sus contactos.
+        </p>
+      </div>
+    </aside>
+
+    {INSTITUTION_GROUPS.map((g) => (
+      <section class="group" id={g.id} aria-labelledby={`t-${g.id}`}>
+        <h2 id={`t-${g.id}`}>{g.title}</h2>
+        <p class="intro">{g.intro}</p>
+        <div class:list={['cards', { one: g.items.length === 1 }]}>
+          {g.items.map((i) => (
+            <article class="card">
+              <div class="main">
+              <header>
+                <span class="ico"><Icon name={i.icon} size={22} /></span>
+                <h3>{i.name}</h3>
+              </header>
+              <p class="what">{i.what}</p>
+              <ul class="phones">
+                {i.phones.map((p) => (
+                  <li>
+                    <a class="tel" href={`tel:${p.tel}`}>
+                      <Icon name="phone" size={18} />
+                      <span>{p.display}</span>
+                    </a>
+                    {p.note && <span class="pnote">{p.note}</span>}
+                  </li>
+                ))}
+              </ul>
+              </div>
+              <div class="side">
+              <dl class="facts">
+                {i.address && (
+                  <div>
+                    <dt><Icon name="pin" size={16} /> Dirección</dt>
+                    <dd>{i.address.map((l) => <span>{l}</span>)}</dd>
+                  </div>
+                )}
+                {i.hours && (
+                  <div>
+                    <dt><Icon name="clock" size={16} /> Horario</dt>
+                    <dd>{i.hours}</dd>
+                  </div>
+                )}
+                <div>
+                  <dt><Icon name="monitor" size={16} /> Sitio oficial</dt>
+                  <dd class="web">{i.web}</dd>
+                </div>
+              </dl>
+              {i.notes && <ul class="notes">{i.notes.map((n) => <li>{n}</li>)}</ul>}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
+
+    <section class="group" id="tramites" aria-labelledby="t-tramites">
+      <h2 id="t-tramites">Trámites en línea que más nos preguntan</h2>
+      <p class="intro">Se hacen directamente en los portales oficiales y son gratuitos.</p>
+      <div class="procs">
+        {ONLINE_PROCEDURES.map((p) => (
+          <article class="proc">
+            <h3>{p.title}</h3>
+            <p>{p.text}</p>
+            <p class="web"><Icon name="monitor" size={16} /> {p.web}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="about" aria-labelledby="t-about">
+      <h2 id="t-about">¿Qué hace AG Criminalística?</h2>
+      <p>
+        Somos una empresa privada de servicios periciales. Trabajamos para abogados, empresas y particulares que contratan
+        peritajes criminalísticos de parte, reconstrucciones 3D de los hechos, consultoría técnica y formación en ciencias
+        forenses. No reemplazamos a ninguna institución pública ni actuamos en su nombre.
+      </p>
+    </section>
+  </div>
+
+  <footer class="foot">
+    <div class="container">
+      <p>
+        Datos tomados de los sitios web oficiales de cada institución y revisados en {reviewed}. Pueden cambiar sin
+        aviso: antes de acudir, confírmalos en el sitio oficial.
+      </p>
+      <p>© {PUBLIC_INFO_REVIEWED.getFullYear()} AG Criminalística · Empresa privada, sin vínculo con las instituciones mencionadas.</p>
+    </div>
+  </footer>
+</Base>
+
+<style>
+  .topbar { background: var(--ink); color: var(--white); border-bottom: 1px solid var(--line-on-ink); }
+  .topbar-in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 64px; }
+  .private {
+    font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--amber); border: 1px solid rgba(245, 183, 10, 0.5); border-radius: 999px; padding: 0.3rem 0.7rem; white-space: nowrap;
+  }
+
+  .hero { background: var(--ink); color: var(--white); padding-block: clamp(1.8rem, 1rem + 4vw, 4rem) clamp(2.2rem, 1.5rem + 4vw, 4.5rem); }
+  .hero-grid { display: grid; gap: 1.8rem; align-items: center; }
+  @media (min-width: 960px) { .hero-grid { grid-template-columns: 1fr 560px; gap: 3rem; } }
+  .hero-copy { display: grid; gap: 1rem; }
+  .hero h1 { color: var(--white); font-size: var(--step-4); line-height: 1; }
+  .hero .lead { color: var(--muted-on-ink); }
+  .hero :global(.banner) { width: 100%; height: auto; border-radius: 18px; border: 1px solid var(--line-on-ink); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.7); }
+
+  .notice {
+    display: grid; grid-template-columns: auto 1fr; gap: 1rem; margin-top: -1.6rem; position: relative;
+    padding: 1.3rem 1.4rem; border-radius: var(--radius); background: #fff8e1; border: 1px solid rgba(245, 183, 10, 0.7);
+    box-shadow: 0 18px 40px -28px rgba(8, 19, 31, 0.6);
+  }
+  .notice :global(.notice-ico) { color: #8a6100; margin-top: 0.15rem; }
+  .notice h2 { font-size: var(--step-1); margin-bottom: 0.4rem; }
+  .notice p { color: #3b3320; max-width: 75ch; }
+  .notice p + p { margin-top: 0.5rem; }
+
+  .group { padding-top: clamp(2.5rem, 2rem + 2vw, 3.5rem); scroll-margin-top: 1rem; }
+  .group h2 { font-size: var(--step-2); }
+  .intro { color: var(--muted); margin-top: 0.3rem; }
+  .cards { display: grid; gap: 1rem; margin-top: 1.2rem; }
+  @media (min-width: 860px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+  .card { display: flex; flex-direction: column; gap: 0.8rem; padding: 1.2rem; border-radius: var(--radius); background: var(--white); border: 1px solid var(--line); }
+  .main, .side { display: flex; flex-direction: column; gap: 0.8rem; }
+  .side { flex: 1; }
+  /* A group with a single institution uses the full width, in two columns. */
+  @media (min-width: 860px) {
+    .cards.one { grid-template-columns: 1fr; }
+    .cards.one .card { display: grid; grid-template-columns: 1.15fr 1fr; gap: 2rem; padding: 1.5rem; }
+    .cards.one .side { border-left: 1px solid var(--line); padding-left: 2rem; }
+  }
+  .card header { display: flex; align-items: center; gap: 0.75rem; }
+  .ico { display: grid; place-items: center; width: 42px; height: 42px; flex: none; border-radius: 12px; background: var(--ink); color: var(--amber); }
+  .card h3 { font-size: 1.12rem; line-height: 1.25; }
+  .what { color: #33414e; font-size: 0.95rem; }
+
+  .phones { list-style: none; padding: 0; display: grid; gap: 0.55rem; }
+  .phones li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.7rem; }
+  .tel {
+    display: inline-flex; align-items: center; gap: 0.45rem; min-height: 44px; padding: 0.45rem 1rem; border-radius: 999px;
+    background: var(--amber); color: var(--ink); font-weight: 800; font-size: 1.02rem; text-decoration: none; white-space: nowrap;
+  }
+  .tel:hover { background: #ffc933; }
+  .pnote { font-size: 0.85rem; color: var(--muted); }
+
+  .facts { display: grid; gap: 0.5rem; margin: 0; font-size: 0.92rem; }
+  .facts div { display: grid; gap: 0.1rem; }
+  .facts dt { display: inline-flex; align-items: center; gap: 0.35rem; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan-ink); }
+  .facts dd { margin: 0; display: grid; color: var(--text); }
+  .web { font-weight: 700; word-break: break-word; }
+  .notes { padding-left: 1.1rem; display: grid; gap: 0.3rem; font-size: 0.9rem; color: #33414e; border-top: 1px solid var(--line); padding-top: 0.7rem; margin-top: auto; }
+
+  .procs { display: grid; gap: 1rem; margin-top: 1.2rem; }
+  @media (min-width: 720px) { .procs { grid-template-columns: repeat(2, 1fr); } }
+  .proc { padding: 1.1rem 1.2rem; border-radius: var(--radius); background: var(--paper-2); border: 1px solid var(--line); display: grid; gap: 0.45rem; align-content: start; }
+  .proc h3 { font-size: 1.05rem; }
+  .proc p { font-size: 0.93rem; color: #33414e; }
+  .proc .web { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--cyan-ink); }
+
+  .about { margin-block: clamp(2.5rem, 2rem + 2vw, 3.5rem); padding: 1.4rem; border-radius: var(--radius); border-left: 4px solid var(--cyan); background: var(--white); }
+  .about h2 { font-size: var(--step-1); margin-bottom: 0.4rem; }
+  .about p { color: #33414e; max-width: 75ch; }
+
+  .foot { background: var(--ink); color: var(--muted-on-ink); padding-block: 1.6rem; font-size: 0.85rem; }
+  .foot p + p { margin-top: 0.4rem; }
+</style>
