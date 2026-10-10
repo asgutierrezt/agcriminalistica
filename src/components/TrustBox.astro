@@ -1,0 +1,20 @@
+---
+// Why trust these recommendations (E-E-A-T for review/roundup pages).
+import { formatDate } from '../lib/utils';
+interface Props { updated: Date }
+const { updated } = Astro.props;
+---
+<aside class="trust">
+  <span class="av" aria-hidden="true">AG</span>
+  <div>
+    <p class="who"><strong>Lcdo. Alberto Gutiérrez</strong> · Licenciado en Criminalística · AG Criminalística</p>
+    <p class="why">Selección hecha por criminalistas a partir de la bibliografía que usamos en nuestros cursos y peritajes. Nadie paga por aparecer aquí. Actualizado el {formatDate(updated)}.</p>
+  </div>
+</aside>
+
+<style>
+  .trust { display: flex; gap: 0.9rem; align-items: flex-start; padding: 1rem 1.1rem; border-radius: 14px; background: var(--white); border: 1px solid var(--line); font-family: var(--font-sans); }
+  .av { display: grid; place-items: center; flex: none; width: 46px; height: 46px; border-radius: 50%; background: var(--ink); color: var(--cyan); font-weight: 900; }
+  .who { font-size: 0.92rem; }
+  .why { font-size: 0.86rem; color: var(--muted); margin-top: 0.2rem; }
+</style>

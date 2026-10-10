@@ -1,17 +1,20 @@
 ---
-title: 'Los mejores libros de criminalística para estudiantes y peritos'
-seoTitle: 'Mejores libros de criminalística (2026): guía para estudiar'
-description: 'Los mejores libros de criminalística, ciencias forenses, balística e informática forense, en español e inglés, recomendados por un criminalista.'
+title: 'Los 10 mejores libros de criminalística para estudiantes y peritos (2026)'
+seoTitle: 'Los 10 mejores libros de criminalística (2026)'
+description: 'Los 10 libros de criminalística que recomendamos a alumnos y peritos: para empezar, para trabajar en campo y para especializarte. Comparativa y versiones Kindle.'
 pubDate: 2026-10-10
-cover: ../../assets/img/curso-criminalistica.jpg
-coverAlt: 'Libros recomendados de criminalística y ciencias forenses'
+updatedDate: 2026-10-10
+cover: ../../assets/img/guia-mejores-libros-criminalistica.jpg
+coverAlt: 'Guía 2026: los mejores libros de criminalística'
 category: 'Criminalística'
 tags: ['libros de criminalística', 'ciencias forenses', 'estudiar criminalística', 'bibliografía']
 affiliate: true
 featured: true
+picks: ['moreno-introduccion', 'saferstein', 'fisher']
+compare: ['moreno-introduccion', 'rodriguez-criminologia', 'saferstein', 'james-nordby', 'fisher', 'robinson', 'geberth', 'bevel-gardner', 'heard', 'casey']
 ---
 
-¿Estás empezando a estudiar criminalística o te preparas para trabajar como perito? Estos son los libros que más recomendamos a nuestros alumnos. Los ordenamos por nivel y por área para que sepas por dónde empezar.
+¿Estás empezando a estudiar criminalística o te preparas para trabajar como perito? Estos son los libros que más recomendamos a nuestros alumnos. Arriba tienes nuestras 3 elecciones si vas con prisa; abajo, cada libro explicado por nivel y una comparativa final.
 
 > Un buen perito no se forma solo con la práctica: necesita entender el porqué de cada técnica.
 

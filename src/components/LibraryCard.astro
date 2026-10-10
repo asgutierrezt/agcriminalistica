@@ -1,35 +1,34 @@
 ---
+import BookCover from './BookCover.astro';
 import { amazonLink, AFFILIATE_REL } from '../data/affiliate';
 import type { LibraryItem } from '../data/library';
 interface Props { item: LibraryItem; compact?: boolean }
 const { item, compact = false } = Astro.props;
-const isBook = item.cat !== 'equipo';
-const initials = item.title.replace(/^(Libros (de|sobre) |Kit de |La |El )/i, '').slice(0, 2).toUpperCase();
+const lang = item.cat === 'en' ? 'Inglés' : item.cat === 'es' ? 'Español' : 'Equipo';
 ---
 <article class:list={['lib', { compact }]} data-lib={item.cat}>
-  {item.image ? (
-    <a class="cover" href={amazonLink(item)} rel={AFFILIATE_REL} target="_blank" tabindex="-1" aria-hidden="true">
-      <img src={item.image} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer-when-downgrade" />
-    </a>
-  ) : (
-    <div class:list={['spine', item.cat]} aria-hidden="true">
-      {isBook ? <span class="spine-t">{initials}</span> : <span class="spine-t">⚲</span>}
-      <span class="spine-cat">{item.topic}</span>
-    </div>
-  )}
+  <a class="cv" href={amazonLink(item)} rel={AFFILIATE_REL} target="_blank" tabindex="-1" aria-hidden="true">
+    {item.image ? <img src={item.image} alt="" loading="lazy" decoding="async" /> : <BookCover item={item} size={compact ? 'sm' : 'md'} />}
+  </a>
   <div class="body">
-    {item.level && <p class="meta">{item.level} · {item.cat === 'en' ? 'Inglés' : item.cat === 'es' ? 'Español' : 'Equipo'}{item.format && ` · ${item.format}`}</p>}
-    {!item.level && <p class="meta">{item.cat === 'equipo' ? 'Equipo' : 'Selección'}</p>}
+    {item.badge && <span class="badge">{item.badge}</span>}
+    <p class="meta">{[item.level, lang, item.format].filter(Boolean).join(' · ')}</p>
     <h3>{item.title}</h3>
     {item.author && <p class="author">{item.author}</p>}
-    {!compact && <p class="why">{item.why}</p>}
+    {!compact && (item.bestFor ? <p class="best"><strong>Ideal para:</strong> {item.bestFor}</p> : <p class="why">{item.why}</p>)}
+    {!compact && (item.pros?.length || item.cons?.length) && (
+      <ul class="pc">
+        {item.pros?.slice(0, 2).map((p) => <li class="pro">{p}</li>)}
+        {item.cons?.slice(0, 1).map((c) => <li class="con">{c}</li>)}
+      </ul>
+    )}
     <div class="actions">
       <a class="btn-amz" href={amazonLink(item)} rel={AFFILIATE_REL} target="_blank">
-        Ver en Amazon <span aria-hidden="true">↗</span>
+        Ver precio en Amazon <span aria-hidden="true">↗</span>
       </a>
       {item.kindle && (
         <a class="btn-kindle" href={amazonLink({ asin: item.kindle })} rel={AFFILIATE_REL} target="_blank" title="Sin envío: se descarga al instante">
-          Versión Kindle
+          Kindle
         </a>
       )}
     </div>
@@ -38,41 +37,39 @@ const initials = item.title.replace(/^(Libros (de|sobre) |Kit de |La |El )/i, ''
 
 <style>
   .lib {
-    display: grid; grid-template-columns: 92px 1fr; gap: 1rem; padding: 1rem; border-radius: var(--radius);
-    background: var(--white); border: 1px solid var(--line); transition: border-color 0.2s ease, transform 0.2s ease;
+    position: relative; display: grid; grid-template-columns: 104px 1fr; gap: 1.1rem; padding: 1.1rem; border-radius: var(--radius);
+    background: var(--white); border: 1px solid var(--line); transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
-  .lib:hover { border-color: var(--cyan); transform: translateY(-2px); }
-  .cover { display: grid; place-items: center; aspect-ratio: 2 / 3; background: var(--white); border-radius: 6px; overflow: hidden; }
-  .cover img { width: 100%; height: 100%; object-fit: contain; }
-  .spine {
-    position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
-    aspect-ratio: 2 / 3; padding: 0.6rem; border-radius: 4px 10px 10px 4px; color: var(--white); overflow: hidden;
-    background: linear-gradient(135deg, var(--ink-3), var(--ink));
-    box-shadow: inset 6px 0 0 rgba(255, 255, 255, 0.08), 0 10px 20px -12px rgba(8, 19, 31, 0.7);
+  .lib:hover { border-color: var(--cyan); transform: translateY(-2px); box-shadow: 0 18px 36px -26px rgba(8, 19, 31, 0.55); }
+  .cv { display: block; align-self: start; text-decoration: none; }
+  .cv img { width: 100%; aspect-ratio: 2 / 3; object-fit: contain; background: var(--white); }
+  .body { display: flex; flex-direction: column; gap: 0.32rem; min-width: 0; }
+  .badge {
+    align-self: flex-start; font-family: var(--font-mono); font-size: 0.66rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+    background: var(--ink); color: var(--amber); padding: 0.25rem 0.5rem; border-radius: 6px;
   }
-  .spine.en { background: linear-gradient(135deg, #2c5c80, #0f2133); }
-  .spine.equipo { background: linear-gradient(135deg, #3b3320, #1b1708); aspect-ratio: 1; border-radius: 12px; }
-  .spine::after { content: ''; position: absolute; left: 0; right: 0; top: 38%; height: 3px; background: var(--amber); opacity: 0.85; }
-  .spine-t { font-weight: 900; font-size: 1.5rem; letter-spacing: -0.03em; }
-  .spine-cat { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); line-height: 1.2; }
-  .body { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
   .meta { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan-ink); font-weight: 700; }
   h3 { font-size: 1.05rem; line-height: 1.25; }
   .author { font-size: 0.88rem; color: var(--muted); }
-  .why { font-size: 0.9rem; color: #33414e; }
-  .actions { margin-top: auto; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .why, .best { font-size: 0.9rem; color: #33414e; }
+  .best strong { color: var(--ink); }
+  .pc { list-style: none; padding: 0; display: grid; gap: 0.2rem; font-size: 0.84rem; }
+  .pc li { display: flex; gap: 0.4rem; align-items: baseline; }
+  .pro::before { content: '✓'; color: #1a7f45; font-weight: 800; }
+  .con::before { content: '–'; color: #a33; font-weight: 800; }
+  .con { color: var(--muted); }
+  .actions { margin-top: auto; padding-top: 0.35rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .btn-amz {
+    display: inline-flex; align-items: center; gap: 0.35rem; min-height: 42px; padding: 0.45rem 0.95rem; border-radius: 999px; white-space: nowrap;
+    text-decoration: none; font-weight: 800; font-size: 0.88rem; background: var(--amber); color: var(--ink);
+    box-shadow: 0 6px 14px -8px rgba(245, 183, 10, 0.9);
+  }
+  .btn-amz:hover { background: #ffc933; }
   .btn-kindle {
-    display: inline-flex; align-items: center; min-height: 40px; padding: 0.45rem 0.9rem; border-radius: 999px;
+    display: inline-flex; align-items: center; min-height: 42px; padding: 0.45rem 0.9rem; border-radius: 999px;
     text-decoration: none; font-weight: 700; font-size: 0.85rem; border: 1.5px solid var(--ink); color: var(--ink);
   }
   .btn-kindle:hover { background: var(--ink); color: var(--white); }
-  .btn-amz {
-    align-self: flex-start; display: inline-flex; align-items: center; gap: 0.35rem;
-    min-height: 40px; padding: 0.45rem 0.9rem; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 0.88rem;
-    background: var(--amber); color: var(--ink);
-  }
-  .btn-amz:hover { background: #ffc933; }
-  .compact { grid-template-columns: 64px 1fr; padding: 0.8rem; }
-  .compact .spine-t { font-size: 1.1rem; }
-  .compact .spine-cat { display: none; }
+  .compact { grid-template-columns: 70px 1fr; padding: 0.85rem; }
+  @media (max-width: 420px) { .lib:not(.compact) { grid-template-columns: 86px 1fr; gap: 0.9rem; } }
 </style>

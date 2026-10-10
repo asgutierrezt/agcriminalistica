@@ -18,6 +18,10 @@ const blog = defineCollection({
       featured: z.boolean().default(false),
       /** Contains Amazon affiliate links: shows the disclosure at the top. */
       affiliate: z.boolean().default(false),
+      /** Library item ids shown as "Nuestras elecciones" at the top of a guide. */
+      picks: z.array(z.string()).default([]),
+      /** Library item ids for the comparison table at the end of a guide. */
+      compare: z.array(z.string()).default([]),
     }),
 });
 

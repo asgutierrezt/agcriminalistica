@@ -1,0 +1,46 @@
+---
+// Quick comparison of recommended items; becomes stacked cards on mobile.
+import { pickFor } from '../data/library';
+import { amazonLink, AFFILIATE_REL } from '../data/affiliate';
+interface Props { ids: string[]; title?: string }
+const { ids, title = 'Comparativa rápida' } = Astro.props;
+const items = pickFor(ids);
+---
+<section class="cmp" aria-label={title}>
+  <p class="label cyan">{title}</p>
+  <table>
+    <thead><tr><th>Libro</th><th>Nivel</th><th>Idioma</th><th>Ideal para</th><th>Kindle</th><th><span class="sr-only">Enlace</span></th></tr></thead>
+    <tbody>
+      {items.map((it) => (
+        <tr>
+          <td data-l="Libro"><strong>{it.title.split(':')[0]}</strong>{it.author && <span class="a">{it.author}</span>}</td>
+          <td data-l="Nivel">{it.level ?? '—'}</td>
+          <td data-l="Idioma">{it.cat === 'en' ? 'Inglés' : 'Español'}</td>
+          <td data-l="Ideal para">{it.bestFor ?? '—'}</td>
+          <td data-l="Kindle">{it.kindle || it.format === 'Kindle' ? 'Sí' : 'No'}</td>
+          <td><a href={amazonLink(it)} rel={AFFILIATE_REL} target="_blank">Ver en Amazon ↗</a></td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</section>
+
+<style>
+  .cmp { display: grid; gap: 0.7rem; font-family: var(--font-sans); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; background: var(--white); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  th { text-align: left; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0.7rem 0.8rem; background: var(--paper-2); }
+  td { padding: 0.75rem 0.8rem; border-top: 1px solid var(--line); vertical-align: top; color: #26323e; }
+  td strong { display: block; color: var(--ink); line-height: 1.25; }
+  .a { font-size: 0.8rem; color: var(--muted); }
+  td a { display: inline-flex; white-space: nowrap; padding: 0.35rem 0.75rem; border-radius: 999px; background: var(--amber); color: var(--ink) !important; font-weight: 800; font-size: 0.8rem; text-decoration: none !important; }
+  @media (max-width: 760px) {
+    table, thead, tbody, tr, td { display: block; }
+    thead { display: none; }
+    table { border: 0; background: transparent; }
+    tr { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 0.4rem 0.2rem; margin-bottom: 0.6rem; }
+    td { border: 0; padding: 0.3rem 0.8rem; display: flex; gap: 0.6rem; }
+    td[data-l]::before { content: attr(data-l); flex: 0 0 76px; font-family: var(--font-mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding-top: 0.15rem; }
+    td strong { display: inline; }
+    td:first-child { flex-wrap: wrap; }
+  }
+</style>
