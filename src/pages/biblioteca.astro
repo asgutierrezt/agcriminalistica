@@ -41,6 +41,7 @@ const itemList = {
   <section class="section">
     <div class="container">
       <AffiliateNote class="note" />
+      <p class="ship"><strong>Antes de comprar desde Ecuador:</strong> los envíos suelen sumar costos de importación; revisa el total en Amazon antes de pagar. Las versiones <strong>Kindle</strong> no pagan envío y se descargan al instante.</p>
       {LIBRARY_CATEGORIES.map((c) => (
         <section class="cat" id={c.id}>
           <div class="cat-head">
@@ -81,6 +82,7 @@ const itemList = {
   }
   .jump a:hover { border-color: var(--amber); }
   .container :global(.note) { margin-bottom: 2.5rem; max-width: 760px; }
+  .ship { max-width: 760px; margin: -1.5rem 0 2.5rem; font-size: 0.9rem; color: var(--muted); }
   .cat { scroll-margin-top: calc(var(--header-h) + 20px); }
   .cat + .cat { margin-top: 3.5rem; }
   .cat-head { margin-bottom: 1.2rem; }

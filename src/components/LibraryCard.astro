@@ -18,14 +18,21 @@ const initials = item.title.replace(/^(Libros (de|sobre) |Kit de |La |El )/i, ''
     </div>
   )}
   <div class="body">
-    {item.level && <p class="meta">{item.level} · {item.cat === 'en' ? 'Inglés' : item.cat === 'es' ? 'Español' : 'Equipo'}</p>}
+    {item.level && <p class="meta">{item.level} · {item.cat === 'en' ? 'Inglés' : item.cat === 'es' ? 'Español' : 'Equipo'}{item.format && ` · ${item.format}`}</p>}
     {!item.level && <p class="meta">{item.cat === 'equipo' ? 'Equipo' : 'Selección'}</p>}
     <h3>{item.title}</h3>
     {item.author && <p class="author">{item.author}</p>}
     {!compact && <p class="why">{item.why}</p>}
-    <a class="btn-amz" href={amazonLink(item)} rel={AFFILIATE_REL} target="_blank">
-      Ver en Amazon <span aria-hidden="true">↗</span>
-    </a>
+    <div class="actions">
+      <a class="btn-amz" href={amazonLink(item)} rel={AFFILIATE_REL} target="_blank">
+        Ver en Amazon <span aria-hidden="true">↗</span>
+      </a>
+      {item.kindle && (
+        <a class="btn-kindle" href={amazonLink({ asin: item.kindle })} rel={AFFILIATE_REL} target="_blank" title="Sin envío: se descarga al instante">
+          Versión Kindle
+        </a>
+      )}
+    </div>
   </div>
 </article>
 
@@ -53,8 +60,14 @@ const initials = item.title.replace(/^(Libros (de|sobre) |Kit de |La |El )/i, ''
   h3 { font-size: 1.05rem; line-height: 1.25; }
   .author { font-size: 0.88rem; color: var(--muted); }
   .why { font-size: 0.9rem; color: #33414e; }
+  .actions { margin-top: auto; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .btn-kindle {
+    display: inline-flex; align-items: center; min-height: 40px; padding: 0.45rem 0.9rem; border-radius: 999px;
+    text-decoration: none; font-weight: 700; font-size: 0.85rem; border: 1.5px solid var(--ink); color: var(--ink);
+  }
+  .btn-kindle:hover { background: var(--ink); color: var(--white); }
   .btn-amz {
-    align-self: flex-start; margin-top: auto; display: inline-flex; align-items: center; gap: 0.35rem;
+    align-self: flex-start; display: inline-flex; align-items: center; gap: 0.35rem;
     min-height: 40px; padding: 0.45rem 0.9rem; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 0.88rem;
     background: var(--amber); color: var(--ink);
   }
