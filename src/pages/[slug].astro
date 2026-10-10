@@ -8,6 +8,10 @@ import Icon from '../components/Icon.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
 import AffiliateNote from '../components/AffiliateNote.astro';
 import ReadMore from '../components/ReadMore.astro';
+import TopPicks from '../components/TopPicks.astro';
+import CompareTable from '../components/CompareTable.astro';
+import TrustBox from '../components/TrustBox.astro';
+import { pickFor } from '../data/library';
 import { getPosts, formatDate, readingTime, type Post } from '../lib/utils';
 import { breadcrumbSchema, ORG_ID } from '../lib/schema';
 import { SITE, whatsappLink } from '../data/site';
@@ -73,6 +77,24 @@ const articleSchema = {
   wordCount: post.body?.split(/\s+/).length,
 };
 
+// Roundup guides: list the recommended books for search engines (no ratings or prices).
+const listed = pickFor([...new Set([...d.picks, ...d.compare])]);
+const itemListSchema = listed.length
+  ? [{
+      '@type': 'ItemList',
+      name: d.title,
+      itemListOrder: 'https://schema.org/ItemListOrderAscending',
+      numberOfItems: listed.length,
+      itemListElement: listed.map((it, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        item: it.cat === 'equipo'
+          ? { '@type': 'Thing', name: it.title, description: it.why }
+          : { '@type': 'Book', name: it.title, ...(it.author ? { author: { '@type': 'Person', name: it.author } } : {}), inLanguage: it.cat === 'en' ? 'en' : 'es' },
+      })),
+    }]
+  : [];
+
 const share = encodeURIComponent(url);
 const shareText = encodeURIComponent(d.title);
 ---
@@ -84,7 +106,7 @@ const shareText = encodeURIComponent(d.title);
   type="article"
   published={d.pubDate}
   modified={d.updatedDate}
-  schema={[articleSchema, breadcrumbSchema(crumbs)]}
+  schema={[articleSchema, breadcrumbSchema(crumbs), ...itemListSchema]}
   section={d.category}
   tags={d.tags}
   serif
@@ -132,11 +154,15 @@ const shareText = encodeURIComponent(d.title);
         </nav>
       )}
 
+      {d.affiliate && <TrustBox updated={d.updatedDate ?? d.pubDate} />}
       {d.affiliate && <AffiliateNote />}
+      {d.picks.length > 0 && <TopPicks ids={d.picks} />}
 
       <div class="prose">
         <Content />
       </div>
+
+      {d.compare.length > 0 && <CompareTable ids={d.compare} />}
 
       {reading.length > 0 && <ReadMore ids={reading} />}
 

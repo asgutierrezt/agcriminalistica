@@ -4,6 +4,8 @@ import PageHero from '../components/PageHero.astro';
 import LibraryCard from '../components/LibraryCard.astro';
 import AffiliateNote from '../components/AffiliateNote.astro';
 import Icon from '../components/Icon.astro';
+import TopPicks from '../components/TopPicks.astro';
+import ogImage from '../assets/img/og-biblioteca-forense.jpg';
 import { LIBRARY, LIBRARY_CATEGORIES } from '../data/library';
 import { breadcrumbSchema } from '../lib/schema';
 import { SITE } from '../data/site';
@@ -22,9 +24,11 @@ const itemList = {
 };
 ---
 <Base
-  title="Biblioteca forense: libros de criminalística recomendados"
-  description="Los mejores libros de criminalística, criminología, balística, dactiloscopia e informática forense, más el equipo básico para estudiantes. Selección de AG Criminalística."
+  title="Biblioteca forense: libros de criminalística recomendados (2026)"
+  description="Libros de criminalística, criminología, balística y dactiloscopia, más equipo para estudiantes, elegidos por criminalistas. Con versiones Kindle sin envío."
   schema={[itemList, breadcrumbSchema(crumbs)]}
+  image={ogImage}
+  imageAlt="Biblioteca forense de AG Criminalística"
 >
   <PageHero
     label="Recursos · Biblioteca"
@@ -35,11 +39,13 @@ const itemList = {
     <nav class="jump" aria-label="Secciones de la biblioteca">
       {LIBRARY_CATEGORIES.map((c) => <a href={`#${c.id}`}>{c.label}</a>)}
       <a href="/mejores-libros-de-criminalistica/">Guía: mejores libros</a>
+      <a href="/regalos-para-estudiantes-de-criminalistica/">Ideas de regalo</a>
     </nav>
   </PageHero>
 
   <section class="section">
     <div class="container">
+      <div class="tp"><TopPicks ids={['moreno-introduccion', 'saferstein', 'fisher']} /></div>
       <AffiliateNote class="note" />
       <p class="ship"><strong>Antes de comprar desde Ecuador:</strong> los envíos suelen sumar costos de importación; revisa el total en Amazon antes de pagar. Las versiones <strong>Kindle</strong> no pagan envío y se descargan al instante.</p>
       {LIBRARY_CATEGORIES.map((c) => (
@@ -83,6 +89,7 @@ const itemList = {
   .jump a:hover { border-color: var(--amber); }
   .container :global(.note) { margin-bottom: 2.5rem; max-width: 760px; }
   .ship { max-width: 760px; margin: -1.5rem 0 2.5rem; font-size: 0.9rem; color: var(--muted); }
+  .tp { margin-bottom: 1.5rem; }
   .cat { scroll-margin-top: calc(var(--header-h) + 20px); }
   .cat + .cat { margin-top: 3.5rem; }
   .cat-head { margin-bottom: 1.2rem; }

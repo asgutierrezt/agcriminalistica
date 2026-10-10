@@ -1,13 +1,15 @@
 ---
-title: 'Kit básico de criminalística para estudiantes: qué necesitas para practicar'
-seoTitle: 'Kit de criminalística para estudiantes: qué comprar'
+title: 'Kit básico de criminalística para estudiantes: qué comprar para practicar (2026)'
+seoTitle: 'Kit de criminalística para estudiantes: qué comprar (2026)'
 description: 'Qué incluir en un kit básico de criminalística para practicar: revelado de huellas, testigo métrico, linterna UV, embalaje y cadena de custodia.'
 pubDate: 2026-10-10
-cover: ../../assets/img/dactiloscopia.jpg
-coverAlt: 'Kit de criminalística para estudiantes: revelado de huellas dactilares'
+updatedDate: 2026-10-10
+cover: ../../assets/img/guia-kit-criminalistica.jpg
+coverAlt: 'Guía: kit básico de criminalística para estudiantes'
 category: 'Criminalística'
 tags: ['kit de criminalística', 'estudiantes', 'huellas dactilares', 'equipo forense']
 affiliate: true
+picks: ['brocha-magnetica', 'lupa', 'linterna-uv']
 ---
 
 La criminalística se aprende haciendo. Con un kit básico puedes practicar en casa o en clase las mismas técnicas que se usan en una escena real: **buscar, fijar, levantar y embalar indicios**. Esta es nuestra lista recomendada, de lo imprescindible a lo complementario.

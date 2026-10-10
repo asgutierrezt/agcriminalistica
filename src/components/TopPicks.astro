@@ -1,0 +1,55 @@
+---
+// "Nuestras elecciones": the 3 recommended picks shown before the long list.
+import BookCover from './BookCover.astro';
+import { pickFor } from '../data/library';
+import { amazonLink, AFFILIATE_REL } from '../data/affiliate';
+interface Props { ids: string[]; title?: string }
+const { ids, title = 'Nuestras elecciones' } = Astro.props;
+const items = pickFor(ids).slice(0, 3);
+const LABELS = ['La mejor para empezar', 'Referencia profesional', 'Para especializarte'];
+---
+<section class="picks" aria-label={title}>
+  <p class="label cyan">{title}</p>
+  <ol>
+    {items.map((it, i) => (
+      <li class:list={[{ first: i === 0 }]}>
+        <span class="rank">#{i + 1}</span>
+        <a class="cv" href={amazonLink(it)} rel={AFFILIATE_REL} target="_blank" tabindex="-1" aria-hidden="true">
+          <BookCover item={it} size="sm" />
+        </a>
+        <div class="info">
+          <span class="tag">{it.badge ?? LABELS[i]}</span>
+          <strong class="t">{it.title}</strong>
+          {it.bestFor && <span class="bf">{it.bestFor}</span>}
+          <span class="row">
+            <a class="go" href={amazonLink(it)} rel={AFFILIATE_REL} target="_blank">Ver precio en Amazon ↗</a>
+            {it.kindle && <a class="k" href={amazonLink({ asin: it.kindle })} rel={AFFILIATE_REL} target="_blank">Kindle</a>}
+          </span>
+        </div>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  /* Sized by its own width: 3 columns on the wide library page, a list inside articles. */
+  .picks .label { color: var(--cyan); }
+  .picks { container-type: inline-size; padding: 1.2rem; border-radius: 18px; background: var(--ink); color: var(--white); display: grid; gap: 0.9rem; font-family: var(--font-sans); }
+  ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.7rem; }
+  @container (min-width: 960px) { ol { grid-template-columns: repeat(3, 1fr); } }
+  li {
+    position: relative; display: grid; grid-template-columns: 76px 1fr; gap: 0.9rem; align-items: start;
+    padding: 0.9rem; border-radius: 14px; background: var(--ink-2); border: 1px solid var(--line-on-ink);
+  }
+  li.first { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber) inset; }
+  .rank { position: absolute; top: -10px; left: -6px; background: var(--amber); color: var(--ink); font-family: var(--font-mono); font-weight: 800; font-size: 0.75rem; padding: 0.15rem 0.45rem; border-radius: 6px; }
+  .cv { display: block; text-decoration: none !important; }
+  .info { display: grid; gap: 0.3rem; min-width: 0; }
+  .tag { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); font-weight: 800; }
+  .t { font-size: 1rem; line-height: 1.25; color: var(--white); }
+  .bf { font-size: 0.84rem; color: var(--muted-on-ink); line-height: 1.35; }
+  .row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.2rem; }
+  .go { display: inline-flex; align-items: center; white-space: nowrap; min-height: 40px; padding: 0.4rem 0.9rem; border-radius: 999px; background: var(--amber); color: var(--ink) !important; font-weight: 800; font-size: 0.85rem; text-decoration: none !important; }
+  .go:hover { background: #ffc933; }
+  .k { display: inline-flex; align-items: center; min-height: 40px; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1.5px solid var(--line-on-ink); color: var(--white) !important; font-weight: 700; font-size: 0.82rem; text-decoration: none !important; }
+</style>
