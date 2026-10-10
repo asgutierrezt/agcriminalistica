@@ -1,0 +1,32 @@
+---
+// Numbered steps drawn as evidence markers along a dashed "trajectory" line.
+interface Props { steps: { t: string; d: string }[]; dark?: boolean }
+const { steps, dark = false } = Astro.props;
+---
+<ol class:list={['process', { dark }]}>
+  {steps.map((s, i) => (
+    <li class="reveal">
+      <span class="marker">{i + 1}</span>
+      <h3>{s.t}</h3>
+      <p>{s.d}</p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .process { list-style: none; padding: 0; display: grid; gap: 1.5rem; position: relative; counter-reset: step; }
+  @media (min-width: 900px) {
+    .process { grid-template-columns: repeat(var(--n, 4), 1fr); gap: 1.25rem; }
+    .process::before {
+      content: ''; position: absolute; left: 22px; right: 22px; top: 22px; height: 0;
+      border-top: 2px dashed var(--amber); opacity: 0.7;
+    }
+  }
+  li { position: relative; display: grid; gap: 0.5rem; align-content: start; padding-left: 3.6rem; }
+  @media (min-width: 900px) { li { padding-left: 0; padding-top: 3.8rem; } }
+  .marker { position: absolute; left: 0; top: 0; }
+  h3 { font-size: 1.12rem; }
+  p { color: var(--muted); font-size: 0.95rem; }
+  .dark h3 { color: var(--white); }
+  .dark p { color: var(--muted-on-ink); }
+</style>

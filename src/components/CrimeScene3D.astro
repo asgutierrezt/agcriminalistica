@@ -1,0 +1,77 @@
+---
+/**
+ * Minimal line-art 3D crime scene (Three.js). The library is only downloaded
+ * once the container scrolls into view and the browser is idle, so it never
+ * competes with the page's main content. Until then — or without WebGL/JS —
+ * the static SVG poster below is shown.
+ */
+interface Props { caption?: string; class?: string; tall?: boolean }
+const { caption, class: cls, tall = false } = Astro.props;
+---
+<figure class:list={['scene3d', cls, { tall }]}>
+  <div class="stage" data-scene3d role="img" aria-label="Reconstrucción 3D animada de una escena del crimen: habitación, silueta, marcadores de evidencia y trayectorias">
+    <svg class="poster" viewBox="0 0 400 300" aria-hidden="true">
+      <g fill="none" stroke="#1ba3e0" stroke-opacity=".35" stroke-width="1">
+        <path d="M60 190 200 120 340 190 200 260Z" />
+        <path d="M95 172.5 235 242.5M130 155 270 225M165 137.5 305 207.5M95 207.5 235 137.5M130 225 270 155M165 242.5 305 172.5" stroke-opacity=".18" />
+        <path d="M60 190V90L200 20V120M200 20 340 90V190" />
+      </g>
+      <path d="M175 205c8-4 18-2 22 4l14 6 8-8 6 3-6 9 12 8-4 5-16-6-10 3-10-7-14 2-4-6Z" fill="none" stroke="#fff" stroke-dasharray="4 3" stroke-width="1.5" />
+      <path d="M90 120 255 200" stroke="#f5b70a" stroke-width="1.5" stroke-dasharray="5 4" />
+      <g fill="#f5b70a"><path d="M150 228l7-12 7 12Z" /><path d="M250 212l7-12 7 12Z" /><path d="M215 170l7-12 7 12Z" /></g>
+    </svg>
+  </div>
+  {caption && <figcaption><span class="dot"></span>{caption}</figcaption>}
+</figure>
+
+<script>
+  const mount = async (el: HTMLElement) => (await import('../lib/crimeScene')).mountCrimeScene(el);
+
+  // Start the scene on the visitor's first interaction, or a few seconds after
+  // load, so three.js never competes with the page becoming interactive.
+  let started = false;
+  const start = () => {
+    if (started) return;
+    started = true;
+    for (const ev of ['pointerdown', 'touchstart', 'scroll', 'keydown', 'mousemove']) removeEventListener(ev, start);
+    for (const el of document.querySelectorAll<HTMLElement>('[data-scene3d]')) {
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) return;
+          io.disconnect();
+          void mount(el);
+        },
+        { rootMargin: '200px' },
+      );
+      io.observe(el);
+    }
+  };
+  for (const ev of ['pointerdown', 'touchstart', 'scroll', 'keydown', 'mousemove']) addEventListener(ev, start, { once: true, passive: true });
+  if (document.readyState === 'complete') setTimeout(start, 3500);
+  else addEventListener('load', () => setTimeout(start, 3500), { once: true });
+</script>
+
+<style>
+  .scene3d { position: relative; margin: 0; }
+  .stage {
+    position: relative; width: 100%; aspect-ratio: 4 / 3.3; border-radius: 18px; overflow: hidden;
+    background:
+      radial-gradient(120% 90% at 50% 40%, rgba(27, 163, 224, 0.14), transparent 60%),
+      linear-gradient(180deg, #0c1c2c, #08131f);
+    border: 1px solid var(--line-on-ink);
+    cursor: grab;
+  }
+  .tall .stage { aspect-ratio: 16 / 10; }
+  @media (max-width: 640px) { .tall .stage { aspect-ratio: 4 / 3.6; } }
+  .stage:active { cursor: grabbing; }
+  .poster { position: absolute; inset: 8%; width: 84%; height: 84%; transition: opacity 0.6s ease; }
+  .stage.is-live .poster { opacity: 0; }
+  .stage :global(canvas) { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; animation: fade 0.8s ease both; }
+  @keyframes fade { from { opacity: 0; } }
+  figcaption {
+    display: flex; align-items: center; gap: 0.5rem; margin-top: 0.7rem;
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fig-caption, var(--muted-on-ink));
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #e5484d; box-shadow: 0 0 0 4px rgba(229, 72, 77, 0.2); animation: rec 1.6s ease-in-out infinite; }
+  @keyframes rec { 50% { opacity: 0.35; } }
+</style>

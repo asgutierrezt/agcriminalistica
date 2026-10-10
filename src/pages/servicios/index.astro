@@ -1,0 +1,63 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import Process from '../../components/Process.astro';
+import Icon from '../../components/Icon.astro';
+import { getServices } from '../../lib/utils';
+import { breadcrumbSchema, ORG_ID } from '../../lib/schema';
+import { SITE, whatsappLink } from '../../data/site';
+
+const services = await getServices();
+const crumbs = [{ name: 'Inicio', path: '/' }, { name: 'Servicios', path: '/servicios/' }];
+const list = {
+  '@type': 'ItemList',
+  name: 'Servicios periciales de AG Criminalística',
+  itemListElement: services.map((s, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: { '@type': 'Service', name: s.data.title, url: `${SITE.url}/servicios/${s.id}/`, provider: { '@id': ORG_ID }, areaServed: 'Ecuador' },
+  })),
+};
+const steps = [
+  { t: 'Nos cuentas el caso', d: 'Por el formulario o WhatsApp, de forma confidencial.' },
+  { t: 'Evaluamos la evidencia', d: 'Revisamos qué puede aportar un peritaje o una reconstrucción.' },
+  { t: 'Propuesta', d: 'Te explicamos el alcance, los plazos y el costo del trabajo.' },
+  { t: 'Informe y audiencia', d: 'Entregamos el informe o video y lo sustentamos ante el tribunal.' },
+];
+---
+<Base
+  title="Servicios periciales en Ecuador: peritaje y reconstrucción 3D"
+  description="Servicios periciales en todo Ecuador: peritaje criminalístico, reconstrucción 3D de los hechos y consultoría para abogados. Prueba técnica clara y defendible."
+  schema={[list, breadcrumbSchema(crumbs)]}
+>
+  <PageHero
+    label="Servicios periciales"
+    title="Prueba técnica que se entiende y se defiende."
+    lead="Acompañamos a abogados, instituciones y particulares en todo Ecuador con peritajes criminalísticos, reconstrucciones 3D y asesoría técnica."
+    crumbs={crumbs}
+  >
+    <div class="btn-row">
+      <a class="btn btn-primary" href="/contacto/">Solicitar peritaje <Icon name="arrow" /></a>
+      <a class="btn btn-ghost" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
+    </div>
+  </PageHero>
+  <section class="section">
+    <div class="container grid">
+      {services.map((s) => <ServiceCard service={s} headingLevel={2} />)}
+    </div>
+  </section>
+  <section class="section paper-2">
+    <div class="container">
+      <p class="label cyan">Proceso</p>
+      <h2 class="h-section">Del primer mensaje a la audiencia.</h2>
+      <Process steps={steps} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .grid { display: grid; gap: 1.5rem; }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+</style>

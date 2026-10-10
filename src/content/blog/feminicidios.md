@@ -60,3 +60,5 @@ La cada vez más visibilizada violencia contra la mujer da cuenta de la necesida
 **Nada que celebrar, mucho que denunciar.**
 
 *Referencia: Olamendi Torres, Patricia. Propuesta de Protocolo de Actuación en la investigación del delito de homicidio desde la perspectiva del feminicidio. México: UNIFEM (hoy ONU Mujeres), 2010.*
+
+En casos complejos, el [peritaje criminalístico](/servicios/peritaje-criminalistico/) y la [reconstrucción 3D de los hechos](/servicios/reconstruccion-3d-de-hechos/) ayudan a sustentar técnicamente la teoría del caso.

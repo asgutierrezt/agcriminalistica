@@ -40,7 +40,7 @@ const courseSchema = {
     ? { offers: { '@type': 'Offer', category: 'Free', price: 0, priceCurrency: 'USD' } }
     : {}),
 };
-const wa = whatsappLink(`Hola, quisiera información sobre el curso "${d.title}".`);
+const wa = whatsappLink();
 ---
 <Base
   title={d.seoTitle}
@@ -87,7 +87,7 @@ const wa = whatsappLink(`Hola, quisiera información sobre el curso "${d.title}"
           <p class="big">{d.status}</p>
           <p>Déjanos tus datos y te avisaremos de las próximas fechas, modalidad y costos.</p>
           <a class="btn btn-primary" href={`/contacto/?interes=${course.id}`}>Solicitar información <Icon name="arrow" /></a>
-          <a class="btn btn-ghost" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" /> Consultar por WhatsApp</a>
+          <a class="btn btn-ghost" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" /> Escribir por WhatsApp</a>
           <ul class="incl">
             <li><Icon name="chat" size={18} /> Seguimiento académico</li>
             <li><Icon name="book" size={18} /> Biblioteca online</li>

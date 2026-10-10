@@ -41,4 +41,29 @@ const courses = defineCollection({
     }),
 });
 
-export const collections = { blog, courses };
+const services = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/services' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      shortTitle: z.string(),
+      seoTitle: z.string().max(65),
+      description: z.string().max(170),
+      tagline: z.string(),
+      serviceType: z.string(),
+      icon: z.enum(['cube', 'search', 'scale']),
+      code: z.string(),
+      order: z.number(),
+      interes: z.string(),
+      cover: image(),
+      coverAlt: z.string(),
+      benefits: z.array(z.object({ t: z.string(), d: z.string() })),
+      process: z.array(z.object({ t: z.string(), d: z.string() })),
+      useCases: z.array(z.string()),
+      faq: z.array(z.object({ q: z.string(), a: z.string() })),
+      videos: z.array(z.object({ youtubeId: z.string(), title: z.string(), uploadDate: z.coerce.date() })).default([]),
+      related: z.array(z.string()).default([]),
+    }),
+});
+
+export const collections = { blog, courses, services };

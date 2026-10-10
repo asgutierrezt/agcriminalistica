@@ -27,3 +27,5 @@ Se trata del documento escrito en el cual los peritos exponen sus observaciones 
 > Esta estructura es una guía de los ítems que, al menos, deben considerar los auxiliares de justicia al momento de elaborar sus informes periciales.
 
 Aprende a redactar dictámenes sólidos y defendibles ante el tribunal en nuestro [curso de Criminalística](/courses/criminalistica/).
+
+Si necesitas un informe pericial de parte o revisar el de la contraparte, consulta nuestros servicios de [peritaje criminalístico](/servicios/peritaje-criminalistico/) y [consultoría para abogados](/servicios/consultoria-para-abogados/).

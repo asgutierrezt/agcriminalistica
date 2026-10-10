@@ -1,0 +1,238 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Icon from '../../components/Icon.astro';
+import Process from '../../components/Process.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import CrimeScene3D from '../../components/CrimeScene3D.astro';
+import { getServices, type Service } from '../../lib/utils';
+import { breadcrumbSchema, ORG_ID } from '../../lib/schema';
+import { SITE, whatsappLink } from '../../data/site';
+
+export async function getStaticPaths() {
+  const services = await getServices();
+  return services.map((service) => ({ params: { slug: service.id }, props: { service, services } }));
+}
+interface Props { service: Service; services: Service[] }
+const { service, services } = Astro.props;
+const { Content } = await render(service);
+const d = service.data;
+const is3D = service.id === 'reconstruccion-3d-de-hechos';
+const related = services.filter((s) => d.related.includes(s.id));
+const url = `${SITE.url}/servicios/${service.id}/`;
+
+const crumbs = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Servicios', path: '/servicios/' },
+  { name: d.shortTitle, path: `/servicios/${service.id}/` },
+];
+const serviceSchema = {
+  '@type': 'Service',
+  '@id': `${url}#service`,
+  name: d.title,
+  serviceType: d.serviceType,
+  description: d.description,
+  url,
+  image: new URL(d.cover.src, SITE.url).href,
+  provider: { '@id': ORG_ID },
+  areaServed: { '@type': 'Country', name: 'Ecuador' },
+  audience: { '@type': 'Audience', audienceType: 'Abogados, fiscalía, defensa, aseguradoras, empresas y particulares' },
+};
+const faqSchema = {
+  '@type': 'FAQPage',
+  mainEntity: d.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const videoSchemas = d.videos.map((v) => ({
+  '@type': 'VideoObject',
+  name: v.title,
+  thumbnailUrl: `https://i.ytimg.com/vi/${v.youtubeId}/hqdefault.jpg`,
+  embedUrl: `https://www.youtube-nocookie.com/embed/${v.youtubeId}`,
+  uploadDate: v.uploadDate.toISOString().slice(0, 10),
+}));
+const wa = whatsappLink();
+---
+<Base
+  title={d.seoTitle}
+  description={d.description}
+  image={d.cover}
+  imageAlt={d.coverAlt}
+  schema={[serviceSchema, faqSchema, breadcrumbSchema(crumbs), ...videoSchemas]}
+>
+  <PageHero label={`${d.code} · Servicio pericial`} title={d.title} lead={d.tagline} crumbs={crumbs}>
+    <div class="btn-row">
+      <a class="btn btn-primary" href={`/contacto/?interes=${d.interes}`}>Solicitar este servicio <Icon name="arrow" /></a>
+      <a class="btn btn-ghost" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container intro">
+      <div class="visual">
+        {is3D ? (
+          <CrimeScene3D caption="Demostración interactiva · arrastra para girar" />
+        ) : (
+          <Image src={d.cover} alt={d.coverAlt} widths={[480, 760, 1080]} sizes="(min-width: 960px) 560px, 92vw" loading="eager" class="cover" />
+        )}
+      </div>
+      <div class="prose">
+        <p class="label cyan">En qué consiste</p>
+        <Content />
+      </div>
+    </div>
+  </section>
+
+  <section class="section paper-2">
+    <div class="container">
+      <p class="label cyan">Qué aporta a tu caso</p>
+      <h2 class="h-section">Ventajas</h2>
+      <ul class="benefits">
+        {d.benefits.map((b, i) => (
+          <li class="reveal">
+            <span class="num">0{i + 1}</span>
+            <h3>{b.t}</h3>
+            <p>{b.d}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section ink grid-bg">
+    <div class="container">
+      <p class="label cyan">Metodología</p>
+      <h2 class="h-section">Cómo trabajamos</h2>
+      <Process steps={d.process} dark />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container two">
+      <div>
+        <p class="label cyan">Aplicaciones</p>
+        <h2 class="h-section">Casos en los que ayuda</h2>
+        <ul class="cases">
+          {d.useCases.map((u) => <li><Icon name="crosshair" size={20} /> <span>{u}</span></li>)}
+        </ul>
+      </div>
+      {d.videos.length > 0 ? (
+        <div class="videos">
+          {d.videos.map((v) => (
+            <a class="yt" href={`https://www.youtube.com/watch?v=${v.youtubeId}`} target="_blank" rel="noopener">
+              <img src={`https://i.ytimg.com/vi/${v.youtubeId}/hqdefault.jpg`} alt={v.title} loading="lazy" width="480" height="360" />
+              <span class="play"><Icon name="play" size={56} /></span>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <aside class="who">
+          <p class="label">Para quién</p>
+          <ul>
+            <li><Icon name="scale" size={20} /> Abogados y estudios jurídicos</li>
+            <li><Icon name="shield" size={20} /> Fiscalía y defensa</li>
+            <li><Icon name="building" size={20} /> Aseguradoras y empresas</li>
+            <li><Icon name="users" size={20} /> Particulares y familias</li>
+          </ul>
+        </aside>
+      )}
+    </div>
+  </section>
+
+  <section class="section paper-2">
+    <div class="narrow">
+      <p class="label cyan">Preguntas frecuentes</p>
+      <h2 class="h-section">Sobre {d.shortTitle.toLowerCase()}</h2>
+      <div class="faq">
+        {d.faq.map((f, i) => (
+          <details name="faq" open={i === 0}>
+            <summary><span>{f.q}</span><span class="q-ic" aria-hidden="true"></span></summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section ink grid-bg" id="solicitar">
+    <div class="container contact">
+      <div>
+        <p class="label cyan">Solicitar {d.shortTitle.toLowerCase()}</p>
+        <h2 class="h-section">Cuéntanos tu caso.</h2>
+        <p class="lead">Evaluamos tu consulta sin compromiso y te respondemos de forma confidencial.</p>
+        <a class="btn btn-wa" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" /> Prefiero WhatsApp</a>
+      </div>
+      <div class="form-card"><ContactForm /></div>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <p class="label cyan">Servicios relacionados</p>
+        <h2 class="h-section">También te puede servir</h2>
+        <div class="grid">{related.map((s) => <ServiceCard service={s} />)}</div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<script define:vars={{ interes: d.interes }}>
+  // Pre-select this service in the inline form.
+  const opt = document.querySelector(`#solicitar option[data-key="${interes}"]`);
+  if (opt) opt.selected = true;
+</script>
+
+<style>
+  .intro { display: grid; gap: 2.5rem; align-items: center; }
+  @media (min-width: 960px) { .intro { grid-template-columns: 1.1fr 0.9fr; } }
+  .visual { --fig-caption: var(--muted); }
+  .cover { width: 100%; border-radius: 18px; }
+  .prose { font-size: 1.08rem; line-height: 1.75; color: #1b2733; }
+  .prose :global(p + p) { margin-top: 1em; }
+  .prose :global(.label) { margin-bottom: 0.8rem; }
+  .prose :global(strong) { color: var(--ink); }
+
+  .benefits { list-style: none; padding: 0; display: grid; gap: 1rem; }
+  @media (min-width: 720px) { .benefits { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .benefits { grid-template-columns: repeat(4, 1fr); } }
+  .benefits li { display: grid; gap: 0.5rem; align-content: start; padding: 1.4rem; background: var(--paper); border-radius: var(--radius); border-top: 3px solid var(--cyan); }
+  .num { font-family: var(--font-mono); font-weight: 800; color: var(--cyan-ink); }
+  .benefits h3 { font-size: 1.15rem; }
+  .benefits p { color: var(--muted); font-size: 0.95rem; }
+
+  .two { display: grid; gap: 2.5rem; align-items: start; }
+  @media (min-width: 960px) { .two { grid-template-columns: 1.2fr 0.8fr; } }
+  .cases { list-style: none; padding: 0; display: grid; gap: 0.6rem; margin-top: 0.5rem; }
+  .cases li { display: flex; gap: 0.75rem; align-items: center; padding: 0.9rem 1rem; background: var(--white); border: 1px solid var(--line); border-radius: 12px; font-weight: 600; }
+  .cases :global(svg) { color: var(--cyan-ink); flex: none; }
+  .who { padding: 1.6rem; border-radius: 18px; background: var(--ink); color: var(--white); }
+  .who .label { color: var(--amber); margin-bottom: 1rem; }
+  .who ul { list-style: none; padding: 0; display: grid; gap: 0.9rem; }
+  .who li { display: flex; gap: 0.7rem; align-items: center; }
+  .who :global(svg) { color: var(--cyan); }
+  .videos { display: grid; gap: 1rem; }
+  .yt { position: relative; display: block; border-radius: 14px; overflow: hidden; }
+  .yt img { width: 100%; height: auto; }
+  .play { position: absolute; inset: 0; display: grid; place-items: center; color: var(--white); background: rgba(8, 19, 31, 0.35); }
+
+  .faq { border-top: 1px solid var(--line); }
+  details { border-bottom: 1px solid var(--line); }
+  summary { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 1.2rem 0; cursor: pointer; list-style: none; font-weight: 700; font-size: 1.08rem; min-height: 56px; }
+  summary::-webkit-details-marker { display: none; }
+  .q-ic { position: relative; width: 22px; height: 22px; flex: none; }
+  .q-ic::before, .q-ic::after { content: ''; position: absolute; left: 3px; right: 3px; top: 10px; height: 2px; background: currentColor; transition: transform 0.2s ease; }
+  .q-ic::after { transform: rotate(90deg); }
+  details[open] .q-ic::after { transform: rotate(0deg); }
+  details p { padding-bottom: 1.3rem; color: var(--muted); }
+
+  .contact { display: grid; gap: 2.5rem; }
+  @media (min-width: 960px) { .contact { grid-template-columns: 0.85fr 1.15fr; align-items: start; } }
+  .contact h2 { color: var(--white); }
+  .btn-wa { margin-top: 1.5rem; background: #25d366; color: #062b14; }
+  .form-card { background: var(--paper); color: var(--text); padding: clamp(1.25rem, 1rem + 2vw, 2.25rem); border-radius: 18px; }
+  .form-card :global(p) { color: inherit; }
+  .grid { display: grid; gap: 1.5rem; }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+</style>

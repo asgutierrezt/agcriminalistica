@@ -3,7 +3,7 @@ import { SITE } from '../data/site';
 export const ORG_ID = `${SITE.url}/#organization`;
 
 export const organizationSchema = {
-  '@type': ['EducationalOrganization', 'ProfessionalService'],
+  '@type': ['ProfessionalService', 'EducationalOrganization'],
   '@id': ORG_ID,
   name: SITE.name,
   alternateName: SITE.legalName,
@@ -11,12 +11,15 @@ export const organizationSchema = {
   logo: `${SITE.url}/logo-ag-criminalistica.png`,
   image: `${SITE.url}/logo-ag-criminalistica.png`,
   description: SITE.description,
-  email: SITE.email,
   telephone: SITE.phone,
   founder: { '@type': 'Person', name: 'Alberto Gutiérrez', jobTitle: 'Licenciado en Criminalística' },
   areaServed: { '@type': 'Country', name: 'Ecuador' },
   address: { '@type': 'PostalAddress', addressCountry: 'EC' },
   knowsAbout: [
+    'Peritaje criminalístico',
+    'Reconstrucción 3D de hechos',
+    'Animación forense',
+    'Contrapericia',
     'Criminalística',
     'Ciencias forenses',
     'Peritaje judicial',
@@ -26,10 +29,22 @@ export const organizationSchema = {
     'Investigación del crimen',
   ],
   sameAs: Object.values(SITE.social),
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Servicios periciales y capacitación',
+    itemListElement: [
+      ['Reconstrucción 3D de los hechos', '/servicios/reconstruccion-3d-de-hechos/'],
+      ['Peritaje criminalístico', '/servicios/peritaje-criminalistico/'],
+      ['Consultoría pericial para abogados', '/servicios/consultoria-para-abogados/'],
+      ['Cursos de criminalística', '/cursos/'],
+    ].map(([name, path]) => ({
+      '@type': 'Offer',
+      itemOffered: { '@type': 'Service', name, url: `${SITE.url}${path}` },
+    })),
+  },
   contactPoint: {
     '@type': 'ContactPoint',
     telephone: SITE.phone,
-    email: SITE.email,
     contactType: 'customer service',
     availableLanguage: 'es',
     areaServed: 'EC',

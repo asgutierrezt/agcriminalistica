@@ -1,17 +1,20 @@
 import type { APIRoute } from 'astro';
-import { getCourses, getPosts } from '../lib/utils';
+import { getCourses, getPosts, getServices } from '../lib/utils';
 import { SITE } from '../data/site';
 
 export const GET: APIRoute = async () => {
   const posts = await getPosts();
   const courses = await getCourses();
+  const services = await getServices();
   const latest = posts.reduce((m, p) => Math.max(m, (p.data.updatedDate ?? p.data.pubDate).getTime()), 0);
   const today = new Date().toISOString().slice(0, 10);
 
   const entries: { loc: string; lastmod?: string; priority: string }[] = [
     { loc: '/', lastmod: today, priority: '1.0' },
-    { loc: '/cursos/', lastmod: today, priority: '0.9' },
-    ...courses.map((c) => ({ loc: `/courses/${c.id}/`, lastmod: today, priority: '0.9' })),
+    { loc: '/servicios/', lastmod: today, priority: '0.9' },
+    ...services.map((s) => ({ loc: `/servicios/${s.id}/`, lastmod: today, priority: '1.0' })),
+    { loc: '/cursos/', lastmod: today, priority: '0.7' },
+    ...courses.map((c) => ({ loc: `/courses/${c.id}/`, lastmod: today, priority: '0.7' })),
     { loc: '/blog/', lastmod: new Date(latest).toISOString().slice(0, 10), priority: '0.8' },
     ...posts.map((p) => ({
       loc: `/${p.id}/`,

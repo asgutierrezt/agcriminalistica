@@ -48,7 +48,7 @@ const book = {
           <p><strong>Solicítalo gratis.</strong> Escríbenos y te lo enviamos directamente a tu correo o WhatsApp.</p>
           <div class="btn-row">
             <a class="btn btn-primary" href={`/contacto/?interes=${p.interes}`}><Icon name="download" /> Solicitar manual</a>
-            <a class="btn btn-ghost" href={whatsappLink(`Hola, quisiera recibir el ${p.title}.`)} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
+            <a class="btn btn-ghost" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
           </div>
         </div>
         <p class="rel">Lee también: <a href={p.related.href}>{p.related.label}</a></p>
