@@ -2,6 +2,7 @@
 
 Sitio de AG Criminalística, construido con [Astro](https://astro.build) y publicado en GitHub Pages
 mediante GitHub Actions (`.github/workflows/deploy.yml`). Cada push a `main` publica el sitio.
+Cada pull request se compila y se revisa antes (`.github/workflows/check.yml`). Requiere Node 22.12 o superior.
 
 ## Desarrollo
 
@@ -23,3 +24,8 @@ npm run check    # verificación de tipos
 - **Preguntas frecuentes:** `src/data/faq.ts`.
 
 El formulario de contacto envía los mensajes al correo configurado en la cuenta de Web3Forms (no figura en el código).
+
+## Derechos
+
+© AG Criminalística. Todos los derechos reservados. El código es público solo para publicar el sitio;
+no se concede permiso para copiar o reutilizar sus textos, imágenes, diseño ni código.
