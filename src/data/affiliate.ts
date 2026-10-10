@@ -6,8 +6,8 @@
  */
 export const AMAZON_TAG = 'agcriminalist-20';
 
-export const AFFILIATE_DISCLOSURE =
-  'Como afiliado de Amazon, AG Criminalística gana con las compras que cumplen los requisitos. Esto no tiene costo adicional para ti.';
+/** Amazon's required statement, word for word. */
+export const AFFILIATE_DISCLOSURE = 'Como afiliado de Amazon, gano con las compras que cumplen los requisitos.';
 
 export function amazonLink(item: { query?: string; asin?: string }) {
   if (item.asin) return `https://www.amazon.com/dp/${item.asin}?tag=${AMAZON_TAG}`;

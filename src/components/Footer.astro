@@ -2,6 +2,7 @@
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import { SITE, whatsappLink } from '../data/site';
+import { AFFILIATE_DISCLOSURE } from '../data/affiliate';
 const year = new Date().getFullYear();
 ---
 <footer class="site-footer ink grid-bg">
@@ -62,7 +63,7 @@ const year = new Date().getFullYear();
   <div class="container legal">
     <p>© {year} {SITE.legalName}. Todos los derechos reservados.</p>
     <p><a href="/privacidad/">Privacidad</a></p>
-    <p class="aff">Como afiliado de Amazon, AG Criminalística gana con las compras que cumplen los requisitos.</p>
+    <p class="aff">{AFFILIATE_DISCLOSURE}</p>
   </div>
 </footer>
 

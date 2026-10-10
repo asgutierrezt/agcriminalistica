@@ -15,6 +15,12 @@ export interface LibraryItem {
   level?: 'Inicial' | 'Intermedio' | 'Avanzado';
   query?: string;
   asin?: string;
+  /**
+   * Product image URL exactly as Amazon provides it (SiteStripe "Imagen" or the
+   * Product Advertising API), e.g. https://m.media-amazon.com/images/I/....jpg.
+   * Amazon does not allow downloading and re-hosting its images.
+   */
+  image?: string;
 }
 
 export const LIBRARY_CATEGORIES: { id: LibraryCategory; label: string; desc: string }[] = [
