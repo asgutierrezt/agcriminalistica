@@ -17,7 +17,7 @@ import { SITE } from '../data/site';
 const reviewed = PUBLIC_INFO_REVIEWED.toLocaleDateString('es-EC', { month: 'long', year: 'numeric' });
 const title = 'Información útil: contactos de instituciones públicas de Ecuador';
 const description =
-  'Teléfonos y direcciones de la Fiscalía, el Consejo de la Judicatura, Medicina Legal, la Defensoría Pública y el ECU 911. AG Criminalística es una empresa privada.';
+  'Teléfonos y direcciones de Fiscalía, Judicatura, Medicina Legal, Defensoría Pública y ECU 911. AG Criminalística es privada y no tiene relación con ellos.';
 
 const schema = [
   {
@@ -82,8 +82,16 @@ const schema = [
           No recibimos denuncias, no tramitamos procesos judiciales y no emitimos certificados ni documentos oficiales.
           Para esos trámites, comunícate directamente con la institución que corresponde: aquí tienes sus contactos.
         </p>
+        <p class="strong">
+          No tenemos ninguna relación con estos organismos ni los representamos. Solo compartimos esta información pública
+          para quien la necesite.
+        </p>
       </div>
     </aside>
+
+    <p class="disclaimer">
+      Información pública de referencia. AG Criminalística no tiene ningún vínculo con las instituciones de esta lista.
+    </p>
 
     {INSTITUTION_GROUPS.map((g) => (
       <section class="group" id={g.id} aria-labelledby={`t-${g.id}`}>
@@ -167,7 +175,10 @@ const schema = [
         Datos tomados de los sitios web oficiales de cada institución y revisados en {reviewed}. Pueden cambiar sin
         aviso: antes de acudir, confírmalos en el sitio oficial.
       </p>
-      <p>© {PUBLIC_INFO_REVIEWED.getFullYear()} AG Criminalística · Empresa privada, sin vínculo con las instituciones mencionadas.</p>
+      <p>
+        © {PUBLIC_INFO_REVIEWED.getFullYear()} AG Criminalística · Empresa privada. No tenemos relación con las
+        instituciones mencionadas; solo brindamos esta información para quien la requiera.
+      </p>
     </div>
   </footer>
 </Base>
@@ -197,7 +208,9 @@ const schema = [
   .notice h2 { font-size: var(--step-1); margin-bottom: 0.4rem; }
   .notice p { color: #3b3320; max-width: 75ch; }
   .notice p + p { margin-top: 0.5rem; }
+  .notice .strong { font-weight: 700; color: var(--text); }
 
+  .disclaimer { margin-top: 1.4rem; font-size: 0.9rem; color: var(--muted); }
   .group { padding-top: clamp(2.5rem, 2rem + 2vw, 3.5rem); scroll-margin-top: 1rem; }
   .group h2 { font-size: var(--step-2); }
   .intro { color: var(--muted); margin-top: 0.3rem; }
