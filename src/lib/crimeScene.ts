@@ -1,18 +1,23 @@
 /**
- * Interactive line-art 3D crime scene used on the home page and the 3D
+ * Interactive 3D crime-scene reconstruction used on the home page and the 3D
  * reconstruction service. Loaded on demand by CrimeScene3D.astro; named
  * imports keep the three.js bundle tree-shaken.
  *
- * The scene plays a short "reconstruction" timeline (markers appear, the
- * shooter fades in, trajectories are traced) and exposes a small controller
- * so the surrounding HTML can switch camera views, scrub the timeline and
- * highlight evidence.
+ * Visual style: a clean "clay render" like professional forensic animations —
+ * lit, shadowed room and furniture, full-body mannequins (victim on the
+ * floor, shooter at the doorway), real evidence tents, red trajectory rods
+ * and physical traces (casing, blood pool, shoe prints, phone, bullet hole).
+ *
+ * The scene plays a short timeline (markers appear, the shooter fades in,
+ * trajectories are traced) and exposes a small controller so the HTML around
+ * it can switch camera views, scrub the timeline and highlight evidence.
  */
 import {
-  BoxGeometry, BufferGeometry, CanvasTexture, CatmullRomCurve3, DoubleSide, EdgesGeometry, Fog, GridHelper, Group,
-  Line, LineBasicMaterial, LineDashedMaterial, LineSegments, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry,
-  Raycaster, RingGeometry, Scene, Sprite, SpriteMaterial, SRGBColorSpace, Vector2, Vector3, WebGLRenderer,
-  type Material,
+  ACESFilmicToneMapping, BoxGeometry, BufferGeometry, CanvasTexture, CapsuleGeometry, CatmullRomCurve3, CircleGeometry,
+  Color, CylinderGeometry, DirectionalLight, DoubleSide, Fog, Group, HemisphereLight, Line, LineBasicMaterial, Mesh,
+  MeshBasicMaterial, MeshStandardMaterial, Object3D, PCFSoftShadowMap, PerspectiveCamera, PlaneGeometry, Raycaster,
+  RepeatWrapping, RingGeometry, Scene, SphereGeometry, Spherical, Sprite, SpriteMaterial, SRGBColorSpace, TubeGeometry,
+  Vector2, Vector3, WebGLRenderer, type Material,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SCENE_EVIDENCE, type SceneViewId } from '../data/sceneEvidence';
@@ -32,69 +37,372 @@ interface Options {
   onTime?: (t: number, playing: boolean) => void;
 }
 
-const CYAN = 0x1ba3e0;
-const AMBER = 0xf5b70a;
-const WHITE = 0xe9f1f7;
 const DURATION = 6.5;
-
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const ease = (v: number) => (v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2);
-/** Progress (0..1) of a timeline segment that runs from `a` to `b` seconds. */
 const seg = (t: number, a: number, b: number) => clamp01((t - a) / (b - a));
+
+// --- Materials ---------------------------------------------------------------
+const mat = (color: number, roughness = 0.85, metalness = 0) => new MeshStandardMaterial({ color, roughness, metalness });
+
+function floorTexture() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#b9bec4';
+  g.fillRect(0, 0, 256, 256);
+  // Subtle tile variation + joints (each texture tile = 0.5 m).
+  for (let i = 0; i < 2; i++)
+    for (let j = 0; j < 2; j++) {
+      g.fillStyle = (i + j) % 2 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
+      g.fillRect(i * 128, j * 128, 128, 128);
+    }
+  g.strokeStyle = 'rgba(60,70,80,0.35)';
+  g.lineWidth = 2;
+  g.strokeRect(0, 0, 256, 256);
+  g.beginPath();
+  g.moveTo(128, 0); g.lineTo(128, 256);
+  g.moveTo(0, 128); g.lineTo(256, 128);
+  g.stroke();
+  const tex = new CanvasTexture(c);
+  tex.wrapS = tex.wrapT = RepeatWrapping;
+  tex.repeat.set(8, 8);
+  tex.colorSpace = SRGBColorSpace;
+  return tex;
+}
+
+function numberTexture(n: number) {
+  const c = document.createElement('canvas');
+  c.width = 128;
+  c.height = 128;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#f5b70a';
+  g.fillRect(0, 0, 128, 128);
+  g.fillStyle = '#111';
+  g.fillRect(0, 0, 128, 12);
+  g.font = '800 78px Arial, Helvetica, sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText(String(n), 64, 74);
+  const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+// --- Mannequin ---------------------------------------------------------------
+interface Pose {
+  armR?: [number, number, number];
+  armL?: [number, number, number];
+  foreR?: number;
+  foreL?: number;
+  legR?: [number, number, number];
+  legL?: [number, number, number];
+  kneeR?: number;
+  kneeL?: number;
+  head?: [number, number, number];
+}
+
+/** Articulated forensic mannequin (~1.75 m), standing on y=0 and facing +x. */
+function mannequin(material: Material, pose: Pose = {}) {
+  const root = new Group();
+  const part = (geo: BufferGeometry, parent: Object3D, y = 0) => {
+    const m = new Mesh(geo, material);
+    m.position.y = y;
+    m.castShadow = true;
+    m.receiveShadow = true;
+    parent.add(m);
+    return m;
+  };
+  /** A limb hanging down from its pivot; returns the joint at its end. */
+  const limb = (parent: Object3D, at: [number, number, number], length: number, radius: number, rot?: [number, number, number]) => {
+    const pivot = new Group();
+    pivot.position.set(...at);
+    if (rot) pivot.rotation.set(...rot);
+    parent.add(pivot);
+    part(new CapsuleGeometry(radius, Math.max(0.01, length - radius * 2), 6, 12), pivot, -length / 2);
+    const end = new Group();
+    end.position.y = -length;
+    pivot.add(end);
+    return { pivot, end };
+  };
+
+  const pelvis = new Group();
+  pelvis.position.y = 0.93;
+  root.add(pelvis);
+  const hips = part(new SphereGeometry(0.15, 20, 14), pelvis, 0.02);
+  hips.scale.set(0.85, 0.7, 1.15);
+  const torso = part(new CapsuleGeometry(0.15, 0.32, 8, 16), pelvis, 0.32);
+  torso.scale.set(0.75, 1, 1.25);
+  part(new CylinderGeometry(0.045, 0.05, 0.08, 12), pelvis, 0.6);
+  const headPivot = new Group();
+  headPivot.position.y = 0.68;
+  if (pose.head) headPivot.rotation.set(...pose.head);
+  pelvis.add(headPivot);
+  const head = part(new SphereGeometry(0.105, 24, 18), headPivot, 0.08);
+  head.scale.set(0.95, 1.12, 0.9);
+
+  // Arms (from the shoulders) and legs (from the hips).
+  const armR = limb(pelvis, [0, 0.55, 0.21], 0.3, 0.048, pose.armR);
+  const foreR = limb(armR.end, [0, 0, 0], 0.27, 0.042, [0, 0, pose.foreR ?? 0]);
+  part(new SphereGeometry(0.045, 12, 10), foreR.end, -0.03);
+  const armL = limb(pelvis, [0, 0.55, -0.21], 0.3, 0.048, pose.armL);
+  const foreL = limb(armL.end, [0, 0, 0], 0.27, 0.042, [0, 0, pose.foreL ?? 0]);
+  part(new SphereGeometry(0.045, 12, 10), foreL.end, -0.03);
+  const legR = limb(pelvis, [0, -0.02, 0.095], 0.45, 0.068, pose.legR);
+  const shinR = limb(legR.end, [0, 0, 0], 0.44, 0.055, [0, 0, pose.kneeR ?? 0]);
+  const footR = part(new BoxGeometry(0.22, 0.06, 0.09), shinR.end, -0.01);
+  footR.position.x = 0.05;
+  const legL = limb(pelvis, [0, -0.02, -0.095], 0.45, 0.068, pose.legL);
+  const shinL = limb(legL.end, [0, 0, 0], 0.44, 0.055, [0, 0, pose.kneeL ?? 0]);
+  const footL = part(new BoxGeometry(0.22, 0.06, 0.09), shinL.end, -0.01);
+  footL.position.x = 0.05;
+
+  return { root, handR: foreR.end };
+}
 
 export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeSceneController | null {
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const small = el.clientWidth < 640;
 
   let renderer: WebGLRenderer;
   try {
-    renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' });
+    renderer = new WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'low-power' });
   } catch {
     return null; // No WebGL: keep the SVG poster and the HTML evidence list.
   }
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-  renderer.setClearColor(0x000000, 0);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, small ? 1.5 : 1.75));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = PCFSoftShadowMap;
+  renderer.toneMapping = ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.outputColorSpace = SRGBColorSpace;
 
   const scene = new Scene();
-  scene.fog = new Fog(0x0a1a2a, 12, 26);
-  const camera = new PerspectiveCamera(38, 1, 0.1, 80);
-  camera.position.set(8.5, 6.2, 8.5);
+  scene.background = new Color(0x0d1825);
+  scene.fog = new Fog(0x0d1825, 16, 30);
+  const camera = new PerspectiveCamera(36, 1, 0.05, 80);
 
-  // Fade-able materials, grouped by the timeline step that reveals them.
-  const fade: Record<string, { mat: Material; base: number }[]> = { figure: [], measure: [] };
-  const track = (key: string, mat: Material, base: number) => {
-    mat.transparent = true;
-    fade[key].push({ mat, base });
+  // --- Light -------------------------------------------------------------
+  scene.add(new HemisphereLight(0xe8f0f8, 0x3a4250, 1.15));
+  const sun = new DirectionalLight(0xfff4e6, 2.1);
+  sun.position.set(5, 9, 6);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048);
+  sun.shadow.camera.left = -6;
+  sun.shadow.camera.right = 6;
+  sun.shadow.camera.top = 6;
+  sun.shadow.camera.bottom = -6;
+  sun.shadow.camera.near = 1;
+  sun.shadow.camera.far = 25;
+  sun.shadow.bias = -0.0004;
+  sun.shadow.normalBias = 0.02;
+  scene.add(sun);
+  const fill = new DirectionalLight(0x9fc9ff, 0.45);
+  fill.position.set(-6, 4, 8);
+  scene.add(fill);
+
+  const solid = (geo: BufferGeometry, material: Material, x: number, y: number, z: number, parent: Object3D = scene) => {
+    const m = new Mesh(geo, material);
+    m.position.set(x, y, z);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    parent.add(m);
+    return m;
+  };
+  const decal = (geo: BufferGeometry, material: Material, x: number, z: number, y = 0.004) => {
+    const m = new Mesh(geo, material);
+    m.rotation.x = -Math.PI / 2;
+    m.position.set(x, y, z);
+    m.receiveShadow = true;
+    scene.add(m);
+    return m;
   };
 
-  const line = (
-    pts: number[][],
-    color: number,
-    o: { opacity?: number; dashed?: boolean; parent?: Group | Scene; group?: string } = {},
-  ) => {
-    const geo = new BufferGeometry().setFromPoints(pts.map((p) => new Vector3(p[0], p[1], p[2])));
-    const opacity = o.opacity ?? 1;
-    const mat = o.dashed
-      ? new LineDashedMaterial({ color, dashSize: 0.18, gapSize: 0.12, transparent: true, opacity })
-      : new LineBasicMaterial({ color, transparent: true, opacity });
-    const l = new Line(geo, mat);
-    if (o.dashed) l.computeLineDistances();
-    (o.parent ?? scene).add(l);
-    if (o.group) track(o.group, mat, opacity);
-    return l;
-  };
-  const box = (w: number, h: number, d: number, x: number, y: number, z: number, opacity = 0.85) => {
-    const edges = new EdgesGeometry(new BoxGeometry(w, h, d));
-    const s = new LineSegments(edges, new LineBasicMaterial({ color: CYAN, transparent: true, opacity }));
-    s.position.set(x, y + h / 2, z);
-    scene.add(s);
-    return s;
-  };
-  const circle = (r: number, segments = 28) =>
-    Array.from({ length: segments + 1 }, (_, i) => {
-      const a = (i / segments) * Math.PI * 2;
-      return [Math.cos(a) * r, Math.sin(a) * r, 0];
-    });
+  // --- Room ----------------------------------------------------------------
+  const floor = new Mesh(new PlaneGeometry(8, 8), new MeshStandardMaterial({ map: floorTexture(), roughness: 0.9 }));
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  scene.add(floor);
+  const outside = new Mesh(new PlaneGeometry(40, 40), new MeshStandardMaterial({ color: 0x15202c, roughness: 1 }));
+  outside.rotation.x = -Math.PI / 2;
+  outside.position.y = -0.01;
+  outside.receiveShadow = true;
+  scene.add(outside);
 
+  const wallMat = mat(0xdcdfe3, 0.95);
+  const H = 2.8;
+  const T = 0.12;
+  // Back wall (z = -4) with a window opening x 0.6..2.4, y 1.1..2.2.
+  solid(new BoxGeometry(4.6, H, T), wallMat, -1.7, H / 2, -4 - T / 2);
+  solid(new BoxGeometry(1.6, H, T), wallMat, 3.2, H / 2, -4 - T / 2);
+  solid(new BoxGeometry(1.8, 1.1, T), wallMat, 1.5, 0.55, -4 - T / 2);
+  solid(new BoxGeometry(1.8, 0.6, T), wallMat, 1.5, 2.5, -4 - T / 2);
+  const glass = new Mesh(new PlaneGeometry(1.8, 1.1), new MeshStandardMaterial({ color: 0x7fb6d9, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.35 }));
+  glass.position.set(1.5, 1.65, -4.04);
+  scene.add(glass);
+  solid(new BoxGeometry(1.86, 0.05, 0.22), mat(0x9aa3ad), 1.5, 1.1, -3.93);
+  // Left wall (x = -4) with a door opening z 1.15..2.25, height 2.1.
+  solid(new BoxGeometry(T, H, 5.15), wallMat, -4 - T / 2, H / 2, -1.425);
+  solid(new BoxGeometry(T, H, 1.75), wallMat, -4 - T / 2, H / 2, 3.125);
+  solid(new BoxGeometry(T, 0.7, 1.1), wallMat, -4 - T / 2, 2.45, 1.7);
+  // Door swung open against the wall, clear of the doorway.
+  solid(new BoxGeometry(0.04, 2.05, 1.05), mat(0x7a5a3c, 0.7), -3.9, 1.025, 2.8);
+  // Baseboards.
+  const base = mat(0x8b939c, 0.6);
+  solid(new BoxGeometry(8, 0.08, 0.02), base, 0, 0.04, -3.99);
+  solid(new BoxGeometry(0.02, 0.08, 8), base, -3.99, 0.04, 0);
+
+  // --- Furniture -----------------------------------------------------------
+  const wood = mat(0x8a6a4a, 0.65);
+  const table = new Group();
+  table.position.set(1.6, 0, -2.6);
+  scene.add(table);
+  solid(new BoxGeometry(1.6, 0.05, 0.85), wood, 0, 0.74, 0, table);
+  for (const [x, z] of [[-0.72, -0.36], [0.72, -0.36], [-0.72, 0.36], [0.72, 0.36]])
+    solid(new BoxGeometry(0.06, 0.72, 0.06), wood, x, 0.36, z, table);
+  // Laptop on the table.
+  solid(new BoxGeometry(0.34, 0.015, 0.24), mat(0x2b2f36, 0.4, 0.4), -0.2, 0.775, 0.05, table);
+  const screen = solid(new BoxGeometry(0.34, 0.22, 0.012), mat(0x2b2f36, 0.4, 0.4), -0.2, 0.89, -0.07, table);
+  screen.rotation.x = -0.25;
+
+  // Toppled chair (lying on its side).
+  const chair = new Group();
+  chair.position.set(0.35, 0.22, -1.75);
+  chair.rotation.set(0, 0.6, Math.PI / 2);
+  scene.add(chair);
+  solid(new BoxGeometry(0.44, 0.04, 0.44), wood, 0, 0, 0, chair);
+  solid(new BoxGeometry(0.04, 0.48, 0.44), wood, -0.2, 0.26, 0, chair);
+  for (const [x, z] of [[-0.19, -0.19], [0.19, -0.19], [-0.19, 0.19], [0.19, 0.19]])
+    solid(new BoxGeometry(0.035, 0.42, 0.035), wood, x, -0.21, z, chair);
+
+  // Sofa.
+  const fabric = mat(0x2c5c80, 0.95);
+  const sofa = new Group();
+  sofa.position.set(-2.95, 0, -2.4);
+  sofa.rotation.y = Math.PI / 2;
+  scene.add(sofa);
+  solid(new BoxGeometry(2.0, 0.42, 0.85), fabric, 0, 0.21, 0, sofa);
+  solid(new BoxGeometry(2.0, 0.5, 0.2), fabric, 0, 0.62, -0.33, sofa);
+  solid(new BoxGeometry(0.18, 0.62, 0.85), fabric, -0.95, 0.31, 0, sofa);
+  solid(new BoxGeometry(0.18, 0.62, 0.85), fabric, 0.95, 0.31, 0, sofa);
+
+  // Bookshelf.
+  const shelf = new Group();
+  // Against the back wall, so it never hides the scene from the open side.
+  shelf.position.set(-0.9, 0, -3.75);
+  shelf.rotation.y = Math.PI / 2;
+  scene.add(shelf);
+  solid(new BoxGeometry(0.38, 1.9, 1.2), mat(0x6f5640, 0.7), 0, 0.95, 0, shelf);
+  const bookColors = [0x9c2f2f, 0x2f5f9c, 0xd9b44a, 0x3d7a4f, 0x444b55];
+  for (let row = 0; row < 3; row++)
+    for (let i = 0; i < 7; i++)
+      solid(new BoxGeometry(0.22, 0.26 + (i % 3) * 0.03, 0.1), mat(bookColors[(i + row) % 5], 0.8), -0.08, 0.35 + row * 0.55, -0.45 + i * 0.14, shelf);
+
+  // Rug.
+  const rug = decal(new PlaneGeometry(2.4, 1.6), mat(0x8c7a64, 1), -0.4, 1.6, 0.003);
+  rug.material = new MeshStandardMaterial({ color: 0x8c7a64, roughness: 1, polygonOffset: true, polygonOffsetFactor: -1 });
+
+  // --- People ----------------------------------------------------------------
+  const victimMat = mat(0xd4d7db, 0.55);
+  const victim = mannequin(victimMat, {
+    armR: [0.55, 0, 0.15], armL: [-0.75, 0, -0.2], foreL: 0.5,
+    legR: [0.18, 0, 0.05], legL: [-0.12, 0, -0.05], kneeL: -0.25,
+    head: [0.35, 0, 0],
+  });
+  // Lying on the back: head towards (0.76, -0.65) on the floor.
+  const victimWrap = new Group();
+  victim.root.rotation.z = Math.PI / 2;
+  victim.root.position.y = 0.14;
+  victimWrap.add(victim.root);
+  victimWrap.rotation.y = Math.atan2(-0.65, -0.76);
+  victimWrap.position.set(-0.52, 0, 0.52);
+  scene.add(victimWrap);
+
+  // Shooter at the doorway, aiming at the impact point on the back wall.
+  const origin = new Vector3(-3.35, 0, 1.7);
+  const impactPoint = new Vector3(3.1, 1.6, -3.94);
+  const shooterMat = new MeshStandardMaterial({ color: 0x7f9bb8, roughness: 0.5, transparent: true, opacity: 0 });
+  const shooter = mannequin(shooterMat, {
+    armR: [0, 0.32, Math.PI / 2 - 0.05], armL: [0, -0.32, Math.PI / 2 - 0.05],
+    legR: [0, 0, -0.12], legL: [0, 0, 0.1],
+  });
+  shooter.root.position.copy(origin);
+  shooter.root.rotation.y = Math.atan2(-(impactPoint.z - origin.z), impactPoint.x - origin.x);
+  scene.add(shooter.root);
+  solid(new BoxGeometry(0.17, 0.03, 0.035), shooterMat, 0.06, -0.02, -0.18, shooter.handR);
+
+  // --- Physical traces ------------------------------------------------------
+  const bloodMat = new MeshStandardMaterial({ color: 0x5c0b10, roughness: 0.25, metalness: 0.05, polygonOffset: true, polygonOffsetFactor: -2 });
+  const pool = decal(new CircleGeometry(0.34, 40), bloodMat, 0.98, -0.78, 0.005);
+  pool.scale.set(1.25, 0.85, 1);
+  pool.rotation.z = 0.6;
+  for (const [x, z, r] of [[1.3, -1.1, 0.04], [1.42, -1.22, 0.028], [1.2, -1.3, 0.022], [0.55, -0.95, 0.03]])
+    decal(new CircleGeometry(r, 16), bloodMat, x, z, 0.005);
+  const shoeMat = new MeshBasicMaterial({ color: 0x2a2f36, transparent: true, opacity: 0.55, polygonOffset: true, polygonOffsetFactor: -2 });
+  for (const [x, z, rot] of [[-0.95, 0.35, 0.9], [-1.25, 0.6, 0.9], [-1.55, 0.82, 0.9]]) {
+    const s = decal(new CircleGeometry(0.055, 18), shoeMat, x, z, 0.004);
+    s.scale.set(1, 2.3, 1);
+    s.rotation.z = rot;
+  }
+  const casing = solid(new CylinderGeometry(0.008, 0.008, 0.024, 12), mat(0xc29a3c, 0.3, 0.9), -2.82, 0.008, 1.12);
+  casing.rotation.set(Math.PI / 2, 0, 0.7);
+  const phone = solid(new BoxGeometry(0.075, 0.01, 0.155), mat(0x15181d, 0.35, 0.3), 1.98, 0.006, 1.32);
+  phone.rotation.y = 0.4;
+  const phoneScreen = new Mesh(new PlaneGeometry(0.066, 0.14), new MeshBasicMaterial({ color: 0x3d8fd1 }));
+  phoneScreen.rotation.x = -Math.PI / 2;
+  phoneScreen.position.y = 0.006;
+  phone.add(phoneScreen);
+  const hole = new Mesh(new CircleGeometry(0.022, 16), new MeshBasicMaterial({ color: 0x111111 }));
+  hole.position.copy(impactPoint);
+  scene.add(hole);
+  const impact = new Mesh(new RingGeometry(0.06, 0.09, 28), new MeshBasicMaterial({ color: 0xff3b30, side: DoubleSide, transparent: true }));
+  impact.position.copy(impactPoint).add(new Vector3(0, 0, 0.005));
+  scene.add(impact);
+
+  // --- Evidence tents (clickable) ---------------------------------------------
+  const tentGeo = new PlaneGeometry(0.16, 0.17);
+  const markers = SCENE_EVIDENCE.map((ev, i) => {
+    const g = new Group();
+    const face = new MeshStandardMaterial({ map: numberTexture(ev.n), roughness: 0.5, side: DoubleSide });
+    for (const sgn of [1, -1]) {
+      const p = new Mesh(tentGeo, face);
+      p.position.set(0, 0.075, sgn * 0.035);
+      p.rotation.x = -sgn * 0.42;
+      p.castShadow = true;
+      g.add(p);
+    }
+    g.position.set(ev.pos[0], 0, ev.pos[1]);
+    g.rotation.y = 0.5 + i * 0.4;
+    g.traverse((o) => (o.userData.index = i));
+    scene.add(g);
+    return g;
+  });
+  const selRing = new Mesh(new RingGeometry(0.26, 0.31, 40), new MeshBasicMaterial({ color: 0xf5b70a, side: DoubleSide, transparent: true, opacity: 0.9 }));
+  selRing.rotation.x = -Math.PI / 2;
+  selRing.visible = false;
+  scene.add(selRing);
+  let selected: number | null = null;
+
+  // --- Trajectories (red rods) ---------------------------------------------
+  const muzzle = new Vector3();
+  scene.updateMatrixWorld(true);
+  shooter.handR.getWorldPosition(muzzle);
+  muzzle.y += 0.02;
+  const rodMat = new MeshBasicMaterial({ color: 0xff3b30 });
+  const trajectories = [
+    [muzzle.clone(), new Vector3(0.3, 1.58, -1.3), impactPoint.clone()],
+    [muzzle.clone(), new Vector3(-1.4, 1.38, 0.55), new Vector3(0.45, 1.3, -0.35)],
+  ].map((pts) => {
+    const geo = new TubeGeometry(new CatmullRomCurve3(pts), 80, 0.011, 6);
+    geo.setDrawRange(0, 0);
+    const m = new Mesh(geo, rodMat);
+    scene.add(m);
+    return m;
+  });
+
+  // --- Labels (constant screen size) ------------------------------------------
+  const fade: { mat: Material; base: number }[] = [];
   const textSprite = (text: string, color: string, bg: string, scale: number) => {
     const font = '700 54px ui-monospace, Menlo, monospace';
     const probe = document.createElement('canvas').getContext('2d')!;
@@ -113,166 +421,55 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     g.fillText(text, 22, 48);
     const tex = new CanvasTexture(c);
     tex.colorSpace = SRGBColorSpace;
-    // Constant on-screen size, so labels stay readable in close-up views.
-    const mat = new SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, sizeAttenuation: false });
-    const s = new Sprite(mat);
+    const m = new SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, sizeAttenuation: false, opacity: 0 });
+    const s = new Sprite(m);
     s.scale.set(scale * (c.width / c.height), scale, 1);
-    s.renderOrder = 2;
+    s.renderOrder = 5;
     scene.add(s);
     return s;
   };
-  const markerSprite = (n: number) => {
-    const c = document.createElement('canvas');
-    c.width = c.height = 256;
-    const g = c.getContext('2d')!;
-    g.shadowColor = 'rgba(0,0,0,.45)';
-    g.shadowBlur = 18;
-    g.fillStyle = '#f5b70a';
-    g.beginPath();
-    g.moveTo(128, 16);
-    g.lineTo(240, 228);
-    g.lineTo(16, 228);
-    g.closePath();
-    g.fill();
-    g.shadowBlur = 0;
-    g.fillStyle = '#08131f';
-    g.font = '800 104px ui-monospace, Menlo, monospace';
-    g.textAlign = 'center';
-    g.fillText(String(n), 128, 205);
-    const tex = new CanvasTexture(c);
-    tex.colorSpace = SRGBColorSpace;
-    const s = new Sprite(new SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
-    s.renderOrder = 3;
-    scene.add(s);
-    return s;
-  };
-
-  // --- Environment -------------------------------------------------------
-  const halo = (() => {
-    const c = document.createElement('canvas');
-    c.width = c.height = 256;
-    const g = c.getContext('2d')!;
-    const grad = g.createRadialGradient(128, 128, 0, 128, 128, 128);
-    grad.addColorStop(0, 'rgba(27,163,224,0.32)');
-    grad.addColorStop(0.55, 'rgba(27,163,224,0.08)');
-    grad.addColorStop(1, 'rgba(27,163,224,0)');
-    g.fillStyle = grad;
-    g.fillRect(0, 0, 256, 256);
-    const tex = new CanvasTexture(c);
-    const m = new Mesh(new PlaneGeometry(14, 14), new MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }));
-    m.rotation.x = -Math.PI / 2;
-    m.position.y = -0.02;
-    scene.add(m);
-    return m;
-  })();
-  void halo;
-
-  const grid = new GridHelper(8, 16, CYAN, CYAN);
-  const gridMat = grid.material as Material;
-  gridMat.transparent = true;
-  gridMat.opacity = 0.18;
-  scene.add(grid);
-  line([[-4, 0, -4], [4, 0, -4], [4, 0, 4], [-4, 0, 4], [-4, 0, -4]], CYAN, { opacity: 0.65 });
-  line([[-4, 0, -4], [-4, 3, -4], [4, 3, -4], [4, 0, -4]], CYAN, { opacity: 0.45 });
-  line([[-4, 3, -4], [-4, 3, 4], [-4, 0, 4]], CYAN, { opacity: 0.45 });
-  // Door (left wall) and window (back wall).
-  line([[-4, 0, 1.15], [-4, 2.1, 1.15], [-4, 2.1, 2.25], [-4, 0, 2.25]], CYAN, { opacity: 0.75 });
-  line([[0.6, 1.1, -4], [2.4, 1.1, -4], [2.4, 2.2, -4], [0.6, 2.2, -4], [0.6, 1.1, -4]], CYAN, { opacity: 0.7 });
-  line([[1.5, 1.1, -4], [1.5, 2.2, -4]], CYAN, { opacity: 0.4 });
-
-  // Furniture: table, toppled chair, sofa, shelf.
-  box(1.8, 0.75, 0.9, 1.6, 0, -2.6);
-  const chair = box(0.5, 0.45, 0.5, 0.35, 0, -1.75, 0.7);
-  chair.rotation.z = 0.35;
-  box(0.9, 0.5, 2.2, -2.9, 0, -2.5, 0.55);
-  box(0.4, 1.8, 1.2, 3.75, 0, 1.6, 0.4);
-
-  // Body outline on the floor.
-  const bodyPts = [
-    [0, 0], [0.18, 0.08], [0.28, 0.3], [0.22, 0.5], [0.45, 0.62], [0.95, 0.95], [0.85, 1.05], [0.35, 0.82],
-    [0.3, 1.25], [0.48, 1.95], [0.32, 2.0], [0.12, 1.4], [-0.08, 2.02], [-0.25, 1.98], [-0.18, 1.25],
-    [-0.25, 0.8], [-0.7, 1.15], [-0.82, 1.05], [-0.3, 0.6], [-0.24, 0.3], [-0.16, 0.08], [0, 0],
-  ];
-  const bodyGroup = new Group();
-  bodyGroup.rotation.y = 0.5;
-  scene.add(bodyGroup);
-  line(bodyPts.map(([x, z]) => [x * 1.6 + 0.2, 0.012, z * 1.6 - 1.4]), WHITE, { dashed: true, parent: bodyGroup });
-  const headRing = new Mesh(new RingGeometry(0.24, 0.27, 32), new MeshBasicMaterial({ color: WHITE, side: DoubleSide }));
-  headRing.rotation.x = -Math.PI / 2;
-  headRing.position.set(0.2, 0.014, -1.68);
-  bodyGroup.add(headRing);
-
-  // Standing figure (shooter) at the doorway, revealed by the timeline.
-  const origin = new Vector3(-3.35, 0, 1.7);
-  const impactPoint = new Vector3(3.1, 1.6, -3.99);
-  const figure = new Group();
-  figure.position.copy(origin);
-  figure.rotation.y = Math.atan2(-(impactPoint.z - origin.z), impactPoint.x - origin.x);
-  scene.add(figure);
-  const fig = (pts: number[][]) => line(pts, CYAN, { parent: figure, group: 'figure', opacity: 0.95 });
-  fig([[-0.05, 0, 0.14], [0, 0.95, 0.08], [0, 0.95, -0.08], [0.06, 0, -0.16]]); // legs
-  fig([[0, 0.95, 0], [0, 1.42, 0]]); // torso
-  fig([[0, 1.4, 0.18], [0, 1.4, -0.18]]); // shoulders
-  fig([[0, 1.4, 0.18], [0.5, 1.42, 0.04], [0.62, 1.43, 0]]); // right arm
-  fig([[0, 1.4, -0.18], [0.5, 1.42, -0.04], [0.62, 1.43, 0]]); // left arm
-  fig([[0.62, 1.43, 0], [0.82, 1.45, 0]]); // weapon
-  const headA = fig(circle(0.13).map(([x, y]) => [x, y + 1.6, 0]));
-  const headB = fig(circle(0.13).map(([x, y]) => [0, y + 1.6, x]));
-  void headA; void headB;
-  // Field-of-view cone of the figure, faint.
-  line([[0.2, 1.6, 0], [6, 1.2, 1.4]], CYAN, { parent: figure, group: 'figure', opacity: 0.18 });
-  line([[0.2, 1.6, 0], [6, 1.2, -1.4]], CYAN, { parent: figure, group: 'figure', opacity: 0.18 });
-
-  // Crime-scene tape.
-  const tape = [[-2.6, -3.3], [3.3, -3.3], [3.3, 3.3], [-2.6, 3.3]];
-  tape.forEach(([x, z]) => line([[x, 0, z], [x, 1, z]], AMBER, { opacity: 0.9 }));
-  line([...tape, tape[0]].map(([x, z]) => [x, 0.95, z]), AMBER, { opacity: 0.8 });
-
-  // Trajectories.
-  const muzzle = new Vector3(-3.35 + 0.82 * Math.cos(figure.rotation.y), 1.45, 1.7 - 0.82 * Math.sin(figure.rotation.y));
-  const trajectories = [
-    [muzzle, new Vector3(0.1, 1.55, -0.95), impactPoint],
-    [muzzle.clone().add(new Vector3(0, 0.02, 0)), new Vector3(0.05, 1.15, -0.35)],
-  ].map((pts) => {
-    const curve = new CatmullRomCurve3(pts);
-    const geo = new BufferGeometry().setFromPoints(curve.getPoints(90));
-    const l = new Line(geo, new LineDashedMaterial({ color: AMBER, dashSize: 0.22, gapSize: 0.12 }));
-    l.computeLineDistances();
-    geo.setDrawRange(0, 0);
-    scene.add(l);
-    return l;
-  });
-  const impact = new Mesh(new RingGeometry(0.08, 0.13, 28), new MeshBasicMaterial({ color: AMBER, side: DoubleSide, transparent: true }));
-  impact.position.copy(impactPoint);
-  scene.add(impact);
-
-  // Evidence markers (clickable) and the floor ring of the selected one.
-  const markers = SCENE_EVIDENCE.map((ev) => {
-    const s = markerSprite(ev.n);
-    s.position.set(ev.pos[0], 0.32, ev.pos[1]);
-    s.userData.index = ev.n - 1;
-    return s;
-  });
-  const selRing = new Mesh(new RingGeometry(0.34, 0.4, 40), new MeshBasicMaterial({ color: AMBER, side: DoubleSide, transparent: true }));
-  selRing.rotation.x = -Math.PI / 2;
-  selRing.visible = false;
-  scene.add(selRing);
-  let selected: number | null = null;
-
-  // Measurement between evidence 3 and 5 (real distance in the model).
   const e1 = SCENE_EVIDENCE[2].pos;
-  const e3 = SCENE_EVIDENCE[4].pos;
-  const dist = Math.hypot(e1[0] - e3[0], e1[1] - e3[1]).toFixed(2).replace('.', ',');
-  line([[e1[0], 0.03, e1[1]], [e3[0], 0.03, e3[1]]], WHITE, { group: 'measure', opacity: 0.7 });
-  const measureLabel = textSprite(`${dist} m`, '#e9f1f7', 'rgba(8,19,31,.9)', 0.042);
-  measureLabel.position.set((e1[0] + e3[0]) / 2, 0.42, (e1[1] + e3[1]) / 2);
-  track('measure', measureLabel.material, 1);
-  const impactLabel = textSprite('IMPACTO', '#08131f', '#f5b70a', 0.036);
-  impactLabel.position.set(impactPoint.x, 2.05, impactPoint.z + 0.1);
-  track('measure', impactLabel.material, 1);
-  const originLabel = textSprite('ORIGEN', '#08131f', '#1ba3e0', 0.036);
-  originLabel.position.set(origin.x, 2.1, origin.z);
-  track('figure', originLabel.material, 1);
+  const e2 = SCENE_EVIDENCE[4].pos;
+  const dist = Math.hypot(e1[0] - e2[0], e1[1] - e2[1]).toFixed(2).replace('.', ',');
+  const tape = new Line(
+    new BufferGeometry().setFromPoints([new Vector3(e1[0], 0.012, e1[1]), new Vector3(e2[0], 0.012, e2[1])]),
+    new LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }),
+  );
+  scene.add(tape);
+  fade.push({ mat: tape.material as Material, base: 0.9 });
+  const measureLabel = textSprite(`${dist} m`, '#e9f1f7', 'rgba(8,19,31,.88)', 0.04);
+  measureLabel.position.set((e1[0] + e2[0]) / 2, 0.25, (e1[1] + e2[1]) / 2);
+  fade.push({ mat: measureLabel.material, base: 1 });
+  const impactLabel = textSprite('IMPACTO', '#ffffff', '#d92d20', 0.034);
+  impactLabel.position.set(impactPoint.x, 2.05, impactPoint.z + 0.15);
+  fade.push({ mat: impactLabel.material, base: 1 });
+  const originLabel = textSprite('ORIGEN', '#08131f', '#1ba3e0', 0.034);
+  originLabel.position.set(origin.x, 2.15, origin.z);
+
+  // --- Camera & controls -----------------------------------------------------
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableZoom = false;
+  controls.enablePan = false;
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  // The room is open towards +x/+z; keep the camera on that side of the walls.
+  controls.minAzimuthAngle = -0.05;
+  controls.maxAzimuthAngle = Math.PI / 2 + 0.05;
+  controls.minPolarAngle = 0;
+  controls.maxPolarAngle = 1.38;
+  controls.target.set(0, 0.5, -0.4);
+  renderer.domElement.style.touchAction = 'pan-y';
+
+  const orbitDistance = () => (el.clientWidth < 520 ? 11.2 : 10.5);
+  const VIEWS: Record<SceneViewId, () => { pos: Vector3; target: Vector3 }> = {
+    orbital: () => ({ pos: new Vector3(7.2, 5.6, 7.6).setLength(orbitDistance()), target: new Vector3(0, 0.5, -0.4) }),
+    cenital: () => ({ pos: new Vector3(0.3, el.clientWidth < 520 ? 14 : 11.5, 0.9), target: new Vector3(0.1, 0, -0.1) }),
+    testigo: () => ({ pos: new Vector3(-3.55, 1.62, 3.55), target: new Vector3(0.6, 0.6, -1.2) }),
+    trayectoria: () => ({ pos: new Vector3(-3.82, 1.95, 2.35), target: new Vector3(1.8, 1.25, -2.6) }),
+  };
+  let view: SceneViewId = 'orbital';
+  let sway = !reduceMotion; // gentle side-to-side drift in the orbital view
+  let tween: { from: Vector3; to: Vector3; tFrom: Vector3; tTo: Vector3; start: number } | null = null;
 
   // --- Timeline & render-loop state (declared before anything calls wake()) --
   let t = reduceMotion ? DURATION : 0;
@@ -280,33 +477,12 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   let last = performance.now();
   let visible = true;
   let raf = 0;
-  let ready = false; // wake() is a no-op until the render loop below exists
+  let ready = false;
 
-  // --- Camera & controls ---------------------------------------------------
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableZoom = false;
-  controls.enablePan = false;
-  controls.enableDamping = true;
-  controls.autoRotate = !reduceMotion;
-  controls.autoRotateSpeed = 0.6;
-  controls.minPolarAngle = 0;
-  controls.maxPolarAngle = 1.35;
-  controls.target.set(0, 0.6, 0);
-  renderer.domElement.style.touchAction = 'pan-y';
-
-  const orbitDistance = () => (el.clientWidth < 520 ? 13 : 11.5);
-  const VIEWS: Record<SceneViewId, () => { pos: Vector3; target: Vector3 }> = {
-    orbital: () => ({ pos: new Vector3(8.5, 6.2, 8.5).setLength(orbitDistance()), target: new Vector3(0, 0.6, 0) }),
-    cenital: () => ({ pos: new Vector3(0.01, el.clientWidth < 520 ? 15 : 12.5, 0.6), target: new Vector3(0, 0, 0) }),
-    testigo: () => ({ pos: new Vector3(-3.75, 1.65, 3.6), target: new Vector3(0.6, 0.8, -1.2) }),
-    trayectoria: () => ({ pos: new Vector3(-6.4, 2.4, 4.3), target: new Vector3(1.8, 1.2, -2.6) }),
-  };
-  let view: SceneViewId = 'orbital';
-  let tween: { from: Vector3; to: Vector3; tFrom: Vector3; tTo: Vector3; start: number } | null = null;
   const setView = (v: SceneViewId) => {
     view = v;
+    sway = v === 'orbital' && !reduceMotion;
     const { pos, target } = VIEWS[v]();
-    controls.autoRotate = v === 'orbital' && !reduceMotion;
     if (reduceMotion) {
       camera.position.copy(pos);
       controls.target.copy(target);
@@ -317,7 +493,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   };
   controls.addEventListener('start', () => {
     tween = null;
-    controls.autoRotate = false;
+    sway = false;
   });
 
   const resize = () => {
@@ -331,14 +507,14 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   resize();
   new ResizeObserver(resize).observe(el);
 
-  // --- Picking -----------------------------------------------------------
+  // --- Picking --------------------------------------------------------------
   const ray = new Raycaster();
   const ndc = new Vector2();
   const pick = (e: PointerEvent) => {
     const r = renderer.domElement.getBoundingClientRect();
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    const hit = ray.intersectObjects(markers.filter((m) => m.visible), false)[0];
+    const hit = ray.intersectObjects(markers.filter((m) => m.visible), true)[0];
     return hit ? (hit.object.userData.index as number) : null;
   };
   let down: { x: number; y: number } | null = null;
@@ -356,26 +532,37 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   el.appendChild(renderer.domElement);
   el.classList.add('is-live');
 
-  // --- Timeline & render loop -------------------------------------------
-
+  // --- Timeline -------------------------------------------------------------
+  let shooterShadows = false;
   const applyTime = (time: number) => {
     markers.forEach((m, i) => {
       const p = ease(seg(time, 0.4 + i * 0.32, 0.75 + i * 0.32));
       m.visible = p > 0.01;
-      const s = 0.58 * p * (selected === i ? 1.3 : 1);
-      m.scale.set(s, s, 1);
+      // Slightly larger than life (x1.5) so the numbers read in wide views.
+      const s = Math.max(0.001, 1.5 * p * (selected === i ? 1.35 : 1));
+      m.scale.set(s, s, s);
     });
     const fig = seg(time, 2.1, 2.8);
-    fade.figure.forEach(({ mat, base }) => (mat.opacity = base * fig));
+    shooterMat.opacity = fig;
+    shooterMat.transparent = fig < 1;
+    shooterMat.depthWrite = fig > 0.5;
+    shooter.root.visible = fig > 0.01;
+    if (fig > 0.6 !== shooterShadows) {
+      shooterShadows = fig > 0.6;
+      shooter.root.traverse((o) => (o.castShadow = shooterShadows));
+    }
+    originLabel.material.opacity = fig;
     trajectories.forEach((tr, i) => {
-      const n = tr.geometry.attributes.position.count;
-      tr.geometry.setDrawRange(0, Math.floor(n * ease(seg(time, 2.9 + i * 0.45, 4.2 + i * 0.45))));
+      const count = tr.geometry.index ? tr.geometry.index.count : 0;
+      const p = ease(seg(time, 2.9 + i * 0.45, 4.2 + i * 0.45));
+      tr.geometry.setDrawRange(0, Math.floor((count * p) / 3) * 3);
     });
     (impact.material as Material).opacity = seg(time, 4.1, 4.3);
     const meas = seg(time, 4.7, 5.3);
-    fade.measure.forEach(({ mat, base }) => (mat.opacity = base * meas));
+    fade.forEach(({ mat: m, base }) => (m.opacity = base * meas));
   };
 
+  const sph = new Spherical();
   const tick = (now: number) => {
     const dt = Math.min(0.1, (now - last) / 1000);
     last = now;
@@ -393,12 +580,18 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       camera.position.lerpVectors(tween.from, tween.to, p);
       controls.target.lerpVectors(tween.tFrom, tween.tTo, p);
       if (p >= 1) tween = null;
+    } else if (sway && view === 'orbital') {
+      // Slow drift around the open corner of the room.
+      const off = camera.position.clone().sub(controls.target);
+      sph.setFromVector3(off);
+      sph.theta = Math.PI / 4 + Math.sin(now / 5200) * 0.42;
+      camera.position.copy(controls.target).add(new Vector3().setFromSpherical(sph));
     }
     if (selected !== null) {
       const pulse = 1 + Math.sin(now / 260) * 0.08;
       selRing.scale.set(pulse, pulse, 1);
     }
-    impact.scale.setScalar(1 + (reduceMotion ? 0 : Math.sin(now / 330) * 0.15));
+    impact.scale.setScalar(1 + (reduceMotion ? 0 : Math.sin(now / 330) * 0.12));
     controls.update();
     renderer.render(scene, camera);
     raf = visible && !document.hidden ? requestAnimationFrame(tick) : 0;
@@ -428,9 +621,9 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       selRing.visible = i !== null;
       if (i !== null) {
         const [x, z] = SCENE_EVIDENCE[i].pos;
-        selRing.position.set(x, 0.02, z);
+        selRing.position.set(x, 0.008, z);
         if (t < DURATION) {
-          t = DURATION; // make sure every marker is visible
+          t = DURATION;
           playing = false;
           opts.onTime?.(t, playing);
         }
