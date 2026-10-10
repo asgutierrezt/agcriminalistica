@@ -22,4 +22,4 @@ npm run check    # verificación de tipos
 - **Escena 3D:** `src/lib/crimeScene.ts` (Three.js, se carga de forma diferida).
 - **Preguntas frecuentes:** `src/data/faq.ts`.
 
-El formulario de contacto envía los mensajes a asgutierrezt@gmail.com a través de Web3Forms.
+El formulario de contacto envía los mensajes al correo configurado en la cuenta de Web3Forms (no figura en el código).
