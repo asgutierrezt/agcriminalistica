@@ -7,10 +7,16 @@ const isBook = item.cat !== 'equipo';
 const initials = item.title.replace(/^(Libros (de|sobre) |Kit de |La |El )/i, '').slice(0, 2).toUpperCase();
 ---
 <article class:list={['lib', { compact }]} data-lib={item.cat}>
-  <div class:list={['spine', item.cat]} aria-hidden="true">
-    {isBook ? <span class="spine-t">{initials}</span> : <span class="spine-t">⚲</span>}
-    <span class="spine-cat">{item.topic}</span>
-  </div>
+  {item.image ? (
+    <a class="cover" href={amazonLink(item)} rel={AFFILIATE_REL} target="_blank" tabindex="-1" aria-hidden="true">
+      <img src={item.image} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer-when-downgrade" />
+    </a>
+  ) : (
+    <div class:list={['spine', item.cat]} aria-hidden="true">
+      {isBook ? <span class="spine-t">{initials}</span> : <span class="spine-t">⚲</span>}
+      <span class="spine-cat">{item.topic}</span>
+    </div>
+  )}
   <div class="body">
     {item.level && <p class="meta">{item.level} · {item.cat === 'en' ? 'Inglés' : item.cat === 'es' ? 'Español' : 'Equipo'}</p>}
     {!item.level && <p class="meta">{item.cat === 'equipo' ? 'Equipo' : 'Selección'}</p>}
@@ -29,6 +35,8 @@ const initials = item.title.replace(/^(Libros (de|sobre) |Kit de |La |El )/i, ''
     background: var(--white); border: 1px solid var(--line); transition: border-color 0.2s ease, transform 0.2s ease;
   }
   .lib:hover { border-color: var(--cyan); transform: translateY(-2px); }
+  .cover { display: grid; place-items: center; aspect-ratio: 2 / 3; background: var(--white); border-radius: 6px; overflow: hidden; }
+  .cover img { width: 100%; height: 100%; object-fit: contain; }
   .spine {
     position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
     aspect-ratio: 2 / 3; padding: 0.6rem; border-radius: 4px 10px 10px 4px; color: var(--white); overflow: hidden;
