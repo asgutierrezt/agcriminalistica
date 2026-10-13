@@ -24,7 +24,7 @@ export const SITE = {
    * the visitor and notifies the owner. Source: scripts/manuales/enviar-manuales.gs.
    * Empty: requests go to Web3Forms and the visitor downloads the PDF on the spot.
    */
-  manualsMailer: '',
+  manualsMailer: 'https://script.google.com/macros/s/AKfycbzOlWpsfgoO-yIHhKXljWC4kR_PN3DLmFfUOwiSdCnbNk4ypzB3ZhrlnGuZJ_rq4cRDPw/exec',
 } as const;
 
 export const WHATSAPP_DEFAULT = 'Hola, AG Criminalística. Quisiera hacer una consulta.';
