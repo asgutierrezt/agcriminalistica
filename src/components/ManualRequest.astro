@@ -1,0 +1,152 @@
+---
+/**
+ * Request form for a free manual. The visitor always gets the PDF: it is
+ * emailed to them (Apps Script mailer, see SITE.manualsMailer) and a download
+ * button appears as soon as they submit, so delivery never depends on email.
+ * Without a mailer configured, the request is sent to the owner via Web3Forms.
+ */
+import Icon from './Icon.astro';
+import { SITE } from '../data/site';
+
+interface Props { manual: string; title: string; pdf: string }
+const { manual, title, pdf } = Astro.props;
+const mailer = SITE.manualsMailer;
+---
+<form class="manual-form" data-mailer={mailer} data-pdf={pdf} data-manual={manual} action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value={SITE.web3formsKey} />
+  <input type="hidden" name="subject" value={`Solicitud de ${title}`} />
+  <input type="hidden" name="from_name" value="Web AG Criminalística" />
+  <input type="hidden" name="manual" value={manual} />
+  <input type="hidden" name="interes" value={title} />
+  <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+  <p class="intro"><strong>Recíbelo gratis en tu correo.</strong> Te lo enviamos al instante y también podrás descargarlo aquí mismo.</p>
+  <div class="row">
+    <label>
+      <span>Nombre</span>
+      <input name="nombre" type="text" autocomplete="name" required maxlength="80" />
+    </label>
+    <label>
+      <span>Correo electrónico</span>
+      <input name="email" type="email" autocomplete="email" inputmode="email" required maxlength="120" />
+    </label>
+  </div>
+  <label class="consent">
+    <input type="checkbox" name="acepta_privacidad" value="Sí" required />
+    <span>Acepto la <a href="/privacidad/">política de privacidad</a> y recibir el manual en mi correo.</span>
+  </label>
+  {!mailer && <div class="h-captcha" data-captcha="true"></div>}
+  <button class="btn btn-primary" type="submit"><Icon name="download" /> Enviarme el manual</button>
+  <p class="status" role="status" aria-live="polite"></p>
+  <a class="btn btn-download" href={pdf} download hidden data-download><Icon name="download" /> Descargar ahora (PDF)</a>
+</form>
+
+<script>
+  const W3F_SCRIPT = 'https://web3forms.com/client/script.js';
+  const MIN_FILL_MS = 2500;
+  let captchaRequested = false;
+  function loadCaptcha() {
+    if (captchaRequested || !document.querySelector('.manual-form .h-captcha')) return;
+    captchaRequested = true;
+    const s = document.createElement('script');
+    s.src = W3F_SCRIPT;
+    s.async = true;
+    s.onload = () => setTimeout(() => {
+      if (!document.querySelector('.h-captcha iframe')) document.dispatchEvent(new Event('DOMContentLoaded'));
+    }, 300);
+    document.head.appendChild(s);
+  }
+
+  for (const form of document.querySelectorAll<HTMLFormElement>('.manual-form')) {
+    const status = form.querySelector<HTMLElement>('.status')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const download = form.querySelector<HTMLAnchorElement>('[data-download]')!;
+    const shownAt = performance.now();
+    let sending = false;
+
+    form.addEventListener('focusin', loadCaptcha, { once: true });
+
+    const say = (kind: '' | 'ok' | 'err', text: string) => {
+      status.className = `status ${kind}`.trim();
+      status.textContent = text;
+    };
+    const done = (text: string) => {
+      say('ok', text);
+      download.hidden = false;
+      button.hidden = true;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (sending) return;
+      const mailer = form.dataset.mailer;
+      const data = new FormData(form);
+      for (const [k, v] of [...data.entries()]) if (typeof v === 'string') data.set(k, v.trim());
+      if (data.get('botcheck') || performance.now() - shownAt < MIN_FILL_MS) {
+        done('¡Listo! Ya puedes descargar tu manual.');
+        return;
+      }
+
+      sending = true;
+      button.disabled = true;
+      say('', 'Enviando…');
+      try {
+        if (mailer) {
+          const body = new URLSearchParams({
+            manual: String(data.get('manual')),
+            nombre: String(data.get('nombre')),
+            email: String(data.get('email')),
+          });
+          const res = await fetch(mailer, { method: 'POST', body });
+          const json = await res.json();
+          if (!json.ok) throw new Error(json.error);
+          done('¡Listo! Te enviamos el manual a tu correo (revisa también la carpeta de spam). Si lo quieres ya, descárgalo aquí:');
+        } else {
+          const captcha = form.querySelector<HTMLTextAreaElement>('[name="h-captcha-response"]');
+          if (captcha && !captcha.value) {
+            say('err', 'Por favor completa la verificación "No soy un robot".');
+            return;
+          }
+          const res = await fetch(form.action, { method: 'POST', headers: { Accept: 'application/json' }, body: data });
+          const json = await res.json();
+          if (!res.ok || !json.success) throw new Error(json.message);
+          done('¡Listo! Descarga tu manual aquí:');
+        }
+      } catch {
+        // The manual is never withheld: if sending fails, the download still works.
+        done('No pudimos enviarlo a tu correo en este momento, pero ya puedes descargarlo aquí:');
+      } finally {
+        sending = false;
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .manual-form { display: grid; gap: 0.9rem; }
+  .intro { margin: 0; }
+  .row { display: grid; gap: 0.9rem; }
+  @media (min-width: 640px) { .row { grid-template-columns: 1fr 1fr; } }
+  label { display: grid; gap: 0.35rem; }
+  label > span { font-weight: 600; font-size: 0.9rem; }
+  input:not([type='checkbox']) {
+    width: 100%; min-height: 50px; padding: 0.75rem 1rem; font-size: 16px;
+    background: var(--white); color: var(--text); border: 1.5px solid var(--line); border-radius: 10px;
+  }
+  input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(27, 163, 224, 0.2); }
+  .consent { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.88rem; }
+  .consent span { font-weight: 400; }
+  .consent a { color: var(--cyan-ink); }
+  .consent input { width: 22px; height: 22px; margin-top: 1px; accent-color: var(--cyan-ink); flex: none; }
+  .btn { justify-self: start; }
+  @media (max-width: 479px) { .btn { justify-self: stretch; } }
+  .btn:disabled { opacity: 0.6; cursor: wait; }
+  .btn-download { background: var(--ink); color: var(--white); }
+  .h-captcha:empty { display: none; }
+  .hp { position: absolute; left: -9999px; opacity: 0; }
+  .status:empty { display: none; }
+  .status { margin: 0; font-weight: 600; padding: 0.75rem 1rem; border-radius: 10px; background: rgba(27, 163, 224, 0.1); }
+  .status.ok { background: rgba(37, 211, 102, 0.15); color: #0b5a2a; }
+  .status.err { background: rgba(220, 53, 69, 0.12); color: #8a1622; }
+</style>

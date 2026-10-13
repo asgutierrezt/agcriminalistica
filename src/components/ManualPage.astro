@@ -4,8 +4,9 @@ import type { ImageMetadata } from 'astro';
 import Base from '../layouts/Base.astro';
 import PageHero from './PageHero.astro';
 import Icon from './Icon.astro';
+import ManualRequest from './ManualRequest.astro';
 import { breadcrumbSchema } from '../lib/schema';
-import { SITE, whatsappLink } from '../data/site';
+import { SITE } from '../data/site';
 
 interface Props {
   slug: string;
@@ -34,6 +35,8 @@ const book = {
   isAccessibleForFree: true,
   publisher: { '@id': `${SITE.url}/#organization` },
   image: new URL(p.cover.src, SITE.url).href,
+  url: `${SITE.url}/${p.slug}/`,
+  numberOfPages: 10,
 };
 ---
 <Base title={p.seoTitle} description={p.description} image={p.cover} imageAlt={p.coverAlt} schema={[book, breadcrumbSchema(crumbs)]}>
@@ -44,12 +47,8 @@ const book = {
       <div>
         <h2>¿Qué encontrarás?</h2>
         <ul class="checks">{p.topics.map((t) => <li><Icon name="check" size={20} /> <span>{t}</span></li>)}</ul>
-        <div class="box">
-          <p><strong>Solicítalo gratis.</strong> Escríbenos y te lo enviamos directamente a tu correo o WhatsApp.</p>
-          <div class="btn-row">
-            <a class="btn btn-primary" href={`/contacto/?interes=${p.interes}`}><Icon name="download" /> Solicitar manual</a>
-            <a class="btn btn-ghost" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
-          </div>
+        <div class="box" id="solicitar">
+          <ManualRequest manual={p.interes} title={p.title} pdf={`/manuales/${p.slug}.pdf`} />
         </div>
         <p class="rel">Lee también: <a href={p.related.href}>{p.related.label}</a></p>
       </div>
