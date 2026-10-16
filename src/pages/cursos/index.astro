@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import CourseCard from '../../components/CourseCard.astro';
+import CoursesLaunchNotice from '../../components/CoursesLaunchNotice.astro';
 import Icon from '../../components/Icon.astro';
 import { getCourses } from '../../lib/utils';
 import { breadcrumbSchema, ORG_ID } from '../../lib/schema';
@@ -24,22 +25,25 @@ const itemList = {
   })),
 };
 const steps = [
-  { t: 'Escríbenos', d: 'Cuéntanos qué curso te interesa por el formulario o WhatsApp.' },
-  { t: 'Recibe la información', d: 'Te enviamos fechas, modalidad, contenidos y costos.' },
-  { t: 'Empieza a formarte', d: 'Te acompañamos con tutorías y biblioteca digital.' },
+  { t: 'Déjanos tus datos', d: 'Indícanos qué programa te interesa por el formulario o WhatsApp.' },
+  { t: 'Te avisamos primero', d: 'Cuando abramos inscripciones te enviaremos fechas, modalidad, contenidos y costos.' },
+  { t: 'Decides sin compromiso', d: 'Solo entonces eliges si te inscribes. Hoy no recibimos pagos.' },
 ];
 ---
 <Base
   title="Cursos de criminalística y formación de peritos"
-  description="Cursos online de criminalística en Ecuador: formación de peritos judiciales, informática forense e investigación del crimen. Solicita fechas y costos."
+  description="Próximos cursos online de criminalística en Ecuador: formación de peritos, informática forense e investigación del crimen. Aún sin fecha de inicio: recibe el aviso."
   schema={[itemList, breadcrumbSchema(crumbs)]}
 >
   <PageHero
     label="Programas de capacitación"
     title="Cursos de ciencias forenses 100% online."
-    lead="Formación práctica con enfoque en competencias: saber pensar, saber ser y saber hacer."
+    lead="Programas en preparación, con enfoque en competencias: saber pensar, saber ser y saber hacer. Todavía no hay cursos activos."
     crumbs={crumbs}
   />
+  <section class="notice-wrap">
+    <div class="container"><CoursesLaunchNotice /></div>
+  </section>
   <section class="section ink">
     <div class="container grid">
       {courses.map((c) => <CourseCard course={c} headingLevel={2} />)}
@@ -48,20 +52,21 @@ const steps = [
   <section class="section">
     <div class="container">
       <p class="label cyan">Sin registros ni cuentas</p>
-      <h2 class="h-section">¿Cómo inscribirte?</h2>
+      <h2 class="h-section">¿Cómo enterarte del lanzamiento?</h2>
       <ol class="steps">
         {steps.map((s, i) => (
           <li><span class="marker">{i + 1}</span><div><h3>{s.t}</h3><p>{s.d}</p></div></li>
         ))}
       </ol>
       <div class="btn-row">
-        <a class="btn btn-primary" href="/contacto/">Solicitar información <Icon name="arrow" /></a>
+        <a class="btn btn-primary" href="/contacto/?interes=criminalistica">Avisarme del lanzamiento <Icon name="arrow" /></a>
       </div>
     </div>
   </section>
 </Base>
 
 <style>
+  .notice-wrap { padding-block: 2rem; }
   .grid { display: grid; gap: 1.25rem; }
   @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 1040px) { .grid { grid-template-columns: repeat(3, 1fr); } }

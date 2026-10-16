@@ -7,7 +7,7 @@ cover: ../../assets/img/curso-informatica-forense.jpg
 coverAlt: 'Informática forense e investigación digital'
 code: 'INFO-02'
 order: 2
-status: 'Próximamente'
+status: 'Próximo lanzamiento'
 price: 'Consultar'
 audience:
   - 'Público en general, estudiantes y profesionales del derecho, la informática, la seguridad, la investigación y las políticas públicas.'

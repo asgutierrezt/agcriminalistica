@@ -1,0 +1,102 @@
+---
+/**
+ * "No active courses yet" notice for the training pages: an inline banner,
+ * plus a one-time popup (shown again after 7 days) so nobody signs up
+ * believing a course is already running.
+ */
+import Icon from './Icon.astro';
+
+interface Props { interes?: string; popup?: boolean; tone?: 'light' | 'dark' }
+const { interes = 'criminalistica', popup = true, tone = 'light' } = Astro.props;
+const notify = `/contacto/?interes=${interes}`;
+---
+<aside class:list={['launch', tone]} aria-labelledby="launch-t">
+  <span class="ico" aria-hidden="true"><Icon name="clock" size={26} /></span>
+  <div class="txt">
+    <p class="kicker">Próximo lanzamiento · Fecha por confirmar</p>
+    <h2 id="launch-t">Aún no hay cursos activos</h2>
+    <p>
+      Nuestros programas de capacitación se encuentran en preparación y todavía no tienen fecha de inicio. Por ahora
+      no recibimos inscripciones ni pagos. Déjanos tus datos y serás de los primeros en conocer fechas, modalidad y
+      costos cuando abramos inscripciones.
+    </p>
+  </div>
+  <a class="btn btn-primary" href={notify}>Avisarme del lanzamiento <Icon name="arrow" /></a>
+</aside>
+
+{popup && (
+  <dialog class="launch-dlg" aria-labelledby="launch-dlg-t" data-launch-dlg>
+    <div class="card">
+      <button type="button" class="x" data-close aria-label="Cerrar">×</button>
+      <p class="kicker">Capacitación AG Criminalística</p>
+      <h2 id="launch-dlg-t">Cursos en preparación</h2>
+      <p>
+        Por el momento <strong>no tenemos cursos activos</strong>. Estamos preparando nuestros programas de
+        criminalística y ciencias forenses; la fecha de lanzamiento aún no está definida.
+      </p>
+      <p>Si te interesa, te avisaremos apenas abramos inscripciones.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href={notify} autofocus>Quiero que me avisen</a>
+        <button type="button" class="btn btn-ghost-dark" data-close>Ver los programas</button>
+      </div>
+    </div>
+  </dialog>
+)}
+
+<script>
+  const dlg = document.querySelector<HTMLDialogElement>('[data-launch-dlg]');
+  const KEY = 'ag-cursos-aviso';
+  const seenRecently = () => {
+    try {
+      return Date.now() - Number(localStorage.getItem(KEY)) < 7 * 864e5;
+    } catch {
+      return false;
+    }
+  };
+  if (dlg && typeof dlg.showModal === 'function' && !seenRecently()) {
+    const close = () => dlg.close();
+    dlg.addEventListener('click', (e) => {
+      if (e.target === dlg || (e.target as HTMLElement).closest('[data-close]')) close();
+    });
+    dlg.addEventListener('close', () => {
+      try {
+        localStorage.setItem(KEY, String(Date.now()));
+      } catch {}
+    });
+    setTimeout(() => dlg.showModal(), 700);
+  }
+</script>
+
+<style>
+  .launch {
+    display: grid; gap: 1rem 1.3rem; align-items: center; padding: 1.4rem 1.5rem; border-radius: var(--radius);
+    background: #fff8e1; border: 1px solid rgba(245, 183, 10, 0.7); border-left: 5px solid var(--amber);
+  }
+  @media (min-width: 860px) { .launch { grid-template-columns: auto 1fr auto; } }
+  .launch.dark { background: rgba(245, 183, 10, 0.08); border-color: rgba(245, 183, 10, 0.45); border-left-color: var(--amber); }
+  .ico { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--ink); color: var(--amber); }
+  .kicker { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #8a6100; }
+  .dark .kicker { color: var(--amber); }
+  .txt h2 { font-size: var(--step-1); margin-block: 0.2rem 0.35rem; }
+  .dark .txt h2 { color: var(--white); }
+  .txt p:last-child { color: #3b3320; max-width: 70ch; }
+  .dark .txt p:last-child { color: var(--muted-on-ink); }
+  .launch .btn { justify-self: start; white-space: nowrap; }
+
+  .launch-dlg { width: min(100% - 24px, 460px); max-width: none; padding: 0; border: 0; background: transparent; margin: auto; }
+  .launch-dlg::backdrop { background: rgba(8, 19, 31, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .launch-dlg[open] .card { animation: in 0.22s ease-out; }
+  @keyframes in { from { opacity: 0; transform: translateY(12px); } }
+  @media (prefers-reduced-motion: reduce) { .launch-dlg[open] .card { animation: none; } }
+  .card {
+    position: relative; display: grid; gap: 0.75rem; padding: 1.6rem 1.4rem 1.4rem; border-radius: 20px; background: var(--white);
+    border-top: 5px solid var(--amber); box-shadow: 0 30px 70px -20px rgba(8, 19, 31, 0.6); color: var(--text);
+  }
+  .card h2 { font-size: 1.45rem; padding-right: 2rem; }
+  .card p { color: #33414e; }
+  .card .kicker { color: var(--cyan-ink); }
+  .x { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--paper-2); font-size: 1.3rem; cursor: pointer; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.4rem; }
+  .btn-ghost-dark { background: transparent; border: 1.5px solid var(--line); color: var(--text); cursor: pointer; font: inherit; font-weight: 700; }
+  .x:focus-visible, .btn-ghost-dark:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
+</style>

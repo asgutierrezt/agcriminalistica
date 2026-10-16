@@ -7,7 +7,7 @@ cover: ../../assets/img/curso-investigacion-del-crimen.jpg
 coverAlt: 'Investigación del crimen: ilustración de escena del crimen'
 code: 'INV-03'
 order: 3
-status: 'Próximamente'
+status: 'Próximo lanzamiento'
 price: 'Gratis'
 audience:
   - 'Público en general, estudiantes y profesionales del derecho, auditoría, seguridad, investigación y políticas públicas.'
