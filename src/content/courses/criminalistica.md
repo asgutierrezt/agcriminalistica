@@ -7,7 +7,7 @@ cover: ../../assets/img/curso-criminalistica.jpg
 coverAlt: 'Criminalística: curso para la formación de peritos'
 code: 'CRIM-01'
 order: 1
-status: 'Próximamente'
+status: 'Próximo lanzamiento'
 price: 'Consultar'
 audience:
   - 'Capacitación continua: público en general, estudiantes y profesionales del derecho, auditoría, seguridad, investigación y políticas públicas.'

@@ -6,6 +6,7 @@ import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
 import CourseCard from '../../components/CourseCard.astro';
 import ReadMore from '../../components/ReadMore.astro';
+import CoursesLaunchNotice from '../../components/CoursesLaunchNotice.astro';
 import { getCourses, type Course } from '../../lib/utils';
 import { breadcrumbSchema, ORG_ID } from '../../lib/schema';
 import { SITE, whatsappLink } from '../../data/site';
@@ -41,10 +42,6 @@ const courseSchema = {
   isAccessibleForFree: d.price === 'Gratis',
   teaches: d.outcomes,
   syllabusSections: d.modules.map((m) => ({ '@type': 'Syllabus', name: m })),
-  hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'Online' },
-  ...(d.price === 'Gratis'
-    ? { offers: { '@type': 'Offer', category: 'Free', price: 0, priceCurrency: 'USD' } }
-    : {}),
 };
 const wa = whatsappLink();
 ---
@@ -59,14 +56,15 @@ const wa = whatsappLink();
     <ul class="facts">
       <li><span>Modalidad</span><strong>{d.modality}</strong></li>
       <li><span>Estado</span><strong>{d.status}</strong></li>
-      <li><span>Inversión</span><strong>{d.price}</strong></li>
+      <li><span>Inicio</span><strong>Por confirmar</strong></li>
       <li><span>Módulos</span><strong>{d.modules.length}</strong></li>
     </ul>
     <div class="btn-row hero-cta">
-      <a class="btn btn-primary" href={`/contacto/?interes=${course.id}`}>Solicitar información <Icon name="arrow" /></a>
+      <a class="btn btn-primary" href={`/contacto/?interes=${course.id}`}>Avisarme del lanzamiento <Icon name="arrow" /></a>
       <a class="btn btn-ghost" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
     </div>
   </PageHero>
+  <div class="container notice-wrap"><CoursesLaunchNotice interes={course.id} /></div>
 
   <section class="section">
     <div class="container layout">
@@ -92,9 +90,9 @@ const wa = whatsappLink();
       <aside class="side">
         <div class="box ink grid-bg">
           <p class="label cyan">Inscripciones</p>
-          <p class="big">{d.status}</p>
-          <p>Déjanos tus datos y te avisaremos de las próximas fechas, modalidad y costos.</p>
-          <a class="btn btn-primary" href={`/contacto/?interes=${course.id}`}>Solicitar información <Icon name="arrow" /></a>
+          <p class="big">Aún no abiertas</p>
+          <p>Este curso está en preparación y todavía no tiene fecha de inicio. Déjanos tus datos y te avisaremos primero cuando abramos inscripciones.</p>
+          <a class="btn btn-primary" href={`/contacto/?interes=${course.id}`}>Avisarme del lanzamiento <Icon name="arrow" /></a>
           <a class="btn btn-ghost" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" /> Escribir por WhatsApp</a>
           <ul class="incl">
             <li><Icon name="chat" size={18} /> Seguimiento académico</li>
@@ -116,6 +114,7 @@ const wa = whatsappLink();
 </Base>
 
 <style>
+  .notice-wrap { padding-top: 2rem; }
   .facts { list-style: none; padding: 0; margin-top: 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line-on-ink); border: 1px solid var(--line-on-ink); border-radius: 12px; overflow: hidden; max-width: 720px; }
   @media (min-width: 720px) { .facts { grid-template-columns: repeat(4, 1fr); } }
   .facts li { background: var(--ink); padding: 0.9rem 1rem; display: grid; gap: 0.15rem; }
