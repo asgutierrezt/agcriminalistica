@@ -1,0 +1,311 @@
+---
+/**
+ * Home hero: a photoreal 3D 9×19 mm cartridge that the page scroll takes
+ * apart — a short lesson in forensic ballistics (anatomy of the cartridge,
+ * the marks a weapon leaves on the case, the rifling on the fired bullet).
+ * The 3D (src/lib/bullet.ts) only loads after the visitor's first real
+ * interaction; until then a poster rendered from its first frame is shown,
+ * and the captions follow the scroll without three.js.
+ */
+import { getImage } from 'astro:assets';
+import Icon from './Icon.astro';
+import Fingerprint from './Fingerprint.astro';
+import { whatsappLink } from '../data/site';
+// Poster: first frame of the 3D cartridge (square, transparent). Regenerate when bullet.ts changes.
+import poster from '../assets/img/bala-9mm.png';
+
+const avif = await getImage({ src: poster, widths: [420, 640, 900, 1200], format: 'avif' });
+const webp = await getImage({ src: poster, widths: [420, 640, 900, 1200], format: 'webp' });
+const sizes = '(min-width: 1000px) 46vw, 100vw';
+
+const questions = [
+  { n: 1, q: '¿Qué?', d: 'ocurrió' },
+  { n: 2, q: '¿Dónde?', d: 'sucedió' },
+  { n: 3, q: '¿Quién?', d: 'participó' },
+  { n: 4, q: '¿Cómo?', d: 'se cometió' },
+];
+
+const steps = [
+  {
+    k: 'Cartucho 9×19 mm',
+    t: 'Cada disparo deja evidencia.',
+    d: 'El 9 mm es el calibre más común en armas cortas. Desliza y mira lo que un perito en balística lee en él.',
+    hud: 'Cal. 9×19 mm · Long. 29,69 mm',
+  },
+  {
+    k: 'Anatomía del cartucho',
+    t: 'Proyectil, pólvora, vaina y fulminante.',
+    d: 'Un proyectil blindado de 8 g (124 gr), la carga de pólvora, la vaina de latón de 19,15 mm y el fulminante que inicia el disparo.',
+    hud: 'Vaina 19,15 mm · Ø 9,02 mm · 8,0 g',
+  },
+  {
+    k: 'Balística identificativa',
+    t: 'La vaina es la huella del arma.',
+    d: 'El percutor, el extractor y el eyector dejan en el culote y el fulminante marcas propias de cada arma.',
+    hud: 'Percutor · Extractor · Eyector',
+  },
+  {
+    k: 'Proyectil disparado',
+    t: 'Las estrías hablan.',
+    d: 'El cañón graba 6 estrías con giro a la derecha. Sus microestrías se cotejan al microscopio para vincular la bala con el arma.',
+    hud: '6 estrías · Dextrógiro · Paso 1:250 mm',
+  },
+];
+
+const tags = [
+  { id: 'proyectil', t: 'Proyectil · 124 gr' },
+  { id: 'polvora', t: 'Pólvora' },
+  { id: 'vaina', t: 'Vaina' },
+  { id: 'fulminante', t: 'Fulminante' },
+  { id: 'percutor', t: 'Marca del percutor' },
+  { id: 'eyector', t: 'Marca del eyector' },
+  { id: 'extractor', t: 'Marca del extractor' },
+  { id: 'marcaje', t: 'Marcaje del culote' },
+  { id: 'estria', t: 'Estrías y microestrías' },
+  { id: 'ojiva', t: 'Ojiva' },
+];
+---
+<section class="hero ink grid-bg" data-bullet-hero>
+  <Fingerprint class="hero-fp" />
+  <div class="ruler" aria-hidden="true"></div>
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="label cyan">Servicios periciales · Todo Ecuador</p>
+      <h1 class="h-display">Peritaje criminalístico y <span class="hl">reconstrucción 3D</span> de los hechos.</h1>
+      <p class="lead">
+        Convertimos la evidencia de tu caso en prueba técnica clara: informes periciales, balística, contrapericia y
+        recreaciones 3D para que el tribunal vea lo que ocurrió.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/contacto/">Solicitar peritaje <Icon name="arrow" /></a>
+        <a class="btn btn-ghost" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
+      </div>
+    </div>
+
+    <div class="pin" data-pin>
+      <div class="sticky">
+        <figure class="stage" data-stage>
+          <picture class="poster">
+            <source type="image/avif" srcset={avif.srcSet.attribute} sizes={sizes} />
+            <img
+              src={webp.src}
+              srcset={webp.srcSet.attribute}
+              sizes={sizes}
+              alt="Cartucho 9×19 mm en 3D: proyectil de cobre y vaina de latón"
+              width={poster.width}
+              height={poster.height}
+              fetchpriority="high"
+              decoding="async"
+            />
+          </picture>
+          <div class="tags" aria-hidden="true">
+            {tags.map((x) => <span class="tag" data-tag={x.id}><i></i><b>{x.t}</b></span>)}
+          </div>
+          <p class="hud" aria-hidden="true"><span class="dot"></span><span data-hud>{steps[0].hud}</span></p>
+          <p class="drag" aria-hidden="true">Arrastra para girar</p>
+        </figure>
+        <ol class="steps" aria-label="Balística del cartucho, paso a paso">
+          {steps.map((s, i) => (
+            <li class:list={[{ on: i === 0 }]} data-step={i} data-hud={s.hud}>
+              <p class="kicker"><span>{String(i + 1).padStart(2, '0')}</span> {s.k}</p>
+              <p class="title">{s.t}</p>
+              <p class="text">{s.d}</p>
+            </li>
+          ))}
+        </ol>
+        <div class="bar" aria-hidden="true">{steps.map(() => <span></span>)}</div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <ol class="questions" aria-label="Las cuatro preguntas de la criminalística">
+      {questions.map((x) => (
+        <li><span class="marker" style="--s:32px">{x.n}</span><span><strong>{x.q}</strong> {x.d}</span></li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<script>
+  import type { BulletController, BulletLabel } from '../lib/bullet';
+
+  const hero = document.querySelector<HTMLElement>('[data-bullet-hero]');
+  if (hero) {
+    const pin = hero.querySelector<HTMLElement>('[data-pin]')!;
+    const stage = hero.querySelector<HTMLElement>('[data-stage]')!;
+    const sticky = pin.firstElementChild as HTMLElement;
+    const items = [...hero.querySelectorAll<HTMLElement>('[data-step]')];
+    const bars = [...hero.querySelectorAll<HTMLElement>('.bar span')];
+    const hud = hero.querySelector<HTMLElement>('[data-hud]')!;
+    const tags = new Map([...hero.querySelectorAll<HTMLElement>('[data-tag]')].map((t) => [t.dataset.tag!, t]));
+    let ctrl: BulletController | null = null;
+    let step = 0;
+    let raf = 0;
+
+    const progress = () => {
+      const r = pin.getBoundingClientRect();
+      return Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - sticky.offsetHeight)));
+    };
+    const update = () => {
+      raf = 0;
+      const p = progress();
+      ctrl?.scrub(p);
+      const s = p < 0.2 ? 0 : p < 0.51 ? 1 : p < 0.74 ? 2 : 3;
+      bars.forEach((b, i) => b.style.setProperty('--f', String(Math.min(1, Math.max(0, p * 4 - i)))));
+      if (s !== step) {
+        step = s;
+        items.forEach((li, i) => li.classList.toggle('on', i === s));
+        hud.textContent = items[s].dataset.hud!;
+      }
+    };
+    addEventListener('scroll', () => (raf ||= requestAnimationFrame(update)), { passive: true });
+
+    // Labels sit above or below their point (leader line), alternating in the
+    // exploded view so neighbours never collide, and always inside the stage.
+    type Side = 'up' | 'down' | 'left' | 'right';
+    const SIDE: Record<string, Side> = {
+      proyectil: 'up', polvora: 'down', vaina: 'up', fulminante: 'down',
+      percutor: 'right', extractor: 'left', eyector: 'down', marcaje: 'left', estria: 'up', ojiva: 'down',
+    };
+    const onLabels = (labels: BulletLabel[]) => {
+      const w = stage.clientWidth;
+      const midY = stage.clientHeight * 0.45;
+      for (const l of labels) {
+        const t = tags.get(l.id);
+        if (!t) continue;
+        t.style.opacity = String(l.opacity);
+        if (l.opacity <= 0) continue;
+        const side = SIDE[l.id] ?? (l.y < midY ? 'up' : 'down');
+        const b = t.lastElementChild as HTMLElement;
+        const bw = b.offsetWidth;
+        // Centred over/under the point, or beside it; always kept inside the stage.
+        const want = side === 'right' ? l.x + l.reach + 16 : side === 'left' ? l.x - l.reach - 16 - bw : l.x - bw / 2;
+        b.style.left = `${(Math.min(Math.max(want, 4), w - bw - 4) - l.x).toFixed(1)}px`;
+        t.dataset.side = side;
+        t.style.setProperty('--reach', `${Math.round(l.reach + 16)}px`);
+        t.style.transform = `translate(${l.x.toFixed(1)}px, ${l.y.toFixed(1)}px)`;
+      }
+    };
+
+    const mount = async () => {
+      const { mountBullet } = await import('../lib/bullet');
+      ctrl = mountBullet(stage, { onLabels });
+      if (!ctrl) return;
+      hero.classList.add('is-live');
+      update();
+    };
+
+    // three.js loads only after a real interaction (never for page-speed bots).
+    let started = false;
+    const EVENTS = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove'];
+    const start = () => {
+      if (started) return;
+      started = true;
+      EVENTS.forEach((ev) => removeEventListener(ev, start));
+      void mount();
+    };
+    EVENTS.forEach((ev) => addEventListener(ev, start, { once: true, passive: true }));
+    update();
+  }
+</script>
+
+<style>
+  .hero { position: relative; padding-block: clamp(2rem, 1.5rem + 3vw, 4rem) 2rem; overflow-x: clip; }
+  .hero :global(.hero-fp) { position: absolute; left: -90px; top: 40vh; width: min(70vw, 420px); color: var(--cyan); opacity: 0.07; }
+  /* Millimetre ruler along the top edge, like a forensic photo scale. */
+  .ruler {
+    position: absolute; left: 0; right: 0; top: 0; height: 14px; opacity: 0.5;
+    background:
+      repeating-linear-gradient(90deg, var(--amber) 0 1px, transparent 1px 10px) top / 100% 6px no-repeat,
+      repeating-linear-gradient(90deg, var(--amber) 0 1px, transparent 1px 50px) top / 100% 12px no-repeat;
+  }
+  .hero-grid { position: relative; display: grid; gap: 1.5rem; }
+  .hero-copy { display: grid; gap: 1.3rem; align-content: start; }
+  .hero h1 { color: var(--white); font-size: clamp(2.2rem, 1.5rem + 3.4vw, 4.2rem); }
+
+  /* The pin gives the scroll room for the lesson; the stage stays put meanwhile. */
+  .pin { height: 290vh; height: 290svh; }
+  .sticky {
+    position: sticky; top: var(--header-h); height: calc(100vh - var(--header-h)); height: calc(100svh - var(--header-h));
+    display: grid; grid-template-rows: minmax(0, 1fr) auto auto; gap: 0.6rem; padding-block: 0.5rem 1rem;
+  }
+  @media (min-width: 1000px) {
+    .hero-grid { grid-template-columns: 0.9fr 1.1fr; gap: 3rem; }
+    /* The copy stays beside the cartridge while it turns (lower on tall screens). */
+    .hero-copy { position: sticky; top: calc(var(--header-h) + 3vh); align-self: start; }
+    .pin { height: 260vh; }
+  }
+  @media (min-width: 1000px) and (min-height: 860px) { .hero-copy { top: calc(var(--header-h) + 14vh); } }
+  /* From tablets up the WhatsApp button is a wide pill: keep the captions above it. */
+  @media (min-width: 720px) { .sticky { padding-bottom: 5rem; } }
+
+  .stage { position: relative; margin: 0; min-height: 0; }
+  /* Soft studio glow behind the cartridge. */
+  .stage::before {
+    content: ''; position: absolute; inset: 8%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, rgba(27, 163, 224, 0.2), rgba(245, 183, 10, 0.05) 60%, transparent);
+  }
+  .poster { position: absolute; inset: 0; transition: opacity 0.5s ease; }
+  .poster img { width: 100%; height: 100%; object-fit: contain; }
+  .is-live .poster { opacity: 0; }
+  .stage :global(canvas) { position: absolute; inset: 0; width: 100% !important; height: 100% !important; cursor: grab; }
+  .stage :global(canvas:active) { cursor: grabbing; }
+
+  /* Callouts anchored to points of the 3D model. */
+  .tags { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .tag { position: absolute; left: 0; top: 0; opacity: 0; will-change: transform, opacity; }
+  .tag i { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 4px rgba(245, 183, 10, 0.25); }
+  .tag { --reach: 34px; }
+  .tag b {
+    position: absolute; left: 0; top: var(--reach); white-space: nowrap; padding: 0.3rem 0.6rem; border-radius: 6px;
+    font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--white); background: rgba(8, 19, 31, 0.86); border: 1px solid rgba(245, 183, 10, 0.55);
+  }
+  /* Vertical leader line from the point to the label. */
+  .tag::after { content: ''; position: absolute; left: -0.5px; top: 6px; width: 1px; height: calc(var(--reach) - 6px); background: rgba(245, 183, 10, 0.8); }
+  .tag[data-side='up'] b { top: auto; bottom: var(--reach); }
+  .tag[data-side='up']::after { top: auto; bottom: 6px; }
+  /* Beside the point: horizontal leader line. */
+  .tag[data-side='left'] b, .tag[data-side='right'] b { top: -13px; }
+  .tag[data-side='right']::after, .tag[data-side='left']::after { top: -0.5px; height: 1px; width: calc(var(--reach) + 10px); }
+  .tag[data-side='right']::after { left: 6px; }
+  .tag[data-side='left']::after { left: auto; right: 6px; }
+
+  .hud {
+    position: absolute; left: 0; top: 0.4rem; margin: 0; display: inline-flex; align-items: center; gap: 0.55rem;
+    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-on-ink);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #e5484d; box-shadow: 0 0 0 4px rgba(229, 72, 77, 0.2); animation: rec 1.6s ease-in-out infinite; }
+  @keyframes rec { 50% { opacity: 0.35; } }
+  .drag {
+    position: absolute; right: 0; top: 0.4rem; margin: 0; opacity: 0; transition: opacity 0.4s ease;
+    font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber);
+  }
+  .is-live .drag { opacity: 0.85; }
+  @media (max-width: 640px) { .drag { top: auto; bottom: 0.4rem; } }
+
+  /* Leaves room for the floating WhatsApp button at the bottom right. */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; max-width: min(520px, calc(100% - 64px)); }
+  .steps li {
+    grid-area: 1 / 1; display: grid; gap: 0.3rem; align-content: start; padding: 0.9rem 1.1rem; border-radius: 14px;
+    background: rgba(8, 19, 31, 0.7); border: 1px solid var(--line-on-ink); border-left: 4px solid var(--amber);
+    opacity: 0; transform: translateY(8px); transition: opacity 0.35s ease, transform 0.35s ease; visibility: hidden;
+  }
+  .steps li.on { opacity: 1; transform: none; visibility: visible; }
+  .steps p { margin: 0; }
+  .kicker { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); }
+  .kicker span { color: var(--amber); margin-right: 0.3rem; }
+  .title { font-weight: 800; font-size: 1.15rem; color: var(--white); line-height: 1.2; }
+  .text { color: #c9d6e2; font-size: 0.93rem; line-height: 1.5; }
+  .bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: min(520px, calc(100% - 64px)); }
+  .bar span { height: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--amber) calc(var(--f, 0) * 100%), rgba(255, 255, 255, 0.18) 0); }
+
+  .questions {
+    list-style: none; padding: 0; margin-top: 2.5rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
+    background: var(--line-on-ink); border: 1px solid var(--line-on-ink); border-radius: 14px; overflow: hidden;
+  }
+  @media (min-width: 800px) { .questions { grid-template-columns: repeat(4, 1fr); } }
+  .questions li { display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1rem; background: var(--ink); color: var(--muted-on-ink); font-size: 0.92rem; }
+  .questions strong { color: var(--white); font-size: 1.05rem; }
+  @media (prefers-reduced-motion: reduce) { .steps li { transition: none; } }
+</style>
