@@ -52,16 +52,17 @@ const steps = [
   },
 ];
 
+// t: label; s: shorter version for phones, where the labels must stay off the cartridge.
 const tags = [
   { id: 'proyectil', t: 'Proyectil · 124 gr' },
   { id: 'polvora', t: 'Pólvora' },
   { id: 'vaina', t: 'Vaina' },
   { id: 'fulminante', t: 'Fulminante' },
-  { id: 'percutor', t: 'Marca del percutor' },
-  { id: 'eyector', t: 'Marca del eyector' },
-  { id: 'extractor', t: 'Marca del extractor' },
-  { id: 'marcaje', t: 'Marcaje del culote' },
-  { id: 'estria', t: 'Estrías y microestrías' },
+  { id: 'percutor', t: 'Marca del percutor', s: 'Percutor' },
+  { id: 'eyector', t: 'Marca del eyector', s: 'Eyector' },
+  { id: 'extractor', t: 'Marca del extractor', s: 'Extractor' },
+  { id: 'marcaje', t: 'Marcaje del culote', s: 'Marcaje' },
+  { id: 'estria', t: 'Estrías y microestrías', s: 'Estrías' },
   { id: 'ojiva', t: 'Ojiva' },
 ];
 ---
@@ -84,6 +85,7 @@ const tags = [
 
     <div class="pin" data-pin>
       <div class="sticky">
+        <p class="ctx"><span>Balística forense</span> Lo que un perito lee en un cartucho</p>
         <figure class="stage" data-stage>
           <picture class="poster">
             <source type="image/avif" srcset={avif.srcSet.attribute} sizes={sizes} />
@@ -99,7 +101,9 @@ const tags = [
             />
           </picture>
           <div class="tags" aria-hidden="true">
-            {tags.map((x) => <span class="tag" data-tag={x.id}><i></i><b>{x.t}</b></span>)}
+            {tags.map((x) => (
+              <span class="tag" data-tag={x.id}><i></i><b>{x.s ? <><span class="lg">{x.t}</span><span class="sh">{x.s}</span></> : x.t}</b></span>
+            ))}
           </div>
           <p class="hud" aria-hidden="true"><span class="dot"></span><span data-hud>{steps[0].hud}</span></p>
           <p class="drag" aria-hidden="true">Arrastra para girar</p>
@@ -211,7 +215,7 @@ const tags = [
 
 <style>
   .hero { position: relative; padding-block: clamp(2rem, 1.5rem + 3vw, 4rem) 2rem; overflow-x: clip; }
-  .hero :global(.hero-fp) { position: absolute; left: -90px; top: 40vh; width: min(70vw, 420px); color: var(--cyan); opacity: 0.07; }
+  .hero :global(.hero-fp) { position: absolute; left: max(8px, 2vw); top: 52vh; width: min(62vw, 360px); color: var(--cyan); opacity: 0.08; }
   /* Millimetre ruler along the top edge, like a forensic photo scale. */
   .ruler {
     position: absolute; left: 0; right: 0; top: 0; height: 14px; opacity: 0.5;
@@ -227,7 +231,7 @@ const tags = [
   .pin { height: 290vh; height: 290svh; }
   .sticky {
     position: sticky; top: var(--header-h); height: calc(100vh - var(--header-h)); height: calc(100svh - var(--header-h));
-    display: grid; grid-template-rows: minmax(0, 1fr) auto auto; gap: 0.6rem; padding-block: 0.5rem 1rem;
+    display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; gap: 0.6rem; padding-block: 0.5rem 1rem;
   }
   @media (min-width: 1000px) {
     .hero-grid { grid-template-columns: 0.9fr 1.1fr; gap: 3rem; }
@@ -239,6 +243,12 @@ const tags = [
   /* From tablets up the WhatsApp button is a wide pill: keep the captions above it. */
   @media (min-width: 720px) { .sticky { padding-bottom: 5rem; } }
 
+  /* Context for the animation: what the cartridge is about. */
+  .ctx { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; color: var(--muted-on-ink); font-size: 0.92rem; }
+  .ctx span {
+    font-family: var(--font-mono); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink); background: var(--amber); padding: 0.2rem 0.55rem; border-radius: 4px;
+  }
   .stage { position: relative; margin: 0; min-height: 0; }
   /* Soft studio glow behind the cartridge. */
   .stage::before {
@@ -252,7 +262,8 @@ const tags = [
   .stage :global(canvas:active) { cursor: grabbing; }
 
   /* Callouts anchored to points of the 3D model. */
-  .tags { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  /* Above the 3D canvas (which is appended later), so the cartridge never covers a label. */
+  .tags { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
   .tag { position: absolute; left: 0; top: 0; opacity: 0; will-change: transform, opacity; }
   .tag i { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 4px rgba(245, 183, 10, 0.25); }
   .tag { --reach: 34px; }
@@ -270,15 +281,20 @@ const tags = [
   .tag[data-side='right']::after, .tag[data-side='left']::after { top: -0.5px; height: 1px; width: calc(var(--reach) + 10px); }
   .tag[data-side='right']::after { left: 6px; }
   .tag[data-side='left']::after { left: auto; right: 6px; }
+  .tag .sh { display: none; }
+  @media (max-width: 640px) {
+    .tag .lg { display: none; }
+    .tag .sh { display: inline; }
+  }
 
   .hud {
-    position: absolute; left: 0; top: 0.4rem; margin: 0; display: inline-flex; align-items: center; gap: 0.55rem;
+    position: absolute; z-index: 2; left: 0; top: 0.4rem; margin: 0; display: inline-flex; align-items: center; gap: 0.55rem;
     font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-on-ink);
   }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: #e5484d; box-shadow: 0 0 0 4px rgba(229, 72, 77, 0.2); animation: rec 1.6s ease-in-out infinite; }
   @keyframes rec { 50% { opacity: 0.35; } }
   .drag {
-    position: absolute; right: 0; top: 0.4rem; margin: 0; opacity: 0; transition: opacity 0.4s ease;
+    position: absolute; z-index: 2; right: 0; top: 0.4rem; margin: 0; opacity: 0; transition: opacity 0.4s ease;
     font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber);
   }
   .is-live .drag { opacity: 0.85; }
@@ -309,9 +325,9 @@ const tags = [
   .questions strong { color: var(--white); font-size: 1.05rem; }
   /* Phones held sideways (short screens): cartridge on the left, captions on the right. */
   @media (orientation: landscape) and (max-height: 560px) and (max-width: 999px) {
-    .sticky { grid-template-columns: 1.15fr 1fr; grid-template-rows: minmax(0, 1fr) auto; column-gap: 1rem; padding-block: 0.4rem; }
-    .stage { grid-row: 1 / 3; }
-    .steps, .bar { grid-column: 2; max-width: none; }
+    .sticky { grid-template-columns: 1.15fr 1fr; grid-template-rows: auto minmax(0, 1fr) auto; column-gap: 1rem; padding-block: 0.4rem; }
+    .stage { grid-row: 1 / 4; grid-column: 1; }
+    .ctx, .steps, .bar { grid-column: 2; max-width: none; }
     .steps { align-self: center; }
     .bar { margin-bottom: 4.2rem; } /* clear of the WhatsApp button */
     .steps li { padding: 0.7rem 0.9rem; }
