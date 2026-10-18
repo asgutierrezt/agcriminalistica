@@ -2,8 +2,7 @@
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
-import Fingerprint from '../components/Fingerprint.astro';
-import CrimeScene3D from '../components/CrimeScene3D.astro';
+import BulletHero from '../components/BulletHero.astro';
 import SceneTour from '../components/SceneTour.astro';
 import ServiceCard from '../components/ServiceCard.astro';
 import Process from '../components/Process.astro';
@@ -19,13 +18,6 @@ const services = await getServices();
 const courses = await getCourses();
 const posts = (await getPosts()).slice(0, 3);
 const reco = services.find((s) => s.id === 'reconstruccion-3d-de-hechos')!;
-
-const questions = [
-  { n: 1, q: '¿Qué?', d: 'ocurrió' },
-  { n: 2, q: '¿Dónde?', d: 'sucedió' },
-  { n: 3, q: '¿Quién?', d: 'participó' },
-  { n: 4, q: '¿Cómo?', d: 'se cometió' },
-];
 
 const steps = [
   { t: 'Nos cuentas el caso', d: 'Por el formulario o WhatsApp. Toda consulta es confidencial.' },
@@ -55,35 +47,8 @@ const faqSchema = {
   imageAlt="Reconstrucción 3D de una escena del crimen"
   schema={[faqSchema]}
 >
-  <!-- HERO -->
-  <section class="hero ink grid-bg">
-    <Fingerprint class="hero-fp" />
-    <div class="ruler" aria-hidden="true"></div>
-    <div class="container hero-grid">
-      <div class="hero-copy">
-        <p class="label cyan">Servicios periciales · Todo Ecuador</p>
-        <h1 class="h-display">
-          Peritaje criminalístico y <span class="hl">reconstrucción 3D</span> de los hechos.
-        </h1>
-        <p class="lead">
-          Convertimos la evidencia de tu caso en prueba técnica clara: informes periciales, contrapericia y
-          recreaciones 3D para que el tribunal vea lo que ocurrió.
-        </p>
-        <div class="btn-row">
-          <a class="btn btn-primary" href="/contacto/">Solicitar peritaje <Icon name="arrow" /></a>
-          <a class="btn btn-ghost" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
-        </div>
-      </div>
-      <CrimeScene3D caption="Reconstrucción 3D · arrastra para girar" class="hero-scene" priority />
-    </div>
-    <div class="container">
-      <ol class="questions" aria-label="Las cuatro preguntas de la criminalística">
-        {questions.map((x) => (
-          <li><span class="marker" style="--s:32px">{x.n}</span><span><strong>{x.q}</strong> {x.d}</span></li>
-        ))}
-      </ol>
-    </div>
-  </section>
+  <!-- HERO: cartucho 3D y balística (scroll) -->
+  <BulletHero />
 
   <!-- SERVICIOS -->
   <section class="section" id="servicios">
@@ -266,28 +231,6 @@ const faqSchema = {
 </Base>
 
 <style>
-  /* HERO */
-  .hero { position: relative; overflow: hidden; padding-block: clamp(2.2rem, 1.5rem + 4vw, 5rem) 2rem; }
-  .hero :global(.hero-fp) { position: absolute; left: -90px; bottom: -60px; width: min(70vw, 420px); color: var(--cyan); opacity: 0.07; }
-  /* Millimetre ruler along the top edge, like a forensic photo scale. */
-  .ruler {
-    position: absolute; left: 0; right: 0; top: 0; height: 14px; opacity: 0.5;
-    background:
-      repeating-linear-gradient(90deg, var(--amber) 0 1px, transparent 1px 10px) top / 100% 6px no-repeat,
-      repeating-linear-gradient(90deg, var(--amber) 0 1px, transparent 1px 50px) top / 100% 12px no-repeat;
-  }
-  .hero-grid { position: relative; display: grid; gap: 2rem; align-items: center; }
-  @media (min-width: 1000px) { .hero-grid { grid-template-columns: 1fr 1fr; gap: 3.5rem; } }
-  .hero-copy { display: grid; gap: 1.3rem; }
-  .hero h1 { color: var(--white); font-size: clamp(2.2rem, 1.5rem + 3.4vw, 4.2rem); }
-  .questions {
-    list-style: none; padding: 0; margin-top: 3rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
-    background: var(--line-on-ink); border: 1px solid var(--line-on-ink); border-radius: 14px; overflow: hidden;
-  }
-  @media (min-width: 800px) { .questions { grid-template-columns: repeat(4, 1fr); } }
-  .questions li { display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1rem; background: var(--ink); color: var(--muted-on-ink); font-size: 0.92rem; }
-  .questions strong { color: var(--white); font-size: 1.05rem; }
-
   /* Shared section heads */
   .head { margin-bottom: 2.5rem; max-width: 720px; }
   .head.split { max-width: none; display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: flex-end; justify-content: space-between; }
