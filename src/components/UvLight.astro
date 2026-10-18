@@ -1,0 +1,63 @@
+---
+/**
+ * "Forensic UV light": with a mouse, latent fingerprints glow where the
+ * cursor passes over the parent section, like a forensic lamp revealing
+ * prints. Pointer-only and purely decorative; touch screens never see it.
+ */
+import Fingerprint from './Fingerprint.astro';
+
+interface Props { prints?: { x: string; y: string; w: number; r: number }[] }
+const {
+  prints = [
+    { x: '6%', y: '14%', w: 130, r: -18 },
+    { x: '34%', y: '58%', w: 96, r: 24 },
+    { x: '52%', y: '6%', w: 110, r: 8 },
+    { x: '78%', y: '62%', w: 140, r: -30 },
+    { x: '88%', y: '12%', w: 84, r: 40 },
+    { x: '18%', y: '78%', w: 104, r: -4 },
+  ],
+} = Astro.props;
+---
+<div class="uv" data-uv aria-hidden="true">
+  {prints.map((p) => (
+    <span style={`left:${p.x};top:${p.y};width:${Math.round(p.w * 1.35)}px;transform:rotate(${p.r}deg)`}><Fingerprint /></span>
+  ))}
+</div>
+
+<script>
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    for (const uv of document.querySelectorAll<HTMLElement>('[data-uv]')) {
+      const host = uv.parentElement!;
+      let raf = 0;
+      let x = 0;
+      let y = 0;
+      host.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        x = e.clientX;
+        y = e.clientY;
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          const r = host.getBoundingClientRect();
+          uv.style.setProperty('--x', `${x - r.left}px`);
+          uv.style.setProperty('--y', `${y - r.top}px`);
+          uv.classList.add('on');
+        });
+      }, { passive: true });
+      host.addEventListener('pointerleave', () => uv.classList.remove('on'));
+    }
+  }
+</script>
+
+<style>
+  .uv {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.35s ease;
+    color: #cbb6ff;
+    background: radial-gradient(circle 230px at var(--x, 50%) var(--y, 50%), rgba(132, 92, 255, 0.24), transparent 70%);
+    -webkit-mask-image: radial-gradient(circle 230px at var(--x, 50%) var(--y, 50%), #000 35%, transparent 100%);
+    mask-image: radial-gradient(circle 230px at var(--x, 50%) var(--y, 50%), #000 35%, transparent 100%);
+  }
+  .uv.on { opacity: 1; }
+  .uv span { position: absolute; opacity: 0.85; filter: drop-shadow(0 0 6px rgba(160, 120, 255, 0.8)); }
+  @media (prefers-reduced-motion: reduce) { .uv { transition: none; } }
+</style>
