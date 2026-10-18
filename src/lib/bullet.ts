@@ -439,8 +439,9 @@ export function mountBullet(el: HTMLElement, opts: Options = {}): BulletControll
     { p: 0.24, rx: 0.1, rz: -H, s: 0.9, c: 1.62, ex: 0, po: 0, bo: 0, co: 0, fi: 0 },
     { p: 0.36, rx: 0.12, rz: -H, s: 0.72, c: 1.95, ex: 1, po: 1, bo: 0, co: 0, fi: 0 },
     { p: 0.47, rx: 0.12, rz: -H, s: 0.72, c: 1.95, ex: 1, po: 1, bo: 0, co: 0, fi: 0 },
-    { p: 0.56, rx: -H + 0.55, rz: -0.35, s: 1.7, c: 0.4, ex: 0, po: 0, bo: 1, co: 0, fi: 1 },
-    { p: 0.68, rx: -H + 0.5, rz: -0.3, s: 1.7, c: 0.4, ex: 0, po: 0, bo: 1, co: 0, fi: 1 },
+    // Base view: nearly head-on, the case body behind the head, so labels have room around it.
+    { p: 0.56, rx: -H + 0.36, rz: -0.12, s: 1.5, c: 0.25, ex: 0, po: 0, bo: 1, co: 0, fi: 1 },
+    { p: 0.68, rx: -H + 0.32, rz: -0.1, s: 1.5, c: 0.25, ex: 0, po: 0, bo: 1, co: 0, fi: 1 },
     { p: 0.79, rx: 0.16, rz: -H, s: 1.45, c: (SEAT + BULLET_LEN / 2) * MM, ex: 0, po: 0, bo: 0, co: 1, fi: 1 },
     { p: 1, rx: 0.16, rz: -H, s: 1.45, c: (SEAT + BULLET_LEN / 2) * MM, ex: 0, po: 0, bo: 0, co: 1, fi: 1 },
   ];
