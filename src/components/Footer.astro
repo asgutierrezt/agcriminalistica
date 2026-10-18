@@ -4,6 +4,8 @@ import Icon from './Icon.astro';
 import { SITE, whatsappLink } from '../data/site';
 import { AFFILIATE_DISCLOSURE } from '../data/affiliate';
 const year = new Date().getFullYear();
+// Developer's WhatsApp (the site owner's contact stays in SITE).
+const devWa = `https://wa.me/593958809186?text=${encodeURIComponent('Hola, Codemaxon. Vengo de agcriminalistica.com y me interesa una web con ese nivel para mi proyecto. ¿Hablamos?')}`;
 ---
 <footer class="site-footer ink grid-bg">
   <div class="tape" aria-hidden="true">
@@ -65,21 +67,50 @@ const year = new Date().getFullYear();
     <p><a href="/privacidad/">Privacidad</a></p>
     <p class="aff">{AFFILIATE_DISCLOSURE}</p>
   </div>
-  <!-- Developer credit: opens a ready-to-send email to the developer. The address is
-       assembled in the browser, so it never appears in the HTML for scrapers. -->
+  <!-- Developer credit: opens a small panel with ways to reach the developer
+       (WhatsApp, Gmail, Outlook, copy the address, or the mail app). Without
+       JavaScript the link goes straight to WhatsApp. -->
   <div class="container credit">
-    <a class="dev" href="/contacto/" data-dev data-u="maximilianoalonso2012.ma" data-d="gmail.com"
-       aria-label="Página creada por Codemaxon. Escribir un correo al programador">
+    <a class="dev" href={devWa} target="_blank" rel="noopener" data-dev aria-haspopup="dialog"
+       aria-label="Página creada por Codemaxon. Contactar al programador">
       <span class="code" aria-hidden="true">&lt;/&gt;</span>
       <span class="who">Página creada por <strong class="glitch" data-text="Codemaxon">Codemaxon</strong></span>
       <span class="go" aria-hidden="true">Escríbele al programador <span class="arr">→</span></span>
     </a>
   </div>
+
+  <dialog class="dev-dlg" aria-labelledby="dev-t" data-dev-dlg data-u="maximilianoalonso2012.ma" data-d="gmail.com">
+    <div class="dev-card">
+      <button type="button" class="x" data-close aria-label="Cerrar">×</button>
+      <p class="dev-k"><span class="code" aria-hidden="true">&lt;/&gt;</span> Codemaxon · Desarrollo web</p>
+      <h2 id="dev-t">Hablemos de tu proyecto</h2>
+      <p class="dev-sub">Elige cómo escribirle al programador. El mensaje ya va redactado.</p>
+      <div class="opts">
+        <a class="opt wa" href={devWa} target="_blank" rel="noopener" data-opt="wa">
+          <Icon name="whatsapp" size={22} /><span><strong>WhatsApp</strong><small>Respuesta más rápida</small></span>
+        </a>
+        <a class="opt" href="#" target="_blank" rel="noopener" data-opt="gmail">
+          <span class="ico" aria-hidden="true">G</span><span><strong>Gmail</strong><small>Se abre en el navegador</small></span>
+        </a>
+        <a class="opt" href="#" target="_blank" rel="noopener" data-opt="outlook">
+          <span class="ico" aria-hidden="true">O</span><span><strong>Outlook / Hotmail</strong><small>Se abre en el navegador</small></span>
+        </a>
+        <button type="button" class="opt" data-opt="copy">
+          <span class="ico" aria-hidden="true">⧉</span><span><strong data-copy-label>Copiar correo</strong><small data-addr></small></span>
+        </button>
+      </div>
+      <a class="mailapp" href="#" data-opt="mailto">Abrir mi aplicación de correo</a>
+      <p class="sr-status" role="status" aria-live="polite" data-copy-status></p>
+    </div>
+  </dialog>
 </footer>
 
 <script>
   const dev = document.querySelector<HTMLAnchorElement>('[data-dev]');
-  if (dev) {
+  const dlg = document.querySelector<HTMLDialogElement>('[data-dev-dlg]');
+  if (dev && dlg && typeof dlg.showModal === 'function') {
+    // The address is assembled here, so it never sits in the HTML for scrapers.
+    const addr = `${dlg.dataset.u}@${dlg.dataset.d}`;
     const subject = 'Vengo de agcriminalistica.com: quiero una web así';
     const body = [
       'Hola, Codemaxon:',
@@ -99,12 +130,44 @@ const year = new Date().getFullYear();
       '',
       '— Enviado desde la firma al pie de agcriminalistica.com',
     ].join('\n');
-    const arm = () => {
-      dev.href = `mailto:${dev.dataset.u}@${dev.dataset.d}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    };
-    // Set before the visitor activates it (hover, focus or first touch).
-    ['pointerenter', 'focus', 'touchstart'].forEach((ev) => dev.addEventListener(ev, arm, { once: true, passive: true }));
-    dev.addEventListener('click', arm);
+    const q = encodeURIComponent;
+    const set = (opt: string, href: string) => ((dlg.querySelector(`[data-opt="${opt}"]`) as HTMLAnchorElement).href = href);
+    set('gmail', `https://mail.google.com/mail/?view=cm&fs=1&to=${q(addr)}&su=${q(subject)}&body=${q(body)}`);
+    set('outlook', `https://outlook.live.com/mail/0/deeplink/compose?to=${q(addr)}&subject=${q(subject)}&body=${q(body)}`);
+    set('mailto', `mailto:${addr}?subject=${q(subject)}&body=${q(body)}`);
+    dlg.querySelector<HTMLElement>('[data-addr]')!.textContent = addr;
+
+    dev.addEventListener('click', (e) => {
+      e.preventDefault();
+      dlg.showModal();
+    });
+    dlg.addEventListener('click', (e) => {
+      if (e.target === dlg || (e.target as HTMLElement).closest('[data-close]')) dlg.close();
+    });
+
+    // Copy the address (Clipboard API, with a fallback for older browsers).
+    const label = dlg.querySelector<HTMLElement>('[data-copy-label]')!;
+    const status = dlg.querySelector<HTMLElement>('[data-copy-status]')!;
+    dlg.querySelector('[data-opt="copy"]')!.addEventListener('click', async () => {
+      let ok = false;
+      try {
+        await navigator.clipboard.writeText(addr);
+        ok = true;
+      } catch {
+        const t = document.createElement('textarea');
+        t.value = addr;
+        t.setAttribute('readonly', '');
+        t.style.position = 'fixed';
+        t.style.opacity = '0';
+        dlg.appendChild(t);
+        t.select();
+        ok = document.execCommand('copy');
+        t.remove();
+      }
+      label.textContent = ok ? '¡Correo copiado!' : 'Copia el correo:';
+      status.textContent = ok ? 'Correo copiado al portapapeles' : '';
+      setTimeout(() => (label.textContent = 'Copiar correo'), 2500);
+    });
   }
 </script>
 
@@ -174,6 +237,39 @@ const year = new Date().getFullYear();
   .arr { transition: transform 0.25s ease; }
   .dev:hover .arr { transform: translateX(3px); }
   @media (prefers-reduced-motion: reduce) { .dev, .arr { transition: none; } }
+  /* Developer contact panel. */
+  .dev-dlg { width: min(100% - 24px, 440px); max-width: none; padding: 0; border: 0; background: transparent; margin: auto; color: var(--white); }
+  .dev-dlg::backdrop { background: rgba(4, 10, 18, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .dev-dlg[open] .dev-card { animation: dev-in 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  @keyframes dev-in { from { opacity: 0; transform: translateY(14px) scale(0.98); } }
+  .dev-card {
+    position: relative; display: grid; gap: 0.7rem; padding: 1.5rem 1.3rem 1.2rem; border-radius: 20px;
+    border: 1px solid transparent;
+    background: linear-gradient(var(--ink-2), var(--ink-2)) padding-box, linear-gradient(120deg, var(--cyan), rgba(255, 255, 255, 0.1) 50%, var(--amber)) border-box;
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+  }
+  .dev-card h2 { font-family: var(--font-sans); font-size: 1.5rem; letter-spacing: -0.02em; text-transform: none; color: var(--white); margin: 0; }
+  .dev-k { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); }
+  .dev-k .code { width: 28px; height: 28px; font-size: 0.62rem; }
+  .dev-sub { margin: 0 0 0.3rem; color: var(--muted-on-ink); font-size: 0.93rem; }
+  .opts { display: grid; gap: 0.5rem; }
+  .opt {
+    display: flex; align-items: center; gap: 0.85rem; width: 100%; min-height: 56px; padding: 0.6rem 0.9rem; border-radius: 14px;
+    font: inherit; text-align: left; text-decoration: none; cursor: pointer; color: var(--white);
+    background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line-on-ink); transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+  }
+  .opt:hover, .opt:focus-visible { border-color: var(--cyan); background: rgba(27, 163, 224, 0.08); transform: translateY(-1px); }
+  .opt > span:last-child { display: grid; gap: 0.1rem; min-width: 0; }
+  .opt strong { font-size: 0.98rem; }
+  .opt small { color: var(--muted-on-ink); font-size: 0.8rem; overflow-wrap: anywhere; }
+  .opt .ico { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 10px; background: rgba(255, 255, 255, 0.08); font-weight: 800; color: var(--amber); }
+  .opt.wa { background: #25d366; border-color: #25d366; color: #062b14; }
+  .opt.wa small { color: #0b4a24; }
+  .opt.wa:hover { background: #3ddc7a; }
+  .mailapp { justify-self: center; margin-top: 0.2rem; font-size: 0.85rem; color: var(--muted-on-ink); }
+  .x { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line-on-ink); background: transparent; color: var(--white); font-size: 1.3rem; cursor: pointer; }
+  .sr-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); margin: 0; }
+  @media (prefers-reduced-motion: reduce) { .dev-dlg[open] .dev-card { animation: none; } .opt { transition: none; } }
   .legal {
     display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem;
     margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line-on-ink); font-size: 0.85rem;
