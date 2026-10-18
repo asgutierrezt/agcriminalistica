@@ -131,6 +131,7 @@ const tags = [
 </section>
 
 <script>
+  import { loadModule, reloadedForUpdate } from '../lib/loadModule';
   import type { BulletController, BulletLabel } from '../lib/bullet';
 
   const hero = document.querySelector<HTMLElement>('[data-bullet-hero]');
@@ -192,16 +193,18 @@ const tags = [
     };
 
     const mount = async () => {
-      const { mountBullet } = await import('../lib/bullet');
+      const lib = await loadModule(() => import('../lib/bullet'));
+      if (!lib) return;
+      const { mountBullet } = lib;
       ctrl = mountBullet(stage, { onLabels });
       if (!ctrl) return;
       hero.classList.add('is-live');
       update();
     };
 
-    // three.js loads only after a real interaction (never for page-speed bots).
+    // three.js loads only after the first interaction or scroll (never for page-speed bots).
     let started = false;
-    const EVENTS = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove'];
+    const EVENTS = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove', 'scroll'];
     const start = () => {
       if (started) return;
       started = true;
@@ -209,6 +212,7 @@ const tags = [
       void mount();
     };
     EVENTS.forEach((ev) => addEventListener(ev, start, { once: true, passive: true }));
+    if (reloadedForUpdate()) start();
     update();
   }
 </script>
@@ -258,6 +262,9 @@ const tags = [
   .poster { position: absolute; inset: 0; transition: opacity 0.5s ease; }
   .poster img { width: 100%; height: 100%; object-fit: contain; }
   .is-live .poster { opacity: 0; }
+  /* WebGL context lost (phone memory, app switch): back to the poster until it returns. */
+  .stage.gl-lost .poster { opacity: 1; }
+  .stage.gl-lost :global(canvas) { visibility: hidden; }
   .stage :global(canvas) { position: absolute; inset: 0; width: 100% !important; height: 100% !important; cursor: grab; }
   .stage :global(canvas:active) { cursor: grabbing; }
 

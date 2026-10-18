@@ -106,6 +106,7 @@ const posterAlt = full
 </figure>
 
 <script>
+  import { loadModule, reloadedForUpdate } from '../lib/loadModule';
   import type { CrimeSceneController } from '../lib/crimeScene';
 
   const fmt = (s: number) => `00:${String(Math.floor(s)).padStart(2, '0')}`;
@@ -155,7 +156,9 @@ const posterAlt = full
     };
 
     const mount = async () => {
-      const { mountCrimeScene } = await import('../lib/crimeScene');
+      const lib = await loadModule(() => import('../lib/crimeScene'));
+      if (!lib) return;
+      const { mountCrimeScene } = lib;
       ctrl = mountCrimeScene(stage, {
         intro: !!playBtn,
         onSelect: (i) => show(i),
@@ -210,12 +213,12 @@ const posterAlt = full
     mount: wire(root),
   }));
 
-  // Start the 3D scene only on the visitor's first real interaction (touch,
-  // mouse, wheel or keyboard). Until then the poster, rendered from the scene's
-  // own first frame, looks identical, and three.js costs nothing: no timers,
-  // and no programmatic scroll can start it.
+  // Start the 3D scene only on the visitor's first interaction (touch, mouse,
+  // wheel, keyboard or scroll, including dragging the scrollbar). Until then the
+  // poster, rendered from the scene's own first frame, looks identical, and
+  // three.js costs nothing: no timers.
   let started = false;
-  const EVENTS = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove'];
+  const EVENTS = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove', 'scroll'];
   const start = () => {
     if (started) return;
     started = true;
@@ -233,6 +236,7 @@ const posterAlt = full
     }
   };
   EVENTS.forEach((ev) => addEventListener(ev, start, { once: true, passive: true }));
+  if (reloadedForUpdate()) start();
 </script>
 
 <style>
@@ -252,6 +256,9 @@ const posterAlt = full
   .poster { position: absolute; inset: 0; transition: opacity 0.6s ease; }
   .poster img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .is-live .poster { opacity: 0; }
+  /* WebGL context lost (phone memory, app switch): back to the poster until it returns. */
+  .stage.gl-lost .poster { opacity: 1; }
+  .stage.gl-lost :global(canvas) { visibility: hidden; }
   .stage :global(canvas) { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; animation: fade 0.8s ease both; }
   @keyframes fade { from { opacity: 0; } }
 
