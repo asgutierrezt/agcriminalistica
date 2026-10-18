@@ -1,0 +1,202 @@
+---
+/**
+ * "Recorre la escena": a scroll-driven walk through the 3D crime scene. The
+ * page scroll moves the camera from outside the police cordon to the finished
+ * reconstruction while the story cards scroll over it.
+ * Like the hero scene, three.js only loads after the visitor's first real
+ * interaction; until then (and without WebGL) a poster of the first frame
+ * stays behind the cards, which read fine on their own.
+ */
+import { getImage } from 'astro:assets';
+import Icon from './Icon.astro';
+import PoliceTape from './PoliceTape.astro';
+// Posters: the tour's first frame. Regenerate when the scene or path changes.
+import posterWide from '../assets/img/escena-3d-recorrido-lg.jpg';
+import posterTall from '../assets/img/escena-3d-recorrido-sm.jpg';
+
+const wide = await getImage({ src: posterWide, widths: [960, 1440, 1920], format: 'webp' });
+const wideAvif = await getImage({ src: posterWide, widths: [960, 1440, 1920], format: 'avif' });
+const tall = await getImage({ src: posterTall, widths: [420, 640, 800], format: 'webp' });
+const tallAvif = await getImage({ src: posterTall, widths: [420, 640, 800], format: 'avif' });
+
+const acts = [
+  {
+    t: 'Acordonamiento',
+    d: 'Todo empieza protegiendo el lugar. El cordón evita que la escena se contamine y abre la cadena de custodia desde el primer minuto.',
+  },
+  {
+    t: 'Inspección y fijación',
+    d: 'Cada indicio se ubica, se numera y se fotografía en su posición original antes de levantarlo: vaina, huellas, manchas, teléfono.',
+  },
+  {
+    t: 'Planimetría',
+    d: 'Desde arriba, medimos distancias y posiciones para levantar el plano a escala. Cada medida queda documentada en el informe.',
+  },
+  {
+    t: 'Reconstrucción',
+    d: 'Con los indicios y las pericias modelamos el origen del disparo y sus trayectorias: la hipótesis se pone a prueba en 3D.',
+  },
+  {
+    t: 'Prueba clara',
+    d: 'El resultado es una reconstrucción que el tribunal puede ver y entender, sustentada por un perito en la audiencia.',
+  },
+];
+---
+<section class="tour ink" id="recorrido" aria-labelledby="tour-t" data-tour>
+  <PoliceTape />
+  <div class="sticky">
+    <div class="stage" data-tour-stage>
+      <picture class="poster">
+        <source media="(orientation: portrait)" type="image/avif" srcset={tallAvif.srcSet.attribute} sizes="100vw" />
+        <source media="(orientation: portrait)" type="image/webp" srcset={tall.srcSet.attribute} sizes="100vw" />
+        <source type="image/avif" srcset={wideAvif.srcSet.attribute} sizes="100vw" />
+        <img src={wide.src} srcset={wide.srcSet.attribute} sizes="100vw" alt="" width={posterWide.width} height={posterWide.height} loading="lazy" decoding="async" />
+      </picture>
+    </div>
+    <div class="hud" aria-hidden="true">
+      <span class="rec"><span class="dot"></span>Recorrido 3D</span>
+      <ol class="steps">{acts.map((_, i) => <li data-step={i} class:list={[{ on: i === 0 }]}></li>)}</ol>
+      <span class="n"><span data-act-n>01</span> / {String(acts.length).padStart(2, '0')}</span>
+    </div>
+  </div>
+
+  <div class="acts">
+    {acts.map((a, i) => (
+      <div class="act">
+        <article class="card">
+          {i === 0 && (
+            <>
+              <p class="label cyan">Recorre la escena del crimen</p>
+              <h2 id="tour-t" class="h-section">Así trabaja un perito, paso a paso.</h2>
+              <p class="scroll-hint" aria-hidden="true">Desliza para avanzar ↓</p>
+            </>
+          )}
+          <p class="kicker"><span>{String(i + 1).padStart(2, '0')}</span> {a.t}</p>
+          <p class="text">{a.d}</p>
+          {i === acts.length - 1 && (
+            <div class="btn-row">
+              <a class="btn btn-primary" href="/contacto/">Solicitar reconstrucción <Icon name="arrow" /></a>
+              <a class="btn btn-ghost" href="/servicios/reconstruccion-3d-de-hechos/">Explorar la escena</a>
+            </div>
+          )}
+        </article>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  import type { CrimeSceneController } from '../lib/crimeScene';
+
+  const root = document.querySelector<HTMLElement>('[data-tour]');
+  if (root) {
+    const stage = root.querySelector<HTMLElement>('[data-tour-stage]')!;
+    const steps = [...root.querySelectorAll<HTMLElement>('[data-step]')];
+    const actN = root.querySelector<HTMLElement>('[data-act-n]')!;
+    let ctrl: CrimeSceneController | null = null;
+    let raf = 0;
+    let act = 0;
+
+    const progress = () => {
+      const r = root.getBoundingClientRect();
+      return Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - innerHeight)));
+    };
+    const update = () => {
+      raf = 0;
+      const p = progress();
+      ctrl?.scrub(p);
+      const a = Math.min(steps.length - 1, Math.round(p * (steps.length - 1)));
+      if (a !== act) {
+        act = a;
+        steps.forEach((s, i) => s.classList.toggle('on', i <= a));
+        actN.textContent = String(a + 1).padStart(2, '0');
+      }
+    };
+    const onScroll = () => (raf ||= requestAnimationFrame(update));
+
+    // Track the scroll only while the tour is on screen.
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        addEventListener('scroll', onScroll, { passive: true });
+        update();
+      } else removeEventListener('scroll', onScroll);
+    }).observe(root);
+
+    const mount = async () => {
+      const { mountCrimeScene } = await import('../lib/crimeScene');
+      ctrl = mountCrimeScene(stage, { tour: true });
+      if (!ctrl) return;
+      root.classList.add('is-live');
+      update();
+    };
+
+    // Same rule as the hero scene: never load three.js before a real interaction.
+    let started = false;
+    const EVENTS = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove'];
+    const start = () => {
+      if (started) return;
+      started = true;
+      EVENTS.forEach((ev) => removeEventListener(ev, start));
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) return;
+          io.disconnect();
+          void mount();
+        },
+        { rootMargin: '600px 0px' },
+      );
+      io.observe(root);
+    };
+    EVENTS.forEach((ev) => addEventListener(ev, start, { once: true, passive: true }));
+  }
+</script>
+
+<style>
+  .tour { position: relative; }
+  .sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+  .stage { position: absolute; inset: 0; pointer-events: none; background: #0d1825; }
+  .poster { position: absolute; inset: 0; transition: opacity 0.6s ease; }
+  .poster img { width: 100%; height: 100%; object-fit: cover; }
+  .is-live .poster { opacity: 0; }
+  .stage :global(canvas) { position: absolute; inset: 0; width: 100% !important; height: 100% !important; animation: fade 0.8s ease both; }
+  @keyframes fade { from { opacity: 0; } }
+  /* Shade behind the cards: left on wide screens, bottom on phones. */
+  .sticky::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(0deg, rgba(8, 19, 31, 0.92) 0%, rgba(8, 19, 31, 0.55) 34%, transparent 58%);
+  }
+  @media (min-width: 900px) and (orientation: landscape) {
+    .sticky::after { background: linear-gradient(90deg, rgba(8, 19, 31, 0.9) 0%, rgba(8, 19, 31, 0.5) 34%, transparent 55%); }
+  }
+
+  .hud {
+    position: absolute; z-index: 2; left: var(--gutter); right: var(--gutter); top: calc(var(--header-h) + 14px);
+    display: flex; align-items: center; gap: 0.9rem;
+    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-on-ink);
+  }
+  .rec { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--white); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #e5484d; box-shadow: 0 0 0 4px rgba(229, 72, 77, 0.2); animation: rec 1.6s ease-in-out infinite; }
+  @keyframes rec { 50% { opacity: 0.35; } }
+  .steps { list-style: none; display: flex; gap: 5px; padding: 0; margin: 0 0 0 auto; }
+  .steps li { width: 22px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.2); transition: background-color 0.3s ease; }
+  .steps li.on { background: var(--amber); }
+
+  .acts { position: relative; z-index: 3; margin-top: -100vh; margin-top: -100svh; pointer-events: none; }
+  .act {
+    min-height: 100vh; min-height: 100svh; display: flex; align-items: flex-end;
+    width: min(100% - 2 * var(--gutter), var(--max)); margin-inline: auto; padding-bottom: 9svh;
+  }
+  @media (min-width: 900px) and (orientation: landscape) { .act { align-items: center; padding-bottom: 0; } }
+  .card {
+    pointer-events: auto; display: grid; gap: 0.7rem; max-width: 460px;
+    padding: 1.3rem 1.4rem; border-radius: 16px;
+    background: rgba(8, 19, 31, 0.72); border: 1px solid var(--line-on-ink); border-left: 4px solid var(--amber);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .card h2 { color: var(--white); font-size: clamp(1.7rem, 1.2rem + 2vw, 2.6rem); }
+  .kicker { margin: 0; display: flex; align-items: baseline; gap: 0.6rem; font-weight: 800; font-size: 1.25rem; color: var(--white); }
+  .kicker span { font-family: var(--font-mono); font-size: 0.85rem; color: var(--amber); }
+  .text { margin: 0; color: #c9d6e2; }
+  .scroll-hint { margin: 0; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); }
+  .btn-row { margin-top: 0.4rem; }
+</style>

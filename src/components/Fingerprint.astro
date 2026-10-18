@@ -1,5 +1,6 @@
 ---
 // Decorative fingerprint drawn from broken concentric ridges (pure SVG, ~2 KB).
+// The ridges sweep into place once, from the core outwards (CSS only).
 interface Props { class?: string }
 const { class: cls } = Astro.props;
 const ridges = Array.from({ length: 16 }, (_, i) => {
@@ -10,7 +11,7 @@ const ridges = Array.from({ length: 16 }, (_, i) => {
   const len = Math.PI * (rx + ry);
   const dash = `${(len * (0.22 + ((i * 37) % 11) / 40)).toFixed(1)} ${(6 + ((i * 13) % 5) * 4).toFixed(1)}`;
   const offset = ((i * 53) % 90).toFixed(1);
-  return { rx, ry, cx, cy, dash, offset };
+  return { rx, ry, cx, cy, dash, offset, i };
 });
 ---
 <svg class={cls} viewBox="0 0 320 400" fill="none" aria-hidden="true" focusable="false">
@@ -25,6 +26,12 @@ const ridges = Array.from({ length: 16 }, (_, i) => {
       stroke-linecap="round"
       stroke-dasharray={r.dash}
       stroke-dashoffset={r.offset}
+      style={`--o:${r.offset}px;--i:${r.i}`}
     />
   ))}
 </svg>
+
+<style>
+  ellipse { animation: ridge 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--i) * 55ms) both; }
+  @keyframes ridge { from { opacity: 0; stroke-dashoffset: calc(var(--o) + 160px); } }
+</style>

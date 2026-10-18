@@ -11,6 +11,10 @@
  * The scene plays a short timeline (markers appear, the shooter fades in,
  * trajectories are traced) and exposes a small controller so the HTML around
  * it can switch camera views, scrub the timeline and highlight evidence.
+ *
+ * In "tour" mode (home page, "Recorre la escena") the page scroll drives a
+ * guided camera path instead: from outside the police cordon, through the
+ * inspection and the overhead plan, to the reconstructed trajectories.
  */
 import {
   ACESFilmicToneMapping, BoxGeometry, BufferGeometry, CanvasTexture, CapsuleGeometry, CatmullRomCurve3, CircleGeometry,
@@ -29,6 +33,8 @@ export interface CrimeSceneController {
   setTime(t: number): void;
   play(fromStart?: boolean): void;
   pause(): void;
+  /** Tour mode: move along the guided path, 0 = outside the cordon, 1 = case closed. */
+  scrub(progress: number): void;
   readonly playing: boolean;
 }
 
@@ -37,6 +43,8 @@ interface Options {
   onTime?: (t: number, playing: boolean) => void;
   /** Play the build-up animation on load. Off: start on the finished scene (matches its poster). */
   intro?: boolean;
+  /** Guided tour driven by scrub(): no orbiting, camera follows a fixed path. */
+  tour?: boolean;
 }
 
 const DURATION = 6.5;
@@ -87,6 +95,26 @@ function numberTexture(n: number) {
   g.textBaseline = 'middle';
   g.fillText(String(n), 64, 74);
   const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+function tapeTexture() {
+  const c = document.createElement('canvas');
+  c.width = 1024;
+  c.height = 64;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#f5c400';
+  g.fillRect(0, 0, 1024, 64);
+  g.fillStyle = '#111';
+  g.fillRect(0, 0, 1024, 5);
+  g.fillRect(0, 59, 1024, 5);
+  g.font = '900 34px Arial, Helvetica, sans-serif';
+  g.textBaseline = 'middle';
+  g.fillText('ESCENA DEL CRIMEN  ·  NO PASAR  ·  ', 14, 34);
+  const t = new CanvasTexture(c);
+  t.wrapS = RepeatWrapping;
   t.colorSpace = SRGBColorSpace;
   t.anisotropy = 4;
   return t;
@@ -166,6 +194,7 @@ function mannequin(material: Material, pose: Pose = {}) {
 export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeSceneController | null {
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const small = el.clientWidth < 640;
+  const tour = !!opts.tour;
 
   let renderer: WebGLRenderer;
   try {
@@ -362,6 +391,39 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   impact.position.copy(impactPoint).add(new Vector3(0, 0, 0.005));
   scene.add(impact);
 
+  // --- Police cordon (tour only): posts around the open corner, sagging tape ---
+  if (tour) {
+    const postMat = mat(0x2b2f36, 0.5, 0.3);
+    const tapeMap = tapeTexture();
+    const posts: [number, number][] = [[4.7, -3.4], [4.7, 0.6], [4.7, 4.7], [0.6, 4.7], [-3.4, 4.7]];
+    for (const [x, z] of posts) {
+      solid(new CylinderGeometry(0.028, 0.028, 1.12, 10), postMat, x, 0.56, z);
+      solid(new CylinderGeometry(0.16, 0.18, 0.04, 16), postMat, x, 0.02, z);
+    }
+    for (let i = 0; i < posts.length - 1; i++) {
+      const [ax, az] = posts[i];
+      const [bx, bz] = posts[i + 1];
+      const len = Math.hypot(bx - ax, bz - az);
+      for (const [y, sag] of [[1.0, 0.09], [0.62, 0.06]]) {
+        const geo = new PlaneGeometry(len, 0.08, 24, 1);
+        const pos = geo.attributes.position;
+        for (let v = 0; v < pos.count; v++) {
+          const u = (2 * pos.getX(v)) / len;
+          pos.setY(v, pos.getY(v) - sag * (1 - u * u));
+        }
+        geo.computeVertexNormals();
+        const map = tapeMap.clone();
+        map.repeat.set(len / 2.3, 1);
+        map.needsUpdate = true;
+        const strip = new Mesh(geo, new MeshStandardMaterial({ map, roughness: 0.6, side: DoubleSide }));
+        strip.position.set((ax + bx) / 2, y, (az + bz) / 2);
+        strip.rotation.y = -Math.atan2(bz - az, bx - ax);
+        strip.castShadow = true;
+        scene.add(strip);
+      }
+    }
+  }
+
   // --- Evidence tents (clickable) ---------------------------------------------
   const tentGeo = new PlaneGeometry(0.16, 0.17);
   const markers = SCENE_EVIDENCE.map((ev, i) => {
@@ -462,6 +524,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   const orbitTarget = new Vector3(0.3, 0.5, -0.7);
   controls.target.copy(orbitTarget);
   renderer.domElement.style.touchAction = 'pan-y';
+  controls.enabled = !tour;
 
   // Pull back on narrower frames (and look more from above on portrait ones) so the whole room fits.
   const orbitPos = () => {
@@ -475,16 +538,69 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     testigo: () => ({ pos: new Vector3(-3.55, 1.62, 3.55), target: new Vector3(0.6, 0.6, -1.2) }),
     trayectoria: () => ({ pos: new Vector3(-3.82, 1.95, 2.35), target: new Vector3(1.8, 1.25, -2.6) }),
   };
+  // Tour path: keyframes at scroll progress p (each act holds its view a moment).
+  // A narrow frame pulls the camera back along its line of sight so the room fits.
+  const fit = () => Math.min(1.9, Math.pow(Math.max(1, 1.45 / (el.clientWidth / Math.max(el.clientHeight, 1))), 0.75));
+  const key = (p: number, pos: Vector3 | [number, number, number], target: [number, number, number] | Vector3) => ({
+    p,
+    pos: pos instanceof Vector3 ? pos : new Vector3(...pos),
+    target: target instanceof Vector3 ? target : new Vector3(...target),
+  });
+  const path = () => {
+    const k = fit();
+    const far = (pos: [number, number, number], target: [number, number, number]) => {
+      const tg = new Vector3(...target);
+      return new Vector3(...pos).sub(tg).multiplyScalar(k).add(tg);
+    };
+    const orbit = VIEWS.orbital();
+    // Wide frames keep the left side for the story cards: step back a little more.
+    if (el.clientWidth >= 900 && el.clientWidth > el.clientHeight) orbit.pos.sub(orbit.target).multiplyScalar(1.15).add(orbit.target);
+    return [
+      key(0, far([9.2, 1.5, 9.2], [0.4, 0.9, 0.4]), [0.4, 0.9, 0.4]),
+      key(0.12, far([7.6, 1.7, 7.6], [0.3, 0.7, 0.1]), [0.3, 0.7, 0.1]),
+      key(0.28, far([6.0, 3.6, 5.4], [-0.4, 0.2, -0.5]), [-0.4, 0.2, -0.5]),
+      key(0.38, far([5.6, 3.9, 4.6], [-0.3, 0.2, -0.6]), [-0.3, 0.2, -0.6]),
+      key(0.5, far([0.35, 12.5, 0.95], [0.1, 0, -0.1]), [0.1, 0, -0.1]),
+      key(0.58, far([0.3, 12.6, 0.9], [0.1, 0, -0.1]), [0.1, 0, -0.1]),
+      key(0.7, far([-3.55, 2.7, 3.75], [1.5, 1.05, -2.3]), [1.5, 1.05, -2.3]),
+      key(0.8, far([-3.4, 2.9, 3.85], [1.3, 1.0, -2.1]), [1.3, 1.0, -2.1]),
+      key(0.93, orbit.pos, orbit.target),
+      key(1, orbit.pos, orbit.target),
+    ];
+  };
+  // Timeline on the same scroll: markers in act 2, measurements in act 3,
+  // shooter and trajectories in act 4, everything settled by the end.
+  const tourTime = (p: number) =>
+    p < 0.2 ? 0 : p < 0.38 ? 2.05 * seg(p, 0.2, 0.38) : p < 0.62 ? 2.05 : 2.05 + (DURATION - 2.05) * seg(p, 0.62, 0.86);
+  const tourMeasure = (p: number) => seg(p, 0.44, 0.56);
+  let keys = tour ? path() : [];
+  let tourGoal = 0;
+  let tourAt = 0;
+  const tourCam = new Vector3();
+  const tourTarget = new Vector3();
+  const placeTour = (p: number) => {
+    let i = 0;
+    while (i < keys.length - 2 && p > keys[i + 1].p) i++;
+    const a = keys[i];
+    const b = keys[i + 1];
+    const u = ease(seg(p, a.p, b.p));
+    tourCam.lerpVectors(a.pos, b.pos, u);
+    tourTarget.lerpVectors(a.target, b.target, u);
+    camera.position.copy(tourCam);
+    controls.target.copy(tourTarget);
+    camera.lookAt(tourTarget);
+  };
+
   let view: SceneViewId = 'orbital';
   // Phones (and reduced motion) render on demand: the scene stays still and only
   // redraws while something moves, so the CPU and battery stay idle.
-  const onDemand = small || reduceMotion;
+  const onDemand = small || reduceMotion || tour;
   let sway = !onDemand; // gentle side-to-side drift in the orbital view
   let swayFrom = -1; // time the drift (re)starts, so it begins at the resting angle
   let tween: { from: Vector3; to: Vector3; tFrom: Vector3; tTo: Vector3; start: number } | null = null;
 
   // --- Timeline & render-loop state (declared before anything calls wake()) --
-  const intro = opts.intro !== false && !reduceMotion;
+  const intro = opts.intro !== false && !reduceMotion && !tour;
   let t = intro ? 0 : DURATION;
   let playing = intro;
   let last = performance.now();
@@ -513,6 +629,17 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     const { width, height } = el.getBoundingClientRect();
     renderer.setSize(width, height, false);
     camera.aspect = width / Math.max(height, 1);
+    if (tour) {
+      // Leave room for the story cards: scene shifted up on portrait frames
+      // (cards at the bottom) and to the right on wide ones (cards on the left).
+      if (camera.aspect < 1) camera.setViewOffset(width, height, 0, height * 0.13, width, height);
+      else if (width >= 900) camera.setViewOffset(width, height, -width * 0.17, 0, width, height);
+      else camera.clearViewOffset();
+      keys = path();
+      const k = fit();
+      scene.fog = new Fog(0x0d1825, 16 * k, 30 * k);
+      placeTour(tourAt);
+    }
     camera.updateProjectionMatrix();
     wake();
   };
@@ -547,7 +674,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
 
   // --- Timeline -------------------------------------------------------------
   let shooterShadows = false;
-  const applyTime = (time: number) => {
+  const applyTime = (time: number, meas = seg(time, 4.7, 5.3)) => {
     markers.forEach((m, i) => {
       const p = ease(seg(time, 0.4 + i * 0.32, 0.75 + i * 0.32));
       m.visible = p > 0.01;
@@ -571,7 +698,6 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       tr.geometry.setDrawRange(0, Math.floor((count * p) / 3) * 3);
     });
     (impact.material as Material).opacity = seg(time, 4.1, 4.3);
-    const meas = seg(time, 4.7, 5.3);
     fade.forEach(({ mat: m, base }) => (m.opacity = base * meas));
   };
 
@@ -587,7 +713,13 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       }
       opts.onTime?.(t, playing);
     }
-    applyTime(t);
+    if (tour) {
+      // Glide towards the scroll position instead of jumping with each wheel step.
+      tourAt = reduceMotion || Math.abs(tourGoal - tourAt) < 0.0004 ? tourGoal : tourAt + (tourGoal - tourAt) * (1 - Math.exp(-dt * 7));
+      t = tourTime(tourAt);
+      applyTime(t, tourMeasure(tourAt));
+      placeTour(tourAt);
+    } else applyTime(t);
     if (tween) {
       const p = ease(clamp01((now - tween.start) / 1100));
       camera.position.lerpVectors(tween.from, tween.to, p);
@@ -610,9 +742,9 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       selRing.scale.set(pulse, pulse, 1);
     }
     if (!onDemand) impact.scale.setScalar(1 + Math.sin(now / 330) * 0.12);
-    const moved = controls.update();
+    const moved = !tour && controls.update();
     renderer.render(scene, camera);
-    const busy = !onDemand || playing || tween !== null || moved || selected !== null;
+    const busy = !onDemand || playing || tween !== null || moved || selected !== null || tourAt !== tourGoal;
     raf = busy && visible && !document.hidden ? requestAnimationFrame(tick) : 0;
   };
   function wake() {
@@ -662,6 +794,10 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     },
     pause() {
       playing = false;
+    },
+    scrub(progress) {
+      tourGoal = clamp01(progress);
+      wake();
     },
   };
 }
