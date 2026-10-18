@@ -23,28 +23,35 @@ const acts = [
   {
     t: 'Acordonamiento',
     d: 'Todo empieza protegiendo el lugar. El cordón evita que la escena se contamine y abre la cadena de custodia desde el primer minuto.',
+    k: ['Perímetro de seguridad', 'Registro de ingreso', 'Cadena de custodia'],
   },
   {
     t: 'Inspección y fijación',
     d: 'Cada indicio se ubica, se numera y se fotografía en su posición original antes de levantarlo: vaina, huellas, manchas, teléfono.',
+    k: ['Marcadores numerados', 'Fotografía métrica', 'Testigo de escala'],
   },
   {
     t: 'Luminol',
     d: 'Con la luz apagada, el luminol revela la sangre que alguien limpió o que no se ve a simple vista: arrastres, pisadas y la marca de una mano.',
+    k: ['Quimioluminiscencia', 'Rastros latentes', 'Toma en oscuridad'],
   },
   {
     t: 'Planimetría',
     d: 'Desde arriba, medimos distancias y posiciones para levantar el plano a escala. Cada medida queda documentada en el informe.',
+    k: ['Plano a escala', 'Triangulación', 'Medidas documentadas'],
   },
   {
     t: 'Reconstrucción',
     d: 'Con los indicios y las pericias modelamos el origen del disparo y sus trayectorias: la hipótesis se pone a prueba en 3D.',
+    k: ['Origen del disparo', 'Trayectorias', 'Hipótesis contrastadas'],
   },
   {
     t: 'Prueba clara',
     d: 'El resultado es una reconstrucción que el tribunal puede ver y entender, sustentada por un perito en la audiencia.',
+    k: ['Informe pericial', 'Video 3D', 'Sustentación en audiencia'],
   },
 ];
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 <section class="tour ink" id="recorrido" aria-labelledby="tour-t" data-tour>
   <PoliceTape />
@@ -57,26 +64,43 @@ const acts = [
         <img src={wide.src} srcset={wide.srcSet.attribute} sizes="100vw" alt="" width={posterWide.width} height={posterWide.height} loading="lazy" decoding="async" />
       </picture>
     </div>
+    <!-- Camera look: scan lines, vignette, and a short signal glitch between acts. -->
+    <div class="fx" aria-hidden="true"><span class="gl"></span></div>
+
     <div class="hud" aria-hidden="true">
-      <span class="rec"><span class="dot"></span>Recorrido 3D</span>
-      <ol class="steps">{acts.map((_, i) => <li data-step={i} class:list={[{ on: i === 0 }]}></li>)}</ol>
-      <span class="n"><span data-act-n>01</span> / {String(acts.length).padStart(2, '0')}</span>
+      <span class="rec"><span class="dot"></span>Rec</span>
+      <span class="file">Exp. AG-2026-0147</span>
+      <span class="tc" data-tc>T+00:00</span>
+      <span class="act-name" data-act-name>{acts[0].t}</span>
+      <span class="n"><span data-act-n>01</span>/{pad(acts.length)}</span>
     </div>
+    <ol class="bars" aria-hidden="true">{acts.map((_, i) => <li data-step={i} class:list={[{ on: i === 0 }]}></li>)}</ol>
+
+    <!-- Desktop: list of acts; each one jumps to its point of the tour. -->
+    <nav class="rail" aria-label="Etapas del recorrido">
+      <ol>
+        {acts.map((a, i) => (
+          <li><button type="button" data-goto={i} aria-current={i === 0 ? 'step' : undefined}><span>{pad(i + 1)}</span>{a.t}</button></li>
+        ))}
+      </ol>
+    </nav>
   </div>
 
   <div class="acts">
     {acts.map((a, i) => (
       <div class="act">
-        <article class="card">
+        <article class="card" style={`--n:'${pad(i + 1)}'`}>
           {i === 0 && (
-            <>
-              <p class="label cyan">Recorre la escena del crimen</p>
-              <h2 id="tour-t" class="h-section">Así trabaja un perito, paso a paso.</h2>
-              <p class="scroll-hint" aria-hidden="true">Desliza para avanzar ↓</p>
-            </>
+            <header class="intro">
+              <p class="label cyan">Expediente · Recorrido 3D</p>
+              <h2 id="tour-t" class="h-section glitch" data-text="Así trabaja un perito, paso a paso.">Así trabaja un perito, paso a paso.</h2>
+              <p class="scroll-hint" aria-hidden="true"><span class="mouse"></span>Desliza para avanzar</p>
+            </header>
           )}
-          <p class="kicker"><span>{String(i + 1).padStart(2, '0')}</span> {a.t}</p>
+          <p class="kicker"><span class="no">Acto {pad(i + 1)}</span><span class="tcs">T+{pad(i * 6)}:{pad((i * 23) % 60)}</span></p>
+          <h3 class="title">{a.t}</h3>
           <p class="text">{a.d}</p>
+          <ul class="chips">{a.k.map((k) => <li>{k}</li>)}</ul>
           {i === acts.length - 1 && (
             <div class="btn-row">
               <a class="btn btn-primary" href="/contacto/">Solicitar reconstrucción <Icon name="arrow" /></a>
@@ -95,28 +119,70 @@ const acts = [
   const root = document.querySelector<HTMLElement>('[data-tour]');
   if (root) {
     const stage = root.querySelector<HTMLElement>('[data-tour-stage]')!;
-    const steps = [...root.querySelectorAll<HTMLElement>('[data-step]')];
+    const sticky = stage.parentElement!;
+    const bars = [...root.querySelectorAll<HTMLElement>('[data-step]')];
+    const gotos = [...root.querySelectorAll<HTMLButtonElement>('[data-goto]')];
+    const names = gotos.map((b) => b.lastChild!.textContent!.trim());
     const actN = root.querySelector<HTMLElement>('[data-act-n]')!;
+    const actName = root.querySelector<HTMLElement>('[data-act-name]')!;
+    const tc = root.querySelector<HTMLElement>('[data-tc]')!;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const pad = (n: number) => String(n).padStart(2, '0');
     let ctrl: CrimeSceneController | null = null;
     let raf = 0;
     let act = 0;
+    let glitchTimer = 0;
 
     const progress = () => {
       const r = root.getBoundingClientRect();
       return Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - innerHeight)));
     };
+
+    // "Decode" the act name in the HUD, letter by letter.
+    let decodeRaf = 0;
+    const decode = (text: string) => {
+      cancelAnimationFrame(decodeRaf);
+      if (reduce) return void (actName.textContent = text);
+      const start = performance.now();
+      const step = (now: number) => {
+        const done = Math.floor((now - start) / 32);
+        actName.textContent = [...text].map((ch, i) => (i < done || ch === ' ' ? ch : '#%&01AGX'[(Math.random() * 8) | 0])).join('');
+        if (done < text.length) decodeRaf = requestAnimationFrame(step);
+      };
+      decodeRaf = requestAnimationFrame(step);
+    };
+
     const update = () => {
       raf = 0;
       const p = progress();
       ctrl?.scrub(p);
-      const a = Math.min(steps.length - 1, Math.round(p * (steps.length - 1)));
+      const secs = Math.round(p * 300); // a 5-minute "recording"
+      tc.textContent = `T+${pad(Math.floor(secs / 60))}:${pad(secs % 60)}`;
+      const a = Math.min(bars.length - 1, Math.round(p * (bars.length - 1)));
       if (a !== act) {
         act = a;
-        steps.forEach((s, i) => s.classList.toggle('on', i <= a));
-        actN.textContent = String(a + 1).padStart(2, '0');
+        bars.forEach((s, i) => s.classList.toggle('on', i <= a));
+        gotos.forEach((b, i) => (i === a ? b.setAttribute('aria-current', 'step') : b.removeAttribute('aria-current')));
+        actN.textContent = pad(a + 1);
+        decode(names[a]);
+        if (!reduce) {
+          sticky.classList.remove('glitching');
+          void sticky.offsetWidth;
+          sticky.classList.add('glitching');
+          clearTimeout(glitchTimer);
+          glitchTimer = window.setTimeout(() => sticky.classList.remove('glitching'), 420);
+        }
       }
     };
     const onScroll = () => (raf ||= requestAnimationFrame(update));
+
+    // Jump to an act (desktop list).
+    gotos.forEach((b, i) =>
+      b.addEventListener('click', () => {
+        const top = root.getBoundingClientRect().top + scrollY;
+        scrollTo({ top: top + (i / (gotos.length - 1)) * (root.offsetHeight - innerHeight), behavior: reduce ? 'auto' : 'smooth' });
+      }),
+    );
 
     // Track the scroll only while the tour is on screen.
     new IntersectionObserver(([e]) => {
@@ -162,46 +228,141 @@ const acts = [
   .poster { position: absolute; inset: 0; transition: opacity 0.6s ease; }
   .poster img { width: 100%; height: 100%; object-fit: cover; }
   .is-live .poster { opacity: 0; }
-  .stage::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(120% 90% at 60% 45%, transparent 55%, rgba(0, 0, 0, 0.45)); }
   .stage :global(canvas) { position: absolute; inset: 0; width: 100% !important; height: 100% !important; animation: fade 0.8s ease both; }
   @keyframes fade { from { opacity: 0; } }
-  /* Shade behind the cards: left on wide screens, bottom on phones. */
-  .sticky::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(0deg, rgba(8, 19, 31, 0.92) 0%, rgba(8, 19, 31, 0.55) 34%, transparent 58%);
+
+  /* Camera look over the render: vignette + fine scan lines; shade behind the cards. */
+  .fx {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
+      radial-gradient(120% 90% at 60% 45%, transparent 55%, rgba(0, 0, 0, 0.5)),
+      linear-gradient(0deg, rgba(8, 19, 31, 0.94) 0%, rgba(8, 19, 31, 0.5) 36%, transparent 60%);
   }
   @media (min-width: 900px) and (orientation: landscape) {
-    .sticky::after { background: linear-gradient(90deg, rgba(8, 19, 31, 0.9) 0%, rgba(8, 19, 31, 0.5) 34%, transparent 55%); }
+    .fx {
+      background:
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 3px),
+        radial-gradient(120% 90% at 60% 45%, transparent 55%, rgba(0, 0, 0, 0.5)),
+        linear-gradient(90deg, rgba(8, 19, 31, 0.9) 0%, rgba(8, 19, 31, 0.45) 34%, transparent 55%);
+    }
+  }
+  /* Signal glitch between acts: colour-split bands sweep the frame and the render jolts. */
+  .gl { position: absolute; inset: 0; opacity: 0; mix-blend-mode: screen; }
+  .glitching .gl {
+    animation: gl 0.42s steps(1) both;
+    background:
+      linear-gradient(transparent 18%, rgba(27, 163, 224, 0.35) 18% 21%, transparent 21% 47%, rgba(255, 59, 92, 0.3) 47% 49%, transparent 49% 76%, rgba(255, 255, 255, 0.18) 76% 77%, transparent 77%);
+  }
+  .glitching .stage { animation: jolt 0.42s steps(1); }
+  @keyframes gl {
+    0% { opacity: 1; transform: translateY(0); }
+    25% { transform: translateY(-14%) scaleY(1.4); }
+    50% { transform: translateY(22%); opacity: 0.8; }
+    75% { transform: translateY(-6%) scaleY(0.6); opacity: 0.6; }
+    100% { opacity: 0; }
+  }
+  @keyframes jolt {
+    0% { transform: translateX(-6px); filter: saturate(1.6) hue-rotate(-12deg); }
+    25% { transform: translateX(5px); }
+    50% { transform: translateX(-2px); filter: none; }
+    75%, 100% { transform: none; }
   }
 
   .hud {
-    position: absolute; z-index: 2; left: var(--gutter); right: var(--gutter); top: calc(var(--header-h) + 14px);
-    display: flex; align-items: center; gap: 0.9rem;
-    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-on-ink);
+    position: absolute; z-index: 2; left: var(--gutter); right: var(--gutter); top: calc(var(--header-h) + 12px);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 1rem;
+    font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-on-ink);
   }
-  .rec { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--white); }
+  .rec { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--white); font-weight: 700; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: #e5484d; box-shadow: 0 0 0 4px rgba(229, 72, 77, 0.2); animation: rec 1.6s ease-in-out infinite; }
   @keyframes rec { 50% { opacity: 0.35; } }
-  .steps { list-style: none; display: flex; gap: 5px; padding: 0; margin: 0 0 0 auto; }
-  .steps li { width: 22px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.2); transition: background-color 0.3s ease; }
-  .steps li.on { background: var(--amber); }
+  .tc { color: var(--white); font-variant-numeric: tabular-nums; }
+  .act-name { color: var(--amber); font-weight: 700; min-width: 16ch; }
+  .n { margin-left: auto; font-variant-numeric: tabular-nums; }
+  @media (max-width: 640px) { .file { display: none; } .act-name { min-width: 0; } }
+  .bars {
+    position: absolute; z-index: 2; left: var(--gutter); right: var(--gutter); top: calc(var(--header-h) + 40px);
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; list-style: none; padding: 0; margin: 0;
+  }
+  .bars li { height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.18); transition: background-color 0.3s ease; }
+  .bars li.on { background: var(--amber); }
+
+  /* Desktop list of acts, on the right. */
+  .rail { display: none; }
+  @media (min-width: 1100px) and (orientation: landscape) {
+    .bars { left: auto; width: 260px; }
+    .rail {
+      display: block; position: absolute; z-index: 3; right: var(--gutter); top: 50%; transform: translateY(-50%);
+      padding: 0.9rem 1.1rem 0.9rem 0.9rem; border-radius: 14px; background: rgba(8, 19, 31, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    .rail ol { list-style: none; margin: 0; padding: 0 0 0 1px; display: grid; border-left: 1px solid rgba(255, 255, 255, 0.16); }
+    .rail button {
+      position: relative; display: flex; align-items: baseline; gap: 0.7rem; width: 100%; padding: 0.55rem 0 0.55rem 1.1rem;
+      background: none; border: 0; cursor: pointer; text-align: left; font: inherit; font-size: 0.9rem; font-weight: 600; color: var(--muted-on-ink);
+      transition: color 0.2s ease;
+    }
+    .rail button span { font-family: var(--font-mono); font-size: 0.72rem; color: rgba(255, 255, 255, 0.45); transition: color 0.2s ease; }
+    .rail button::before {
+      content: ''; position: absolute; left: -2px; top: 50%; width: 3px; height: 0; border-radius: 2px; background: var(--amber);
+      transform: translateY(-50%); transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .rail button:hover { color: var(--white); }
+    .rail button[aria-current='step'] { color: var(--white); }
+    .rail button[aria-current='step'] span { color: var(--amber); }
+    .rail button[aria-current='step']::before { height: 70%; }
+    .rail button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  }
 
   .acts { position: relative; z-index: 3; margin-top: -100vh; margin-top: -100svh; pointer-events: none; }
   .act {
     min-height: 100vh; min-height: 100svh; display: flex; align-items: flex-end;
-    width: min(100% - 2 * var(--gutter), var(--max)); margin-inline: auto; padding-bottom: 9svh;
+    width: min(100% - 2 * var(--gutter), var(--max)); margin-inline: auto; padding-bottom: 8svh;
   }
   @media (min-width: 900px) and (orientation: landscape) { .act { align-items: center; padding-bottom: 0; } }
+  /* Case-file card: big act number in the background, key points as tags. */
   .card {
-    pointer-events: auto; display: grid; gap: 0.7rem; max-width: 460px;
-    padding: 1.3rem 1.4rem; border-radius: 16px;
-    background: rgba(8, 19, 31, 0.72); border: 1px solid var(--line-on-ink); border-left: 4px solid var(--amber);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    position: relative; overflow: hidden; pointer-events: auto; display: grid; gap: 0.6rem; width: 100%; max-width: 470px;
+    padding: 1.25rem 1.35rem 1.3rem; border-radius: 16px;
+    background: linear-gradient(160deg, rgba(15, 33, 51, 0.88), rgba(8, 19, 31, 0.82));
+    border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
-  .card h2 { color: var(--white); font-size: clamp(1.7rem, 1.2rem + 2vw, 2.6rem); }
-  .kicker { margin: 0; display: flex; align-items: baseline; gap: 0.6rem; font-weight: 800; font-size: 1.25rem; color: var(--white); }
-  .kicker span { font-family: var(--font-mono); font-size: 0.85rem; color: var(--amber); }
-  .text { margin: 0; color: #c9d6e2; }
-  .scroll-hint { margin: 0; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); }
-  .btn-row { margin-top: 0.4rem; }
+  .card::before {
+    content: var(--n); position: absolute; right: -0.4rem; top: -1.6rem; z-index: -1;
+    font-family: var(--font-mono); font-size: 7.5rem; font-weight: 800; line-height: 1; letter-spacing: -0.06em;
+    color: transparent; -webkit-text-stroke: 1px rgba(245, 183, 10, 0.22);
+  }
+  .card::after { content: ''; position: absolute; left: 0; top: 1.2rem; bottom: 1.2rem; width: 3px; border-radius: 0 3px 3px 0; background: var(--amber); }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .card { animation: card-in linear both; animation-timeline: view(); animation-range: entry 5% cover 35%; }
+      @keyframes card-in { from { opacity: 0; transform: translateY(48px); } }
+    }
+  }
+  .intro { display: grid; gap: 0.4rem; padding-bottom: 0.9rem; margin-bottom: 0.2rem; border-bottom: 1px dashed rgba(255, 255, 255, 0.14); }
+  .intro h2 { color: var(--white); font-size: clamp(1.7rem, 1.2rem + 2vw, 2.6rem); margin: 0.2rem 0; }
+  .kicker { margin: 0; display: flex; justify-content: space-between; gap: 1rem; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .no { color: var(--amber); font-weight: 800; }
+  .tcs { color: var(--muted-on-ink); font-variant-numeric: tabular-nums; }
+  .title { margin: 0; font-size: 1.45rem; color: var(--white); letter-spacing: -0.02em; }
+  .text { margin: 0; color: #c9d6e2; line-height: 1.55; }
+  .chips { list-style: none; margin: 0.2rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .chips li {
+    padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid rgba(27, 163, 224, 0.4); background: rgba(27, 163, 224, 0.08);
+    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; color: #bfe6f7;
+  }
+  .scroll-hint { margin: 0; display: inline-flex; align-items: center; gap: 0.6rem; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); }
+  .mouse { position: relative; width: 16px; height: 24px; border: 1.5px solid currentColor; border-radius: 9px; }
+  .mouse::after { content: ''; position: absolute; left: 50%; top: 5px; width: 2px; height: 5px; margin-left: -1px; border-radius: 1px; background: currentColor; animation: wheel 1.6s ease-in-out infinite; }
+  @keyframes wheel { 60% { transform: translateY(6px); opacity: 0; } 100% { opacity: 0; } }
+  .btn-row { margin-top: 0.5rem; }
+  @media (max-width: 640px) {
+    .card { padding: 1.05rem 1.1rem 1.1rem; gap: 0.5rem; }
+    .card::before { font-size: 5.5rem; top: -1.1rem; }
+    .title { font-size: 1.25rem; }
+    .text { font-size: 0.93rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .mouse::after { animation: none; } }
 </style>

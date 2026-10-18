@@ -135,6 +135,15 @@ const jsonLd = {
         els.forEach((el) => el.classList.add('is-in'));
       }
 
+      // Glitch headings animate only while they are on screen.
+      const glitches = document.querySelectorAll('[data-text].glitch');
+      if (glitches.length && 'IntersectionObserver' in window) {
+        const gio = new IntersectionObserver((entries) => {
+          for (const e of entries) e.target.classList.toggle('glitch-on', e.isIntersecting);
+        });
+        glitches.forEach((el) => gio.observe(el));
+      }
+
       // "Back to top" button on long pages.
       const toTop = document.querySelector<HTMLElement>('[data-totop]');
       if (toTop && document.body.scrollHeight > innerHeight * 3) {

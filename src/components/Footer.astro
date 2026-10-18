@@ -65,7 +65,48 @@ const year = new Date().getFullYear();
     <p><a href="/privacidad/">Privacidad</a></p>
     <p class="aff">{AFFILIATE_DISCLOSURE}</p>
   </div>
+  <!-- Developer credit: opens a ready-to-send email to the developer. The address is
+       assembled in the browser, so it never appears in the HTML for scrapers. -->
+  <div class="container credit">
+    <a class="dev" href="/contacto/" data-dev data-u="maximilianoalonso2012.ma" data-d="gmail.com"
+       aria-label="Página creada por Codemaxon. Escribir un correo al programador">
+      <span class="code" aria-hidden="true">&lt;/&gt;</span>
+      <span class="who">Página creada por <strong class="glitch" data-text="Codemaxon">Codemaxon</strong></span>
+      <span class="go" aria-hidden="true">Escríbele al programador <span class="arr">→</span></span>
+    </a>
+  </div>
 </footer>
+
+<script>
+  const dev = document.querySelector<HTMLAnchorElement>('[data-dev]');
+  if (dev) {
+    const subject = 'Vengo de agcriminalistica.com: quiero una web así';
+    const body = [
+      'Hola, Codemaxon:',
+      '',
+      'Acabo de recorrer la web de AG Criminalística (la bala en 3D, la escena del crimen, el luminol...) y quiero algo con ese nivel para mi proyecto.',
+      '',
+      '— Mi proyecto / negocio: ',
+      '— Qué necesito (web, tienda online, landing, efectos 3D...): ',
+      '— Para cuándo lo necesito: ',
+      '— Presupuesto aproximado: ',
+      '',
+      'Mis datos para que me contactes:',
+      'Nombre: ',
+      'WhatsApp: ',
+      '',
+      '¡Quedo atento!',
+      '',
+      '— Enviado desde la firma al pie de agcriminalistica.com',
+    ].join('\n');
+    const arm = () => {
+      dev.href = `mailto:${dev.dataset.u}@${dev.dataset.d}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+    // Set before the visitor activates it (hover, focus or first touch).
+    ['pointerenter', 'focus', 'touchstart'].forEach((ev) => dev.addEventListener(ev, arm, { once: true, passive: true }));
+    dev.addEventListener('click', arm);
+  }
+</script>
 
 <style>
   .site-footer { padding-bottom: 6rem; overflow: hidden; }
@@ -103,6 +144,36 @@ const year = new Date().getFullYear();
   }
   .social a:hover { background: var(--cyan); color: var(--ink); border-color: var(--cyan); }
   .aff { flex-basis: 100%; font-size: 0.8rem; opacity: 0.8; }
+  /* Developer credit: stands out a little, with a gradient border and glow. */
+  .credit { display: flex; justify-content: center; margin-top: 1.6rem; }
+  /* Phones: leave the right edge to the floating "back to top" / WhatsApp buttons. */
+  @media (max-width: 640px) { .credit { justify-content: flex-start; padding-right: 64px; } .dev { justify-content: flex-start; border-radius: 20px; } }
+  .dev {
+    display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem 0.75rem;
+    padding: 0.55rem 0.7rem 0.55rem 0.55rem; border-radius: 999px; text-decoration: none; color: var(--muted-on-ink);
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--ink-2), var(--ink-2)) padding-box,
+      linear-gradient(100deg, var(--cyan), rgba(255, 255, 255, 0.15) 45%, var(--amber)) border-box;
+    box-shadow: 0 10px 30px -18px rgba(27, 163, 224, 0.7);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .dev:hover, .dev:focus-visible { transform: translateY(-2px); box-shadow: 0 14px 34px -14px rgba(27, 163, 224, 0.9), 0 0 0 4px rgba(27, 163, 224, 0.12); }
+  .code {
+    display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+    font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; color: var(--ink);
+    background: linear-gradient(135deg, var(--cyan), var(--amber));
+  }
+  .who { font-size: 0.88rem; }
+  .who strong { color: var(--white); font-weight: 800; letter-spacing: 0.02em; display: inline-block; }
+  .go {
+    display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.7rem; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--amber); background: rgba(245, 183, 10, 0.1); border: 1px solid rgba(245, 183, 10, 0.35);
+  }
+  .arr { transition: transform 0.25s ease; }
+  .dev:hover .arr { transform: translateX(3px); }
+  @media (prefers-reduced-motion: reduce) { .dev, .arr { transition: none; } }
   .legal {
     display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem;
     margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line-on-ink); font-size: 0.85rem;

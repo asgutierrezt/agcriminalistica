@@ -165,6 +165,42 @@ p { text-wrap: pretty; }
 .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .js .reveal.is-in { opacity: 1; transform: none; }
 
+/* ---------- Glitch (headings with data-text; runs only while on screen) ----------
+   Short RGB-split bursts every few seconds, like a corrupted video signal. The
+   copies are decorative (empty alt text), and reduced motion turns it off. */
+.glitch { position: relative; }
+.glitch::before, .glitch::after {
+  content: attr(data-text); content: attr(data-text) / '';
+  position: absolute; inset: 0; pointer-events: none; opacity: 0; padding: inherit; box-sizing: border-box;
+}
+.glitch::before { color: var(--cyan); }
+.glitch::after { color: #ff3b5c; }
+.glitch-on::before { animation: glitch-a 6s steps(1) infinite; }
+.glitch-on::after { animation: glitch-b 6s steps(1) infinite 0.05s; }
+.glitch-on { animation: glitch-jolt 6s steps(1) infinite; }
+@keyframes glitch-a {
+  0% { opacity: 0.9; clip-path: inset(12% 0 68% 0); transform: translate(-3px, 0); }
+  1.5% { clip-path: inset(58% 0 18% 0); transform: translate(4px, 0); }
+  3% { clip-path: inset(30% 0 52% 0); transform: translate(-2px, 0); }
+  4.5% { clip-path: inset(78% 0 6% 0); transform: translate(3px, 0); }
+  6%, 100% { opacity: 0; clip-path: inset(50% 0 50% 0); transform: none; }
+}
+@keyframes glitch-b {
+  0% { opacity: 0.8; clip-path: inset(64% 0 14% 0); transform: translate(3px, 0); }
+  1.5% { clip-path: inset(6% 0 76% 0); transform: translate(-4px, 0); }
+  3% { clip-path: inset(44% 0 36% 0); transform: translate(2px, 0); }
+  4.5% { clip-path: inset(20% 0 66% 0); transform: translate(-3px, 0); }
+  6%, 100% { opacity: 0; clip-path: inset(50% 0 50% 0); transform: none; }
+}
+@keyframes glitch-jolt {
+  0% { transform: translateX(1px) skewX(-4deg); }
+  2% { transform: translateX(-1px); }
+  3.5%, 100% { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glitch-on, .glitch-on::before, .glitch-on::after { animation: none !important; }
+}
+
 /* ---------- Back to top ---------- */
 .to-top {
   position: fixed; z-index: 40; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(16px, env(safe-area-inset-bottom)) + 70px);
