@@ -5,7 +5,6 @@ import Icon from '../components/Icon.astro';
 import Fingerprint from '../components/Fingerprint.astro';
 import CrimeScene3D from '../components/CrimeScene3D.astro';
 import SceneTour from '../components/SceneTour.astro';
-import UvLight from '../components/UvLight.astro';
 import ServiceCard from '../components/ServiceCard.astro';
 import Process from '../components/Process.astro';
 import PostCard from '../components/PostCard.astro';
@@ -59,7 +58,6 @@ const faqSchema = {
   <!-- HERO -->
   <section class="hero ink grid-bg">
     <Fingerprint class="hero-fp" />
-    <UvLight />
     <div class="ruler" aria-hidden="true"></div>
     <div class="container hero-grid">
       <div class="hero-copy">
@@ -214,7 +212,7 @@ const faqSchema = {
         <a class="ex reveal" href="/servicios/reconstruccion-3d-de-hechos/">
           <span class="ex-ic"><Icon name="cube" size={28} /></span>
           <strong>Explora una escena en 3D</strong>
-          <span>Cambia de vista, reproduce la secuencia y descubre qué significa cada indicio.</span>
+          <span>Cambia de vista, reproduce la secuencia, activa el luminol y descubre qué significa cada indicio.</span>
           <em>Abrir demostración →</em>
         </a>
         <a class="ex reveal" href="/glosario/">
@@ -252,8 +250,7 @@ const faqSchema = {
   </section>
 
   <!-- CONTACTO -->
-  <section class="section ink grid-bg contact-sec" id="contacto">
-    <UvLight prints={[{ x: '4%', y: '10%', w: 120, r: -14 }, { x: '30%', y: '64%', w: 100, r: 30 }, { x: '62%', y: '8%', w: 90, r: 12 }, { x: '86%', y: '70%', w: 130, r: -26 }]} />
+  <section class="section ink grid-bg" id="contacto">
     <div class="container contact">
       <div class="reveal">
         <p class="label cyan">Contacto</p>
@@ -372,7 +369,6 @@ const faqSchema = {
   @media (max-width: 480px) { details p { padding-left: 0; } }
 
   /* CONTACT */
-  .contact-sec { position: relative; }
   .contact { position: relative; display: grid; gap: 2.5rem; }
   @media (min-width: 960px) { .contact { grid-template-columns: 0.85fr 1.15fr; align-items: start; } }
   .btn-wa { margin-top: 1.8rem; background: #25d366; color: #062b14; }
