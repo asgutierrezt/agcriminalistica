@@ -57,6 +57,12 @@ const posterAlt = full
       ))}
     </div>
 
+    <button type="button" class="lumi" data-luminol aria-pressed="false" aria-describedby="lumi-d">
+      <span class="lumi-dot" aria-hidden="true"></span><span data-lumi-label>Luminol</span>
+    </button>
+    <span id="lumi-d" hidden>Apaga la luz y revela rastros de sangre ocultos</span>
+    <div class="flash" aria-hidden="true"></div>
+
     <p class="hint" aria-hidden="true">Toca un marcador ▲</p>
 
     {full && (
@@ -112,10 +118,19 @@ const posterAlt = full
     const playBtn = root.querySelector<HTMLButtonElement>('[data-play]');
     const scrub = root.querySelector<HTMLInputElement>('[data-scrub]');
     const tc = root.querySelector<HTMLElement>('[data-tc]');
+    const lumiBtn = root.querySelector<HTMLButtonElement>('[data-luminol]');
+    const lumiLabel = root.querySelector<HTMLElement>('[data-lumi-label]');
+    const flash = root.querySelector<HTMLElement>('.flash');
     let ctrl: CrimeSceneController | null = null;
     let current: number | null = null;
 
     const show = (i: number | null) => {
+      // Forensic photo flash when an item of evidence is documented.
+      if (i !== null && i !== current && root.classList.contains('is-live') && flash) {
+        flash.classList.remove('go');
+        void flash.offsetWidth;
+        flash.classList.add('go');
+      }
       current = i;
       cards.forEach((c, k) => (c.hidden = k !== i));
       evButtons.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
@@ -154,6 +169,7 @@ const posterAlt = full
       root.classList.add('is-live');
       setPlaying(ctrl.playing);
       if (current !== null) ctrl.select(current);
+      if (root.classList.contains('is-luminol')) ctrl.setLuminol(true);
     };
 
     viewButtons.forEach((b) =>
@@ -162,6 +178,13 @@ const posterAlt = full
         ctrl?.setView(b.dataset.view as Parameters<CrimeSceneController['setView']>[0]);
       }),
     );
+    lumiBtn?.addEventListener('click', () => {
+      const on = lumiBtn.getAttribute('aria-pressed') !== 'true';
+      lumiBtn.setAttribute('aria-pressed', String(on));
+      root.classList.toggle('is-luminol', on);
+      if (lumiLabel) lumiLabel.textContent = on ? 'Luminol · rastros ocultos' : 'Luminol';
+      ctrl?.setLuminol(on);
+    });
     playBtn?.addEventListener('click', () => {
       if (!ctrl) return;
       if (ctrl.playing) ctrl.pause();
@@ -251,6 +274,26 @@ const posterAlt = full
   }
   .views button:hover { border-color: var(--cyan); }
   .views button[aria-pressed='true'] { background: var(--cyan); color: var(--ink); border-color: var(--cyan); font-weight: 700; }
+  /* Luminol toggle: its own button in the bottom-left corner (reachable on phones too). */
+  .lumi {
+    position: absolute; z-index: 2; left: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 0.5rem;
+    min-height: 40px; padding: 0.35rem 0.85rem; border-radius: 999px; cursor: pointer;
+    font: inherit; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #bfeaff; background: var(--ink-glass); border: 1px solid rgba(95, 208, 255, 0.5);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none; transition: opacity 0.4s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .is-live .lumi { opacity: 1; pointer-events: auto; }
+  .full .lumi { bottom: 64px; }
+  .lumi-dot { width: 9px; height: 9px; border-radius: 50%; background: #5fd0ff; box-shadow: 0 0 8px #5fd0ff; }
+  .lumi[aria-pressed='true'] { background: #0a3550; border-color: #5fd0ff; box-shadow: 0 0 22px -4px #5fd0ff; }
+  .is-luminol .hint { opacity: 0 !important; }
+  /* Subtle lens vignette over the render. */
+  .stage::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(120% 95% at 50% 45%, transparent 60%, rgba(0, 0, 0, 0.35)); }
+  .flash { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: #fff; opacity: 0; }
+  .flash.go { animation: flash 0.45s ease-out; }
+  @keyframes flash { 0% { opacity: 0.75; } 100% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .flash.go { animation: none; } }
 
   .hint {
     position: absolute; z-index: 1; right: 12px; bottom: 12px; margin: 0;

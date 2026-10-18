@@ -29,6 +29,10 @@ const acts = [
     d: 'Cada indicio se ubica, se numera y se fotografía en su posición original antes de levantarlo: vaina, huellas, manchas, teléfono.',
   },
   {
+    t: 'Luminol',
+    d: 'Con la luz apagada, el luminol revela la sangre que alguien limpió o que no se ve a simple vista: arrastres, pisadas y la marca de una mano.',
+  },
+  {
     t: 'Planimetría',
     d: 'Desde arriba, medimos distancias y posiciones para levantar el plano a escala. Cada medida queda documentada en el informe.',
   },
@@ -158,6 +162,7 @@ const acts = [
   .poster { position: absolute; inset: 0; transition: opacity 0.6s ease; }
   .poster img { width: 100%; height: 100%; object-fit: cover; }
   .is-live .poster { opacity: 0; }
+  .stage::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(120% 90% at 60% 45%, transparent 55%, rgba(0, 0, 0, 0.45)); }
   .stage :global(canvas) { position: absolute; inset: 0; width: 100% !important; height: 100% !important; animation: fade 0.8s ease both; }
   @keyframes fade { from { opacity: 0; } }
   /* Shade behind the cards: left on wide screens, bottom on phones. */
