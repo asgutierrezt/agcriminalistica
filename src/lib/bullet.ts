@@ -473,6 +473,7 @@ export function mountBullet(el: HTMLElement, opts: Options = {}): BulletControll
   ];
 
   // --- State, interaction and render loop ---------------------------------
+  let lost = false; // WebGL context taken away by the browser (memory, app switch)
   let goal = 0;
   let at = 0;
   let spin = 0; // idle spin about the cartridge axis
@@ -588,7 +589,7 @@ export function mountBullet(el: HTMLElement, opts: Options = {}): BulletControll
     raf = busy && visible && !document.hidden ? requestAnimationFrame(tick) : 0;
   };
   function wake() {
-    if (!raf && visible && !document.hidden) {
+    if (!raf && visible && !document.hidden && !lost) {
       last = performance.now();
       raf = requestAnimationFrame(tick);
     }
@@ -615,6 +616,20 @@ export function mountBullet(el: HTMLElement, opts: Options = {}): BulletControll
   addEventListener('pointerup', end);
   addEventListener('pointercancel', end);
 
+  // Phones may take the WebGL context away (low memory, app switch): show the
+  // poster meanwhile, and carry on when the browser gives it back.
+  renderer.domElement.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    lost = true;
+    cancelAnimationFrame(raf);
+    raf = 0;
+    el.classList.add('gl-lost');
+  });
+  renderer.domElement.addEventListener('webglcontextrestored', () => {
+    lost = false;
+    el.classList.remove('gl-lost');
+    wake();
+  });
   el.appendChild(renderer.domElement);
   resize();
   new ResizeObserver(resize).observe(el);

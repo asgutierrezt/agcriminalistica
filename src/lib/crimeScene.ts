@@ -973,6 +973,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   let visible = true;
   let raf = 0;
   let ready = false;
+  let lost = false; // WebGL context taken away by the browser (memory, app switch)
   let lumi = 0; // luminol amount, 0 = normal light, 1 = dark with glowing traces
   let lumiGoal = 0;
   const beamBase = beams.map((b) => b.opacity);
@@ -1051,6 +1052,20 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     renderer.domElement.style.cursor = pick(e) !== null ? 'pointer' : 'grab';
   });
 
+  // Phones may take the WebGL context away (low memory, app switch): show the
+  // poster meanwhile, and carry on when the browser gives it back.
+  renderer.domElement.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    lost = true;
+    cancelAnimationFrame(raf);
+    raf = 0;
+    el.classList.add('gl-lost');
+  });
+  renderer.domElement.addEventListener('webglcontextrestored', () => {
+    lost = false;
+    el.classList.remove('gl-lost');
+    wake();
+  });
   el.appendChild(renderer.domElement);
   el.classList.add('is-live');
 
@@ -1141,7 +1156,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     raf = busy && visible && !document.hidden ? requestAnimationFrame(tick) : 0;
   };
   function wake() {
-    if (ready && !raf && visible && !document.hidden) {
+    if (ready && !raf && visible && !document.hidden && !lost) {
       last = performance.now();
       raf = requestAnimationFrame(tick);
     }
