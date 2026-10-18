@@ -9,14 +9,19 @@ const { class: cls } = Astro.props;
 const text = Array.from({ length: 8 }, () => 'Escena del crimen · No pasar ·').join(' ');
 ---
 <div class:list={['tape', cls]} aria-hidden="true">
-  <div class="band back"><span>{text}</span></div>
-  <div class="band front"><span>{text}</span></div>
+  <div class="clip">
+    <div class="band back"><span>{text}</span></div>
+    <div class="band front"><span>{text}</span></div>
+  </div>
 </div>
 
 <style>
+  /* A 0-height marker on the section edge; the frame below clips the tilted bands
+     to the screen width, so they can never make the page wider than the phone. */
   .tape { position: relative; z-index: 4; height: 0; pointer-events: none; }
+  .clip { position: absolute; left: 0; right: 0; top: -45px; height: 90px; overflow: hidden; }
   .band {
-    position: absolute; left: -5%; right: -5%; top: -22px; height: 44px; overflow: hidden;
+    position: absolute; left: -5%; right: -5%; top: 23px; height: 44px; overflow: hidden;
     display: flex; align-items: center; white-space: nowrap;
     background: #f5c400; color: #0b0d10; box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.7);
     border-block: 4px solid #0b0d10;
@@ -24,7 +29,7 @@ const text = Array.from({ length: 8 }, () => 'Escena del crimen · No pasar ·')
   }
   .front { transform: rotate(-2.2deg); }
   .back { transform: rotate(1.6deg); filter: brightness(0.82); }
-  @media (max-width: 640px) { .band { height: 36px; top: -18px; font-size: 0.78rem; } }
+  @media (max-width: 640px) { .band { height: 36px; top: 27px; font-size: 0.78rem; } }
   .band span { display: block; padding-left: 1rem; }
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
