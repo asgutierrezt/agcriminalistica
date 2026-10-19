@@ -64,6 +64,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <img src={wide.src} srcset={wide.srcSet.attribute} sizes="100vw" alt="" width={posterWide.width} height={posterWide.height} loading="lazy" decoding="async" />
       </picture>
     </div>
+    <p class="loading" aria-hidden="true"><span class="spin"></span>Cargando escena 3D…</p>
     <!-- Camera look: scan lines, vignette, and a short signal glitch between acts. -->
     <div class="fx" aria-hidden="true"><span class="gl"></span></div>
 
@@ -80,7 +81,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <nav class="rail" aria-label="Etapas del recorrido">
       <ol>
         {acts.map((a, i) => (
-          <li><button type="button" data-goto={i} aria-current={i === 0 ? 'step' : undefined}><span>{pad(i + 1)}</span>{a.t}</button></li>
+          <li><button type="button" data-goto={i} aria-current={i === 0 ? 'step' : undefined} aria-label={a.t}><span>{pad(i + 1)}</span><em>{a.t}</em></button></li>
         ))}
       </ol>
     </nav>
@@ -123,7 +124,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const sticky = stage.parentElement!;
     const bars = [...root.querySelectorAll<HTMLElement>('[data-step]')];
     const gotos = [...root.querySelectorAll<HTMLButtonElement>('[data-goto]')];
-    const names = gotos.map((b) => b.lastChild!.textContent!.trim());
+    const names = gotos.map((b) => b.getAttribute('aria-label')!);
     const actN = root.querySelector<HTMLElement>('[data-act-n]')!;
     const actName = root.querySelector<HTMLElement>('[data-act-name]')!;
     const tc = root.querySelector<HTMLElement>('[data-tc]')!;
@@ -194,12 +195,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }).observe(root);
 
     const mount = async () => {
+      root.classList.add('is-loading');
       const lib = await loadModule(() => import('../lib/crimeScene'));
       if (!lib) return;
       const { mountCrimeScene } = lib;
       ctrl = mountCrimeScene(stage, { tour: true });
       if (!ctrl) return;
       root.classList.add('is-live');
+      root.classList.remove('is-loading');
       update();
     };
 
@@ -216,7 +219,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           io.disconnect();
           void mount();
         },
-        { rootMargin: '600px 0px' },
+        { rootMargin: '1500px 0px' }, // load well before the tour is reached, so it moves on arrival
       );
       io.observe(root);
     };
@@ -236,6 +239,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .stage.gl-lost .poster { opacity: 1; }
   .stage.gl-lost :global(canvas) { visibility: hidden; }
   .stage :global(canvas) { position: absolute; inset: 0; width: 100% !important; height: 100% !important; animation: fade 0.8s ease both; }
+  .loading {
+    position: absolute; z-index: 2; left: 50%; top: 38%; transform: translate(-50%, -50%); margin: 0; display: none;
+    align-items: center; gap: 0.6rem; padding: 0.5rem 0.9rem; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--white); background: rgba(14, 16, 19, 0.75); border: 1px solid var(--line-on-ink);
+  }
+  .is-loading:not(.is-live) .loading { display: inline-flex; }
+  .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.25); border-top-color: var(--amber); animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes fade { from { opacity: 0; } }
 
   /* Camera look over the render: vignette + fine scan lines; shade behind the cards. */
@@ -301,10 +313,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .bars { left: auto; width: 260px; }
     .rail {
       display: block; position: absolute; z-index: 3; right: var(--gutter); top: 50%; transform: translateY(-50%);
-      padding: 0.9rem 1.1rem 0.9rem 0.9rem; border-radius: 14px; background: rgba(14, 16, 19, 0.78);
-      border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      padding: 0.7rem 0.9rem 0.7rem 0.7rem; border-radius: 14px; background: rgba(14, 16, 19, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     }
     .rail ol { list-style: none; margin: 0; padding: 0 0 0 1px; display: grid; border-left: 1px solid rgba(255, 255, 255, 0.16); }
+    /* Compact: numbers only; the name shows for the current act and on hover. */
+    .rail em { font-style: normal; display: none; white-space: nowrap; }
+    .rail button[aria-current='step'] em, .rail button:hover em, .rail button:focus-visible em { display: inline; }
     .rail button {
       position: relative; display: flex; align-items: baseline; gap: 0.7rem; width: 100%; padding: 0.55rem 0 0.55rem 1.1rem;
       background: none; border: 0; cursor: pointer; text-align: left; font: inherit; font-size: 0.9rem; font-weight: 600; color: var(--muted-on-ink);
@@ -327,7 +342,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     min-height: 100vh; min-height: 100svh; display: flex; align-items: flex-end;
     width: min(100% - 2 * var(--gutter), var(--max)); margin-inline: auto; padding-bottom: 8svh;
   }
-  @media (min-width: 900px) and (orientation: landscape) { .act { align-items: center; padding-bottom: 0; } }
+  /* Wide screens: cards sit low on the left, so the scene above them stays in view. */
+  @media (min-width: 900px) and (orientation: landscape) {
+    .act { padding-bottom: 7svh; }
+    .card { max-width: 430px; }
+  }
   /* Case-file card: big act number in the background, key points as tags. */
   .card {
     position: relative; overflow: hidden; pointer-events: auto; display: grid; gap: 0.6rem; width: 100%; max-width: 470px;
@@ -366,7 +385,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
   @keyframes wheel { 60% { transform: translateY(6px); opacity: 0; } 100% { opacity: 0; } }
   .btn-row { margin-top: 0.5rem; }
   @media (max-width: 640px) {
-    .card { padding: 1.05rem 1.1rem 1.1rem; gap: 0.5rem; }
+    /* Phones: compact cards so the scene above stays clear. */
+    .chips, .kicker .tcs, .scroll-hint { display: none; }
+    .act { padding-bottom: 5svh; }
+    .intro h2 { font-size: 1.45rem; }
+    .card { padding: 0.9rem 1rem 1rem; gap: 0.4rem; }
     .card::before { font-size: 5.5rem; top: -1.1rem; }
     .title { font-size: 1.25rem; }
     .text { font-size: 0.93rem; }
