@@ -323,10 +323,10 @@ export function mountBullet(el: HTMLElement, opts: Options = {}): BulletControll
   const camera = new PerspectiveCamera(26, 1, 0.1, 100);
   camera.position.set(0, 0, 10);
 
-  // Studio lighting: warm key, cool brand-cyan rim, soft fill.
+  // Studio lighting: warm key, cool steel rim, soft fill.
   const key = new DirectionalLight(0xfff0dc, 2.6);
   key.position.set(-4, 6, 6);
-  const rim = new DirectionalLight(0x5cc8ff, 3.2);
+  const rim = new DirectionalLight(0xc7ced8, 2.6);
   rim.position.set(5, 2, -6);
   const fill = new DirectionalLight(0xffffff, 0.5);
   fill.position.set(2, -4, 5);

@@ -145,14 +145,14 @@ const isActive = (href: string) => active !== undefined && owner(active) === hre
 <style>
   .site-header {
     position: sticky; top: 0; z-index: 50;
-    background: rgba(8, 19, 31, 0.88);
+    background: rgba(14, 16, 19, 0.88);
     backdrop-filter: saturate(1.4) blur(12px);
     -webkit-backdrop-filter: saturate(1.4) blur(12px);
     color: var(--white);
     border-bottom: 1px solid var(--line-on-ink);
     transition: box-shadow 0.3s ease, background-color 0.3s ease;
   }
-  .site-header.scrolled { background: rgba(8, 19, 31, 0.94); box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.9); }
+  .site-header.scrolled { background: rgba(14, 16, 19, 0.94); box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.9); }
   /* Reading progress of the whole page, along the bottom edge (CSS only, where supported). */
   .progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--cyan), var(--amber)); }
   @supports (animation-timeline: scroll()) {
@@ -167,7 +167,7 @@ const isActive = (href: string) => active !== undefined && owner(active) === hre
   /* Sliding line under the hovered item (positioned by the script). */
   .ink-line {
     position: absolute; left: 0; bottom: -2px; width: 100px; height: 2px; border-radius: 2px; pointer-events: none;
-    background: var(--cyan); box-shadow: 0 0 12px rgba(27, 163, 224, 0.8); transform-origin: left;
+    background: var(--cyan); box-shadow: 0 0 12px rgba(212, 185, 121, 0.8); transform-origin: left;
     opacity: 0; transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
   }
   .ink-line.on { opacity: 1; }
@@ -218,7 +218,7 @@ const isActive = (href: string) => active !== undefined && owner(active) === hre
     background:
       linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px) 0 0 / 32px 32px,
       linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) 0 0 / 32px 32px,
-      radial-gradient(120% 60% at 100% 0%, rgba(27, 163, 224, 0.16), transparent 60%),
+      radial-gradient(120% 60% at 100% 0%, rgba(212, 185, 121, 0.16), transparent 60%),
       var(--ink);
   }
   .m-foot { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-on-ink); }

@@ -240,12 +240,12 @@ const posterAlt = full
 </script>
 
 <style>
-  .scene3d { position: relative; margin: 0; --ink-glass: rgba(8, 19, 31, 0.78); }
+  .scene3d { position: relative; margin: 0; --ink-glass: rgba(14, 16, 19, 0.78); }
   .stage {
     position: relative; width: 100%; aspect-ratio: 4 / 3.3; border-radius: 18px; overflow: hidden;
     background:
-      radial-gradient(120% 90% at 50% 40%, rgba(27, 163, 224, 0.16), transparent 60%),
-      linear-gradient(180deg, #0c1c2c, #08131f);
+      radial-gradient(120% 90% at 50% 40%, rgba(212, 185, 121, 0.16), transparent 60%),
+      linear-gradient(180deg, #15181d, #0e1013);
     border: 1px solid var(--line-on-ink);
     cursor: grab;
     color: var(--white);
@@ -318,7 +318,7 @@ const posterAlt = full
   .card {
     position: absolute; left: 10px; right: 10px; bottom: 10px; pointer-events: auto;
     max-width: 380px; padding: 0.9rem 1rem 0.8rem; border-radius: 14px;
-    background: rgba(8, 19, 31, 0.92); border: 1px solid rgba(245, 183, 10, 0.5);
+    background: rgba(14, 16, 19, 0.92); border: 1px solid rgba(201, 164, 92, 0.5);
     box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.8); cursor: auto;
     animation: card-in 0.22s ease-out;
   }
@@ -330,7 +330,7 @@ const posterAlt = full
   @keyframes card-in { from { opacity: 0; transform: translateY(8px); } }
   .card header { display: flex; align-items: center; gap: 0.6rem; }
   .card h3 { font-size: 1.05rem; color: var(--white); flex: 1; }
-  .card p { margin: 0.5rem 0 0.7rem; font-size: 0.9rem; line-height: 1.5; color: #c9d6e2; }
+  .card p { margin: 0.5rem 0 0.7rem; font-size: 0.9rem; line-height: 1.5; color: #cfcbc2; }
   .card footer { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
   .card a { color: var(--amber); font-weight: 700; font-size: 0.88rem; text-decoration: none; }
   .card a:hover { text-decoration: underline; }
@@ -366,7 +366,7 @@ const posterAlt = full
     transition: border-color 0.15s ease, background-color 0.15s ease;
   }
   .evidence button:hover { border-color: var(--amber); }
-  .evidence button[aria-pressed='true'] { border-color: var(--amber); background: rgba(245, 183, 10, 0.16); }
+  .evidence button[aria-pressed='true'] { border-color: var(--amber); background: rgba(201, 164, 92, 0.16); }
   .evidence .mk { width: 24px; height: 24px; padding-top: 7px; font-size: 0.72rem; }
 
   figcaption {

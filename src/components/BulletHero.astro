@@ -257,7 +257,7 @@ const tags = [
   /* Soft studio glow behind the cartridge. */
   .stage::before {
     content: ''; position: absolute; inset: 8%; border-radius: 50%; pointer-events: none;
-    background: radial-gradient(closest-side, rgba(27, 163, 224, 0.2), rgba(245, 183, 10, 0.05) 60%, transparent);
+    background: radial-gradient(closest-side, rgba(212, 185, 121, 0.13), rgba(201, 164, 92, 0.04) 60%, transparent);
   }
   .poster { position: absolute; inset: 0; transition: opacity 0.5s ease; }
   .poster img { width: 100%; height: 100%; object-fit: contain; }
@@ -272,15 +272,15 @@ const tags = [
   /* Above the 3D canvas (which is appended later), so the cartridge never covers a label. */
   .tags { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
   .tag { position: absolute; left: 0; top: 0; opacity: 0; will-change: transform, opacity; }
-  .tag i { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 4px rgba(245, 183, 10, 0.25); }
+  .tag i { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 4px rgba(201, 164, 92, 0.25); }
   .tag { --reach: 34px; }
   .tag b {
     position: absolute; left: 0; top: var(--reach); white-space: nowrap; padding: 0.3rem 0.6rem; border-radius: 6px;
     font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--white); background: rgba(8, 19, 31, 0.86); border: 1px solid rgba(245, 183, 10, 0.55);
+    color: var(--white); background: rgba(14, 16, 19, 0.86); border: 1px solid rgba(201, 164, 92, 0.55);
   }
   /* Vertical leader line from the point to the label. */
-  .tag::after { content: ''; position: absolute; left: -0.5px; top: 6px; width: 1px; height: calc(var(--reach) - 6px); background: rgba(245, 183, 10, 0.8); }
+  .tag::after { content: ''; position: absolute; left: -0.5px; top: 6px; width: 1px; height: calc(var(--reach) - 6px); background: rgba(201, 164, 92, 0.8); }
   .tag[data-side='up'] b { top: auto; bottom: var(--reach); }
   .tag[data-side='up']::after { top: auto; bottom: 6px; }
   /* Beside the point: horizontal leader line. */
@@ -311,7 +311,7 @@ const tags = [
   .steps { list-style: none; margin: 0; padding: 0; display: grid; max-width: min(520px, calc(100% - 64px)); }
   .steps li {
     grid-area: 1 / 1; display: grid; gap: 0.3rem; align-content: start; padding: 0.9rem 1.1rem; border-radius: 14px;
-    background: rgba(8, 19, 31, 0.7); border: 1px solid var(--line-on-ink); border-left: 4px solid var(--amber);
+    background: rgba(14, 16, 19, 0.7); border: 1px solid var(--line-on-ink); border-left: 4px solid var(--amber);
     opacity: 0; transform: translateY(8px); transition: opacity 0.35s ease, transform 0.35s ease; visibility: hidden;
   }
   .steps li.on { opacity: 1; transform: none; visibility: visible; }
@@ -319,7 +319,7 @@ const tags = [
   .kicker { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); }
   .kicker span { color: var(--amber); margin-right: 0.3rem; }
   .title { font-weight: 800; font-size: 1.15rem; color: var(--white); line-height: 1.2; }
-  .text { color: #c9d6e2; font-size: 0.93rem; line-height: 1.5; }
+  .text { color: #cfcbc2; font-size: 0.93rem; line-height: 1.5; }
   .bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: min(520px, calc(100% - 64px)); }
   .bar span { height: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--amber) calc(var(--f, 0) * 100%), rgba(255, 255, 255, 0.18) 0); }
 

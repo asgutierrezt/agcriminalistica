@@ -14,20 +14,20 @@
 
 /* ---------- Tokens ---------- */
 :root {
-  --ink: #08131f;
-  --ink-2: #0f2133;
-  --ink-3: #18324a;
-  --paper: #f4f2ed;
-  --paper-2: #e9e6de;
+  --ink: #0e1013;
+  --ink-2: #171a1f;
+  --ink-3: #22262c;
+  --paper: #f2efe8;
+  --paper-2: #e7e2d7;
   --white: #ffffff;
-  --cyan: #1ba3e0;
-  --cyan-ink: #0a6593;
-  --steel: #2c5c80;
-  --amber: #f5b70a;
-  --text: #0d1824;
-  --muted: #4a5868;
-  --muted-on-ink: #a9b8c7;
-  --line: rgba(13, 24, 36, 0.14);
+  --cyan: #d4b979;
+  --cyan-ink: #7a5d20;
+  --steel: #8a929b;
+  --amber: #c9a45c;
+  --text: #15181c;
+  --muted: #555b63;
+  --muted-on-ink: #a7abb1;
+  --line: rgba(21, 24, 28, 0.14);
   --line-on-ink: rgba(255, 255, 255, 0.12);
 
   --font-sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -135,7 +135,7 @@ p { text-wrap: pretty; }
 .btn:active { transform: translateY(1px); }
 .btn svg { width: 20px; height: 20px; flex: none; }
 .btn-primary { background: var(--amber); color: var(--ink); }
-.btn-primary:hover { background: #ffc933; }
+.btn-primary:hover { background: #dbb977; }
 .btn-cyan { background: var(--cyan); color: var(--ink); }
 .btn-cyan:hover { background: #45b8ea; }
 .btn-ghost { border-color: currentColor; background: transparent; }

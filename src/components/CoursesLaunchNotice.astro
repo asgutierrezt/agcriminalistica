@@ -70,12 +70,12 @@ const notify = `/contacto/?interes=${interes}`;
 <style>
   .launch {
     display: grid; gap: 1rem 1.3rem; align-items: center; padding: 1.4rem 1.5rem; border-radius: var(--radius);
-    background: #fff8e1; border: 1px solid rgba(245, 183, 10, 0.7); border-left: 5px solid var(--amber);
+    background: #f6f0e2; border: 1px solid rgba(201, 164, 92, 0.7); border-left: 5px solid var(--amber);
   }
   @media (min-width: 860px) { .launch { grid-template-columns: auto 1fr auto; } }
-  .launch.dark { background: rgba(245, 183, 10, 0.08); border-color: rgba(245, 183, 10, 0.45); border-left-color: var(--amber); }
+  .launch.dark { background: rgba(201, 164, 92, 0.08); border-color: rgba(201, 164, 92, 0.45); border-left-color: var(--amber); }
   .ico { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--ink); color: var(--amber); }
-  .kicker { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #8a6100; }
+  .kicker { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #6e5317; }
   .dark .kicker { color: var(--amber); }
   .txt h2 { font-size: var(--step-1); margin-block: 0.2rem 0.35rem; }
   .dark .txt h2 { color: var(--white); }
@@ -84,13 +84,13 @@ const notify = `/contacto/?interes=${interes}`;
   .launch .btn { justify-self: start; white-space: nowrap; }
 
   .launch-dlg { width: min(100% - 24px, 460px); max-width: none; padding: 0; border: 0; background: transparent; margin: auto; }
-  .launch-dlg::backdrop { background: rgba(8, 19, 31, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .launch-dlg::backdrop { background: rgba(14, 16, 19, 0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
   .launch-dlg[open] .card { animation: in 0.22s ease-out; }
   @keyframes in { from { opacity: 0; transform: translateY(12px); } }
   @media (prefers-reduced-motion: reduce) { .launch-dlg[open] .card { animation: none; } }
   .card {
     position: relative; display: grid; gap: 0.75rem; padding: 1.6rem 1.4rem 1.4rem; border-radius: 20px; background: var(--white);
-    border-top: 5px solid var(--amber); box-shadow: 0 30px 70px -20px rgba(8, 19, 31, 0.6); color: var(--text);
+    border-top: 5px solid var(--amber); box-shadow: 0 30px 70px -20px rgba(14, 16, 19, 0.6); color: var(--text);
   }
   .card h2 { font-size: 1.45rem; padding-right: 2rem; }
   .card p { color: #33414e; }

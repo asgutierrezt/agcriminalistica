@@ -87,13 +87,13 @@ const waPrefix = SITE.whatsapp; // https://wa.me/<number>; share links (wa.me/?t
     overflow: visible;
   }
   @media (min-width: 640px) { .wag { margin: auto; } }
-  .wag::backdrop { background: rgba(8, 19, 31, 0.55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .wag::backdrop { background: rgba(14, 16, 19, 0.55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
   .wag[open] .wag-card { animation: wag-in 0.22s ease-out; }
   @keyframes wag-in { from { opacity: 0; transform: translateY(14px); } }
   @media (prefers-reduced-motion: reduce) { .wag[open] .wag-card { animation: none; } }
   .wag-card {
     position: relative; display: grid; gap: 0.7rem; padding: 1.4rem 1.25rem 1.25rem; border-radius: 20px;
-    background: var(--white); box-shadow: 0 30px 70px -20px rgba(8, 19, 31, 0.55); font-family: var(--font-sans);
+    background: var(--white); box-shadow: 0 30px 70px -20px rgba(14, 16, 19, 0.55); font-family: var(--font-sans);
   }
   .wag-kicker { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan-ink); }
   .wag h2 { font-size: 1.35rem; line-height: 1.2; padding-right: 2rem; }
