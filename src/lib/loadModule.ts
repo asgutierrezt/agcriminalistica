@@ -32,3 +32,31 @@ export function reloadedForUpdate(): boolean {
     return false;
   }
 }
+
+const ENGAGE = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove', 'scroll'];
+
+/**
+ * Calls `start` on the visitor's first interaction (touch, mouse, wheel, keyboard or
+ * scroll) or, when there is none, a few seconds after the page has loaded, so someone
+ * who just watches also sees the 3D come alive (not with "data saver" on). Right after
+ * a reload for an update it starts at once.
+ */
+export function startWhenEngaged(start: () => void, idleMs = 5000) {
+  let done = false;
+  let timer = 0;
+  const go = () => {
+    if (done) return;
+    done = true;
+    clearTimeout(timer);
+    ENGAGE.forEach((ev) => removeEventListener(ev, go));
+    start();
+  };
+  ENGAGE.forEach((ev) => addEventListener(ev, go, { once: true, passive: true }));
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+  const arm = () => {
+    if (!saveData) timer = window.setTimeout(go, idleMs);
+  };
+  if (document.readyState === 'complete') arm();
+  else addEventListener('load', arm, { once: true });
+  if (reloadedForUpdate()) go();
+}

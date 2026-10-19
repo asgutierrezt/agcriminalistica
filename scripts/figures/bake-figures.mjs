@@ -58,21 +58,63 @@ const POSES = {
     aim(r, 'RightUpLeg', 'RightLeg', v(-0.1, -1, -0.16));
     aim(r, 'RightLeg', 'RightFoot', v(-0.05, -1, -0.08));
   },
-  // On the back, as found: legs stretched and slightly apart, arms resting on the floor at the sides, head turned.
+  // On the back, as found: legs stretched and slightly apart, feet fallen outwards,
+  // arms resting on the floor at the sides, head turned. Spine and legs lean a little
+  // backwards so that, laid down, shoulders, calves and heels rest on the floor.
   victim: (r) => {
+    aim(r, 'Spine', 'Spine1', v(0, 1, -0.12));
+    aim(r, 'Spine1', 'Spine2', v(0, 1, -0.12));
+    aim(r, 'Spine2', 'Neck', v(0, 1, -0.12));
+    aim(r, 'Neck', 'Head', v(0, 1, -0.15));
     aim(r, 'RightArm', 'RightForeArm', v(-0.82, -0.52, -0.1));
     aim(r, 'RightForeArm', 'RightHand', v(-0.62, -0.76, -0.12));
     aim(r, 'LeftArm', 'LeftForeArm', v(0.78, -0.6, -0.1));
     aim(r, 'LeftForeArm', 'LeftHand', v(0.5, -0.85, -0.12));
-    aim(r, 'LeftUpLeg', 'LeftLeg', v(0.17, -1, 0.02));
-    aim(r, 'LeftLeg', 'LeftFoot', v(0.2, -1, 0.0));
-    aim(r, 'RightUpLeg', 'RightLeg', v(-0.12, -1, 0.0));
-    aim(r, 'RightLeg', 'RightFoot', v(-0.14, -1, 0.02));
+    aim(r, 'LeftUpLeg', 'LeftLeg', v(0.15, -1, -0.13));
+    aim(r, 'LeftLeg', 'LeftFoot', v(0.18, -1, -0.1));
+    aim(r, 'RightUpLeg', 'RightLeg', v(-0.12, -1, -0.13));
+    aim(r, 'RightLeg', 'RightFoot', v(-0.14, -1, -0.1));
+    aim(r, 'LeftFoot', 'LeftToeBase', v(0.8, -0.45, 0.4));
+    aim(r, 'RightFoot', 'RightToeBase', v(-0.8, -0.45, 0.4));
     const head = r.getObjectByName('mixamorigHead');
     head.rotation.y += 0.55;
     r.updateMatrixWorld(true);
   },
 };
+
+/**
+ * Gravity for a figure lying on the floor: the frozen pose is rigid, so only the
+ * buttocks would touch the floor. Lower each cross-section along the body (2 cm
+ * slices, smoothed) by its own gap, so head, back, calves and heels rest on it.
+ */
+function settle(arrays) {
+  const SLICE = 0.02;
+  const gap = new Map();
+  let lo = Infinity, hi = -Infinity;
+  for (const a of arrays) {
+    for (let i = 0; i < a.length; i += 3) {
+      const k = Math.floor(a[i + 2] / SLICE);
+      gap.set(k, Math.min(gap.get(k) ?? Infinity, a[i + 1]));
+      lo = Math.min(lo, k);
+      hi = Math.max(hi, k);
+    }
+  }
+  const floor = Math.min(...gap.values());
+  const smooth = new Map();
+  for (let k = lo; k <= hi; k++) {
+    let sum = 0, n = 0;
+    for (let j = k - 4; j <= k + 4; j++) {
+      if (gap.has(j)) {
+        sum += gap.get(j) - floor;
+        n++;
+      }
+    }
+    smooth.set(k, n ? sum / n : 0);
+  }
+  for (const a of arrays) {
+    for (let i = 0; i < a.length; i += 3) a[i + 1] -= smooth.get(Math.floor(a[i + 2] / SLICE));
+  }
+}
 
 const TARGET_TRIS = { surface: 7000, joints: 3000 }; // per figure, after simplification
 mkdirSync('public/figures', { recursive: true });
@@ -105,10 +147,12 @@ for (const [name, pose] of Object.entries(POSES)) {
       out.set([t.x, t.y, t.z], i * 3);
     }
     const kind = o.name.includes('Joints') ? 'joints' : 'surface';
-    const idx = new Uint32Array(o.geometry.index.array);
-    const [simple] = MeshoptSimplifier.simplify(idx, out, 3, TARGET_TRIS[kind] * 3, 0.02, ['LockBorder']);
-    parts.push({ kind, pos: out, idx: simple });
+    parts.push({ kind, pos: out, idx: new Uint32Array(o.geometry.index.array) });
   });
+  if (name === 'victim') settle(parts.map((p) => p.pos));
+  for (const p of parts) {
+    [p.idx] = MeshoptSimplifier.simplify(p.idx, p.pos, 3, TARGET_TRIS[p.kind] * 3, 0.02, ['LockBorder']);
+  }
 
   // Compact: keep only the vertices the simplified triangles use; surface first, then joints.
   parts.sort((a) => (a.kind === 'surface' ? -1 : 1));
