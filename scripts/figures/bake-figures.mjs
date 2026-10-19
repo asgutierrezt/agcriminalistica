@@ -58,30 +58,19 @@ const POSES = {
     aim(r, 'RightUpLeg', 'RightLeg', v(-0.1, -1, -0.16));
     aim(r, 'RightLeg', 'RightFoot', v(-0.05, -1, -0.08));
   },
-  // On the back: one arm by the head, the other out, left knee raised.
+  // On the back, as found: legs stretched and slightly apart, arms resting on the floor at the sides, head turned.
   victim: (r) => {
-    aim(r, 'RightArm', 'RightForeArm', v(-0.75, 0.55, 0.05));
-    aim(r, 'RightForeArm', 'RightHand', v(-0.35, 0.9, 0.05));
-    aim(r, 'LeftArm', 'LeftForeArm', v(0.85, -0.45, 0.05));
-    aim(r, 'LeftForeArm', 'LeftHand', v(0.7, -0.6, 0.25));
-    aim(r, 'LeftUpLeg', 'LeftLeg', v(0.12, -0.75, 0.62));
-    aim(r, 'LeftLeg', 'LeftFoot', v(0.05, -0.95, -0.3));
-    aim(r, 'RightUpLeg', 'RightLeg', v(-0.16, -1, 0));
-    aim(r, 'RightLeg', 'RightFoot', v(-0.1, -1, 0.02));
+    aim(r, 'RightArm', 'RightForeArm', v(-0.82, -0.52, -0.1));
+    aim(r, 'RightForeArm', 'RightHand', v(-0.62, -0.76, -0.12));
+    aim(r, 'LeftArm', 'LeftForeArm', v(0.78, -0.6, -0.1));
+    aim(r, 'LeftForeArm', 'LeftHand', v(0.5, -0.85, -0.12));
+    aim(r, 'LeftUpLeg', 'LeftLeg', v(0.17, -1, 0.02));
+    aim(r, 'LeftLeg', 'LeftFoot', v(0.2, -1, 0.0));
+    aim(r, 'RightUpLeg', 'RightLeg', v(-0.12, -1, 0.0));
+    aim(r, 'RightLeg', 'RightFoot', v(-0.14, -1, 0.02));
     const head = r.getObjectByName('mixamorigHead');
     head.rotation.y += 0.55;
     r.updateMatrixWorld(true);
-  },
-  // Forensic examiner photographing evidence: camera held at the face.
-  perito: (r) => {
-    aim(r, 'Spine', 'Spine1', v(0, 1, 0.22));
-    aim(r, 'Neck', 'Head', v(0, 1, 0.3));
-    aim(r, 'RightArm', 'RightForeArm', v(-0.35, -0.55, 0.75));
-    aim(r, 'RightForeArm', 'RightHand', v(0.45, 0.75, 0.45));
-    aim(r, 'LeftArm', 'LeftForeArm', v(0.35, -0.55, 0.75));
-    aim(r, 'LeftForeArm', 'LeftHand', v(-0.45, 0.75, 0.45));
-    aim(r, 'LeftUpLeg', 'LeftLeg', v(0.1, -1, 0.1));
-    aim(r, 'RightUpLeg', 'RightLeg', v(-0.1, -1, -0.05));
   },
 };
 

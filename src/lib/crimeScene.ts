@@ -704,10 +704,10 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     // Tripod legs and mast.
     for (let k = 0; k < 3; k++) {
       const a = (k / 3) * Math.PI * 2;
-      const leg = solid(new CylinderGeometry(0.014, 0.014, 1.25, 6), lampMetal, x + Math.cos(a) * 0.22, 0.58, z + Math.sin(a) * 0.22);
+      const leg = solid(new CylinderGeometry(0.022, 0.018, 1.25, 8), lampMetal, x + Math.cos(a) * 0.22, 0.58, z + Math.sin(a) * 0.22);
       leg.rotation.set(Math.sin(a) * 0.32, 0, -Math.cos(a) * 0.32);
     }
-    solid(new CylinderGeometry(0.018, 0.018, 1.1, 8), lampMetal, x, 1.65, z);
+    solid(new CylinderGeometry(0.026, 0.026, 1.1, 10), lampMetal, x, 1.65, z);
     const lamp = new Group();
     lamp.position.copy(head);
     lamp.lookAt(aim);
@@ -871,23 +871,35 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   const impactLabel = textSprite('IMPACTO', '#ffffff', '#d92d20', 0.034);
   impactLabel.position.set(impactPoint.x, 2.05, impactPoint.z + 0.15);
   fade.push({ mat: impactLabel.material, base: 1 });
-  const originLabel = textSprite('ORIGEN', '#0e1013', '#d4b979', 0.034);
-  originLabel.position.set(origin.x, 2.15, origin.z);
+  const originLabel = textSprite('TIRADOR · HIPÓTESIS', '#0e1013', '#d4b979', 0.022);
+  originLabel.position.set(origin.x + 0.55, 2.1, origin.z);
 
   // --- Forensic 3D scanner + people ---------------------------------------------
   // Terrestrial laser scanner on its tripod. When the scene appears, a brass
   // scan wave sweeps every surface from it, like the scanner documenting the room.
-  const scannerAt = new Vector3(-3.15, 1.45, -1.05); // by the sofa, out of the main views
+  const scannerAt = new Vector3(-2.0, 1.5, -3.5); // against the back wall, between sofa and bookshelf
   {
-    const metal = mat(0x30353c, 0.4, 0.6);
+    // Aluminium tripod (legs, centre column, leg spreader) and the scanner head.
+    const alu = mat(0xa9b0b8, 0.35, 0.8);
+    const dark = mat(0x23272d, 0.45, 0.4);
+    const hub = scannerAt.y - 0.42;
     for (let k = 0; k < 3; k++) {
-      const a = (k / 3) * Math.PI * 2 + 0.4;
-      const leg = solid(new CylinderGeometry(0.009, 0.009, 1.4, 6), metal, scannerAt.x + Math.cos(a) * 0.24, 0.66, scannerAt.z + Math.sin(a) * 0.24);
-      leg.rotation.set(Math.sin(a) * 0.33, 0, -Math.cos(a) * 0.33);
+      const a = (k / 3) * Math.PI * 2 + 0.3;
+      const foot = new Vector3(scannerAt.x + Math.cos(a) * 0.42, 0, scannerAt.z + Math.sin(a) * 0.42);
+      const top = new Vector3(scannerAt.x, hub, scannerAt.z);
+      const len = foot.distanceTo(top);
+      const leg = solid(new CylinderGeometry(0.016, 0.012, len, 8), alu, 0, 0, 0);
+      leg.position.copy(foot).add(top).multiplyScalar(0.5);
+      leg.lookAt(top);
+      leg.rotateX(Math.PI / 2);
+      solid(new CylinderGeometry(0.025, 0.03, 0.03, 10), dark, foot.x, 0.015, foot.z); // rubber foot
     }
-    solid(new CylinderGeometry(0.075, 0.09, 0.2, 24), metal, scannerAt.x, scannerAt.y - 0.02, scannerAt.z);
-    const ring = new Mesh(new CylinderGeometry(0.092, 0.092, 0.025, 32, 1, true), new MeshBasicMaterial({ color: 0xe3c27a, toneMapped: false }));
-    ring.position.copy(scannerAt).add(new Vector3(0, 0.05, 0));
+    solid(new CylinderGeometry(0.02, 0.02, 0.42, 10), alu, scannerAt.x, hub + 0.21, scannerAt.z); // centre column
+    solid(new CylinderGeometry(0.06, 0.06, 0.04, 16), dark, scannerAt.x, hub, scannerAt.z); // leg hub
+    solid(new BoxGeometry(0.16, 0.24, 0.12), dark, scannerAt.x, scannerAt.y + 0.1, scannerAt.z); // scanner body
+    const ring = new Mesh(new CylinderGeometry(0.05, 0.05, 0.13, 24, 1, true), new MeshBasicMaterial({ color: 0xe3c27a, toneMapped: false, side: DoubleSide }));
+    ring.position.set(scannerAt.x, scannerAt.y + 0.1, scannerAt.z);
+    ring.rotation.z = Math.PI / 2; // spinning mirror window
     scene.add(ring);
   }
   scanWave.uScanOrigin.value.copy(scannerAt);
@@ -895,9 +907,8 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   scanWave.uScanRadius.value = scanRadius;
 
   // People: solid forensic mannequins with real proportions (baked poses) in
-  // place of the simple procedural ones: the victim, the shooter (a hypothesis,
-  // faded in with the reconstruction) and a forensic examiner photographing
-  // the casing.
+  // place of the simple procedural ones: the victim as found, and the shooter,
+  // a translucent hypothesis that only appears with the reconstruction.
   victimWrap.visible = false;
   shooter.root.visible = false;
   const joint = (color: number) => new MeshPhysicalMaterial({ color, roughness: 0.45, metalness: 0.2, clearcoat: 0.4 });
@@ -909,7 +920,6 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   const figures: { name: string; mats: Material[]; at: [number, number, number]; rotY: number }[] = [
     { name: 'victim', mats: [new MeshPhysicalMaterial({ color: 0xdcd9d3, roughness: 0.6, clearcoat: 0.25 }), joint(0x4a4f57)], at: [-0.02, 0, 0.1], rotY: Math.atan2(-0.76, 0.65) },
     { name: 'shooter', mats: shooterFig, at: [origin.x, 0, origin.z], rotY: Math.atan2(impactPoint.x - origin.x, impactPoint.z - origin.z) },
-    { name: 'perito', mats: [new MeshPhysicalMaterial({ color: 0xf1f2f3, roughness: 0.75, sheen: 0.4 }), joint(0x8a929b)], at: [-2.25, 0, 2.05], rotY: Math.atan2(-0.65, -0.85) },
   ];
   const assetBase = import.meta.env.BASE_URL.replace(/\/$/, '');
   figures.forEach((f) => {
@@ -982,6 +992,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       return new Vector3(...pos).sub(tg).multiplyScalar(k).add(tg);
     };
     const orbit = VIEWS.orbital();
+    const portrait = el.clientWidth < el.clientHeight;
     // Wide frames keep the left side for the story cards: step back a little more.
     if (el.clientWidth >= 900 && el.clientWidth > el.clientHeight) orbit.pos.sub(orbit.target).multiplyScalar(1.15).add(orbit.target);
     return [
@@ -994,8 +1005,16 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       key(0.57, far([0.35, 12.5, 0.95], [0.1, 0, -0.1]), [0.1, 0, -0.1]),
       key(0.64, far([0.3, 12.6, 0.9], [0.1, 0, -0.1]), [0.1, 0, -0.1]),
       // Perpendicular to the line of fire: shooter, trajectories and impact in one frame.
-      key(0.77, far([4.0, 3.4, 6.6], [-1.5, 1.0, -0.4]), [-1.5, 1.0, -0.4]),
-      key(0.84, far([4.4, 3.6, 6.4], [-1.5, 1.0, -0.4]), [-1.5, 1.0, -0.4]),
+      ...(portrait
+        ? [
+            // Phones: closer to the doorway so the shooter stays in frame above the card.
+            key(0.77, far([0.6, 3.9, 8.6], [-3.0, 0.9, 0.6]), [-3.0, 0.9, 0.6]),
+            key(0.84, far([1.0, 4.1, 8.6], [-2.9, 0.9, 0.5]), [-2.9, 0.9, 0.5]),
+          ]
+        : [
+            key(0.77, far([6.4, 5.2, 6.0], [-0.5, 0.9, -1.0]), [-0.5, 0.9, -1.0]),
+            key(0.84, far([6.7, 5.4, 5.6], [-0.4, 0.9, -1.1]), [-0.4, 0.9, -1.1]),
+          ]),
       key(0.95, orbit.pos, orbit.target),
       key(1, orbit.pos, orbit.target),
     ];
@@ -1083,7 +1102,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     if (tour) {
       // Leave room for the story cards: scene shifted up on portrait frames
       // (cards at the bottom) and to the right on wide ones (cards on the left).
-      if (camera.aspect < 1) camera.setViewOffset(width, height, 0, height * 0.13, width, height);
+      if (camera.aspect < 1) camera.setViewOffset(width, height, 0, height * 0.17, width, height);
       else if (width >= 900) camera.setViewOffset(width, height, -width * 0.17, 0, width, height);
       else camera.clearViewOffset();
       keys = path();
@@ -1148,9 +1167,10 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     });
     const fig = seg(time, 2.1, 2.8);
     // The shooter is a hypothesis: its scanned figure fades in with the reconstruction.
+    // Even fully shown, the shooter stays translucent: it is a hypothesis, not a fact.
     shooterFig.forEach((m) => {
-      m.opacity = fig;
-      m.depthWrite = fig > 0.5;
+      m.opacity = fig * 0.62;
+      m.depthWrite = false;
     });
     if (shooterMesh) {
       const sm: Mesh = shooterMesh;
