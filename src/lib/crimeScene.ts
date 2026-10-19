@@ -27,12 +27,12 @@ import {
   BufferAttribute, MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, Object3D, PCFSoftShadowMap,
   PerspectiveCamera, PlaneGeometry, PMREMGenerator, Points, PointsMaterial, Raycaster, RepeatWrapping, RingGeometry,
   Scene, SphereGeometry, Spherical, SpotLight, Sprite, SpriteMaterial, SRGBColorSpace, TubeGeometry, Vector2, Vector3,
-  WebGLRenderer, GridHelper, ShaderMaterial, type Material,
+  WebGLRenderer, type Material,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { SCENE_EVIDENCE, type SceneViewId } from '../data/sceneEvidence';
-import { gridBoxes, gridFloor, loadFigure, pointsOf, sampleMeshes, scanMaterial } from './scanPoints';
+import { loadFigure, scanWave, withScanWave } from './figures';
 
 export interface CrimeSceneController {
   duration: number;
@@ -419,11 +419,10 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     return null; // No WebGL: keep the poster image and the HTML evidence list.
   }
   renderer.setPixelRatio(Math.min(devicePixelRatio, small ? 1.5 : 1.75));
-  // The room is drawn as a point cloud (see "Forensic scan" below): no shadow maps.
-  renderer.shadowMap.enabled = false;
+  renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = PCFSoftShadowMap;
   renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.92;
+  renderer.toneMappingExposure = 0.84;
   renderer.outputColorSpace = SRGBColorSpace;
 
   const scene = new Scene();
@@ -875,54 +874,9 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   const originLabel = textSprite('ORIGEN', '#0e1013', '#d4b979', 0.034);
   originLabel.position.set(origin.x, 2.15, origin.z);
 
-  // --- Forensic scan: the room as a LiDAR-style point cloud ----------------------
-  // Every modelled surface (room, furniture, traces, cordon, lamps) is sampled
-  // with its real texture colours into one point cloud; the solid meshes are
-  // hidden. Evidence tents, trajectories, labels, the impact ring and the
-  // luminol traces stay solid on top of the scan. People are baked figures.
-  scene.updateMatrixWorld(true);
-  const solidKeep = new Set<Material>([rodMat, selRing.material as Material, impact.material as Material, hole.material as Material]);
-  const scanned: Mesh[] = [];
-  const walls: Mesh[] = [];
-  const hidden: Object3D[] = [];
-  scene.traverse((o) => {
-    const m = o as Mesh;
-    if (!m.isMesh || o.userData.index !== undefined) return; // evidence tents stay solid
-    const mat = (Array.isArray(m.material) ? m.material[0] : m.material) as Material;
-    if (solidKeep.has(mat)) return;
-    if (mat === shooterMat || mat === victimMat || o === outside || o === glass || mat === aoMat || mat === cornerMat) {
-      hidden.push(o);
-      return;
-    }
-    if ((mat as { toneMapped?: boolean }).toneMapped === false) return; // lamp faces, beams, luminol
-    hidden.push(o);
-    if (mat === wallMat) walls.push(m); // walls and floor get even grids below
-    else if (o !== floor) scanned.push(m);
-  });
-  const scanRand = rng(97);
-  // Walls a little darker than furniture and traces, so the evidence stands out.
-  const cloudGeo = sampleMeshes(scanned, small ? 60000 : 110000, scanRand);
-  // Walls a little darker than furniture and traces, so the evidence stands out.
-  const wallGeo = gridBoxes(walls, small ? 0.045 : 0.032, 0.62, scanRand);
-  const floorGeo = gridFloor(8, small ? 0.045 : 0.032, (floor.material as MeshStandardMaterial).map, 0.55, scanRand);
-  hidden.forEach((o) => (o.visible = false));
-  shooter.root.visible = false;
-  const pxPerMetre = () => (el.clientHeight || 1) / 2 / Math.tan((camera.fov * Math.PI) / 360) * renderer.getPixelRatio();
-  // Points about as wide as their spacing, so surfaces read as continuous scans.
-  const cloudMat = scanMaterial({ size: small ? 0.04 : 0.03, scale: 1 });
-  const cloud = pointsOf(cloudGeo, cloudMat);
-  scene.add(cloud, pointsOf(floorGeo, cloudMat), pointsOf(wallGeo, cloudMat));
-  const scanMats = [cloudMat];
-
-  // Measuring grid on the floor (0.5 m) and around the room.
-  const grid = new GridHelper(16, 32, 0xc9a45c, 0xc9a45c);
-  (grid.material as Material).transparent = true;
-  (grid.material as Material).opacity = 0.09;
-  (grid.material as Material).depthWrite = false;
-  grid.position.set(0, 0.003, 0);
-  scene.add(grid);
-
-  // Terrestrial laser scanner on its tripod: the scan wave starts here.
+  // --- Forensic 3D scanner + people ---------------------------------------------
+  // Terrestrial laser scanner on its tripod. When the scene appears, a brass
+  // scan wave sweeps every surface from it, like the scanner documenting the room.
   const scannerAt = new Vector3(-3.15, 1.45, -1.05); // by the sofa, out of the main views
   {
     const metal = mat(0x30353c, 0.4, 0.6);
@@ -936,38 +890,53 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     ring.position.copy(scannerAt).add(new Vector3(0, 0.05, 0));
     scene.add(ring);
   }
-  cloudMat.uniforms.uOrigin.value.copy(scannerAt);
-  // A brass scan wave sweeps the room once when the scene appears (the cloud is
-  // already complete, so it matches the static poster).
+  scanWave.uScanOrigin.value.copy(scannerAt);
   let scanRadius = reduceMotion ? 1e4 : 0;
+  scanWave.uScanRadius.value = scanRadius;
 
-  // People: baked point-cloud figures (victim, shooter hypothesis, forensic examiner).
-  const figures: { name: string; tint: number; at: [number, number, number]; rotY: number }[] = [
-    { name: 'victim', tint: 0xeceae6, at: [-0.02, 0, 0.1], rotY: Math.atan2(-0.76, 0.65) },
-    { name: 'shooter', tint: 0x9fb0c4, at: [origin.x, 0, origin.z], rotY: Math.atan2(impactPoint.x - origin.x, impactPoint.z - origin.z) },
-    { name: 'perito', tint: 0xd9dde3, at: [-2.25, 0, 2.05], rotY: Math.atan2(-0.65, -0.85) }, // photographing the casing (1)
+  // People: solid forensic mannequins with real proportions (baked poses) in
+  // place of the simple procedural ones: the victim, the shooter (a hypothesis,
+  // faded in with the reconstruction) and a forensic examiner photographing
+  // the casing.
+  victimWrap.visible = false;
+  shooter.root.visible = false;
+  const joint = (color: number) => new MeshPhysicalMaterial({ color, roughness: 0.45, metalness: 0.2, clearcoat: 0.4 });
+  const shooterFig = [
+    new MeshPhysicalMaterial({ color: 0x8ea4bd, roughness: 0.45, clearcoat: 0.3, transparent: true, opacity: 0 }),
+    new MeshPhysicalMaterial({ color: 0x3c4756, roughness: 0.4, metalness: 0.2, transparent: true, opacity: 0 }),
   ];
-  let shooterCloud: ShaderMaterial | null = null;
+  let shooterMesh: Mesh | null = null;
+  const figures: { name: string; mats: Material[]; at: [number, number, number]; rotY: number }[] = [
+    { name: 'victim', mats: [new MeshPhysicalMaterial({ color: 0xdcd9d3, roughness: 0.6, clearcoat: 0.25 }), joint(0x4a4f57)], at: [-0.02, 0, 0.1], rotY: Math.atan2(-0.76, 0.65) },
+    { name: 'shooter', mats: shooterFig, at: [origin.x, 0, origin.z], rotY: Math.atan2(impactPoint.x - origin.x, impactPoint.z - origin.z) },
+    { name: 'perito', mats: [new MeshPhysicalMaterial({ color: 0xf1f2f3, roughness: 0.75, sheen: 0.4 }), joint(0x8a929b)], at: [-2.25, 0, 2.05], rotY: Math.atan2(-0.65, -0.85) },
+  ];
   const assetBase = import.meta.env.BASE_URL.replace(/\/$/, '');
-  figures.forEach((f) =>
-    loadFigure(`${assetBase}/scan/${f.name}.bin`, new Color(f.tint))
-      .then((geo) => {
-        const m = scanMaterial({ size: small ? 0.028 : 0.022, scale: pxPerMetre() });
-        m.uniforms.uOrigin.value.copy(scannerAt);
-        m.uniforms.uRadius.value = scanRadius;
-        const pts = pointsOf(geo, m);
-        pts.position.set(...f.at);
-        pts.rotation.y = f.rotY;
-        scene.add(pts);
-        scanMats.push(m);
+  figures.forEach((f) => {
+    f.mats.forEach(withScanWave);
+    loadFigure(`${assetBase}/figures/${f.name}.bin`, f.mats[0], f.mats[1])
+      .then((m) => {
+        m.position.set(...f.at);
+        m.rotation.y = f.rotY;
+        scene.add(m);
         if (f.name === 'shooter') {
-          shooterCloud = m;
+          shooterMesh = m;
           applyTime(t);
         }
         wake();
       })
-      .catch(() => {}),
-  );
+      .catch(() => {});
+  });
+  // Every lit surface of the room shows the scan wave.
+  scene.traverse((o) => {
+    const m = o as Mesh;
+    if (!m.isMesh) return;
+    for (const mt of Array.isArray(m.material) ? m.material : [m.material])
+      if ((mt as MeshStandardMaterial).isMeshStandardMaterial && !mt.userData.scanWave) {
+        mt.userData.scanWave = true;
+        withScanWave(mt);
+      }
+  });
 
   // --- Camera & controls -----------------------------------------------------
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -995,7 +964,8 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     orbital: () => ({ pos: orbitPos(), target: orbitTarget.clone() }),
     cenital: () => ({ pos: new Vector3(0.3, el.clientWidth < 520 ? 14 : 11.5, 0.9), target: new Vector3(0.1, 0, -0.1) }),
     testigo: () => ({ pos: new Vector3(-3.55, 1.62, 3.55), target: new Vector3(0.6, 0.6, -1.2) }),
-    trayectoria: () => ({ pos: new Vector3(-3.82, 1.95, 2.35), target: new Vector3(1.8, 1.25, -2.6) }),
+    // Perpendicular to the line of fire: shooter, both trajectories and the impact in one frame.
+    trayectoria: () => ({ pos: new Vector3(5.6, 3.6, 6.2), target: new Vector3(-0.2, 1.0, -1.1) }),
   };
   // Tour path: keyframes at scroll progress p (each act holds its view a moment).
   // A narrow frame pulls the camera back along its line of sight so the room fits.
@@ -1023,8 +993,9 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       key(0.44, far([3.3, 3.2, 4.0], [-1.2, 0.1, 0.3]), [-1.2, 0.1, 0.3]),
       key(0.57, far([0.35, 12.5, 0.95], [0.1, 0, -0.1]), [0.1, 0, -0.1]),
       key(0.64, far([0.3, 12.6, 0.9], [0.1, 0, -0.1]), [0.1, 0, -0.1]),
-      key(0.77, far([-3.55, 2.7, 3.75], [1.5, 1.05, -2.3]), [1.5, 1.05, -2.3]),
-      key(0.84, far([-3.4, 2.9, 3.85], [1.3, 1.0, -2.1]), [1.3, 1.0, -2.1]),
+      // Perpendicular to the line of fire: shooter, trajectories and impact in one frame.
+      key(0.77, far([4.0, 3.4, 6.6], [-1.5, 1.0, -0.4]), [-1.5, 1.0, -0.4]),
+      key(0.84, far([4.4, 3.6, 6.4], [-1.5, 1.0, -0.4]), [-1.5, 1.0, -0.4]),
       key(0.95, orbit.pos, orbit.target),
       key(1, orbit.pos, orbit.target),
     ];
@@ -1084,7 +1055,6 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     beams.forEach((b, i) => (b.opacity = beamBase[i] * k));
     dustMat.opacity = 0.55 * (1 - 0.6 * L);
     luminolMats.forEach((m) => (m.opacity = L));
-    scanMats.forEach((m) => (m.uniforms.uDim.value = 1 - 0.86 * L));
     (scene.background as Color).lerpColors(bgDay, bgDark, L);
     scene.fog!.color.lerpColors(bgDay, bgDark, L);
   };
@@ -1122,8 +1092,6 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       placeTour(tourAt);
     }
     camera.updateProjectionMatrix();
-    const pxm = pxPerMetre();
-    scanMats.forEach((m) => (m.uniforms.uScale.value = pxm));
     wake();
   };
   camera.position.copy(VIEWS.orbital().pos);
@@ -1180,15 +1148,14 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     });
     const fig = seg(time, 2.1, 2.8);
     // The shooter is a hypothesis: its scanned figure fades in with the reconstruction.
-    if (shooterCloud) {
-      const sc: ShaderMaterial = shooterCloud;
-      sc.uniforms.uOpacity.value = fig;
-      if (sc.transparent !== fig < 1) {
-        sc.transparent = fig < 1;
-        sc.needsUpdate = true;
-      }
-      sc.depthWrite = fig > 0.5;
-      sc.visible = fig > 0.01;
+    shooterFig.forEach((m) => {
+      m.opacity = fig;
+      m.depthWrite = fig > 0.5;
+    });
+    if (shooterMesh) {
+      const sm: Mesh = shooterMesh;
+      sm.visible = fig > 0.01;
+      sm.castShadow = fig > 0.6;
     }
     originLabel.material.opacity = fig;
     trajectories.forEach((tr, i) => {
@@ -1206,7 +1173,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     last = now;
     if (scanRadius < 30) {
       scanRadius = Math.min(30, scanRadius + dt * 7);
-      scanMats.forEach((m) => (m.uniforms.uRadius.value = scanRadius >= 30 ? 1e4 : scanRadius));
+      scanWave.uScanRadius.value = scanRadius >= 30 ? 1e4 : scanRadius;
     }
     if (playing) {
       t += dt;
