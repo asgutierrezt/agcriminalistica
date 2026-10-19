@@ -5,7 +5,7 @@ import PageHero from '../components/PageHero.astro';
 import Icon from '../components/Icon.astro';
 import { breadcrumbSchema } from '../lib/schema';
 import { SITE } from '../data/site';
-import alberto from '../assets/img/investigacion-criminalistica-ecuador.jpg';
+import Fingerprint from '../components/Fingerprint.astro';
 import logoGreen from '../assets/img/criminalistica-6.png';
 
 const crumbs = [{ name: 'Inicio', path: '/' }, { name: 'Nosotros', path: '/nosotros/' }];
@@ -88,16 +88,28 @@ const values = [
 
   <section class="section ink grid-bg">
     <div class="container two">
-      <figure class="founder-fig">
-        <Image src={alberto} alt="Lcdo. Alberto Gutiérrez, invitado en el programa Jurista Habla sobre investigación criminalística" widths={[360, 560, 760]} sizes="(min-width: 900px) 460px, 92vw" class="founder-img" />
-      </figure>
+      <!-- Credential card (forensic ID style) in place of a photo. -->
+      <div class="badge" aria-label="Credencial: Lcdo. Alberto Gutiérrez, Licenciado en Criminalística">
+        <Fingerprint class="badge-fp" />
+        <div class="badge-top">
+          <span class="mono" aria-hidden="true">AG</span>
+          <span class="badge-k">Credencial · Dirección académica</span>
+        </div>
+        <p class="badge-name">Lcdo. Alberto Gutiérrez</p>
+        <p class="badge-role">Licenciado en Criminalística</p>
+        <dl>
+          <div><dt>Áreas</dt><dd>Peritaje · Reconstrucción 3D · Formación</dd></div>
+          <div><dt>Cobertura</dt><dd>Todo Ecuador</dd></div>
+          <div><dt>Colaboración</dt><dd>{SITE.partner}</dd></div>
+        </dl>
+      </div>
       <div class="copy">
         <p class="label cyan">Dirección académica</p>
         <h2 class="h-section">Lcdo. Alberto Gutiérrez</h2>
         <p>
           Licenciado en Criminalística, autor de los artículos de nuestro blog y divulgador de la investigación
-          científica del delito en medios y programas como <em>#HablandoConUnJurista</em>, donde ha abordado la
-          investigación criminalística en Ecuador, la crisis carcelaria y el campo laboral del criminalista.
+          científica del delito: la investigación criminalística en Ecuador, la crisis carcelaria y el campo laboral
+          del criminalista.
         </p>
         <p>
           AG Criminalística trabaja en colaboración con la empresa de consultoría y asesoramiento pericial <strong
@@ -123,7 +135,26 @@ const values = [
   .w { color: var(--white); }
   .copy .btn-row { margin-top: 1.5rem; }
   .logo-img { width: 100%; max-width: 420px; margin-inline: auto; border-radius: 20px; }
-  .founder-img { width: 100%; border-radius: 18px; }
+  .badge {
+    position: relative; overflow: hidden; display: grid; gap: 0.35rem; max-width: 460px; width: 100%; margin-inline: auto;
+    padding: 1.6rem 1.5rem 1.4rem; border-radius: 20px; color: var(--white);
+    border: 1px solid transparent;
+    background: linear-gradient(var(--ink-2), var(--ink-2)) padding-box, linear-gradient(135deg, var(--amber), rgba(255, 255, 255, 0.08) 55%, var(--amber)) border-box;
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8);
+  }
+  .badge :global(.badge-fp) { position: absolute; right: -40px; bottom: -50px; width: 220px; color: var(--amber); opacity: 0.12; }
+  .badge-top { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; }
+  .mono {
+    display: grid; place-items: center; width: 54px; height: 54px; border-radius: 14px; flex: none;
+    font-weight: 900; font-size: 1.25rem; letter-spacing: -0.02em; color: var(--ink); background: var(--amber);
+  }
+  .badge-k { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); }
+  .badge-name { margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+  .badge-role { margin: 0 0 0.6rem; color: var(--muted-on-ink); }
+  .badge dl { margin: 0; display: grid; gap: 0.5rem; padding-top: 0.9rem; border-top: 1px dashed rgba(255, 255, 255, 0.16); }
+  .badge dl div { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.6rem; }
+  .badge dt { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-on-ink); padding-top: 0.15rem; }
+  .badge dd { margin: 0; font-size: 0.93rem; }
   .values { list-style: none; padding: 0; display: grid; gap: 1.25rem; margin-top: 1.5rem; }
   @media (min-width: 900px) { .values { grid-template-columns: repeat(3, 1fr); } }
   .values li { display: grid; gap: 0.7rem; align-content: start; padding: 1.5rem; background: var(--paper); border-radius: var(--radius); border-top: 4px solid var(--cyan); }
