@@ -7,8 +7,9 @@
  * more photographic with image-based lighting, procedural textures (tiles,
  * plaster, wood grain, fabric), baked contact shadows, forensic floodlights
  * with light beams and floating dust. Full-body mannequins (victim on the
- * floor, shooter at the doorway), evidence tents with photo scales, red
- * trajectory rods and physical traces (casing, blood, shoe prints, phone,
+ * floor, shooter at the doorway), evidence tents with photo scales, two
+ * numbered shots (muzzle flash, tracer, straight line, arrowhead, labelled
+ * target) and physical traces (casing, blood, shoe prints, phone,
  * bullet hole). A luminol mode reveals cleaned-up blood traces.
  * All textures are drawn on canvases from a fixed seed: no image downloads,
  * and every load looks the same (the static posters match the first frame).
@@ -22,11 +23,11 @@
  * inspection and the overhead plan, to the reconstructed trajectories.
  */
 import {
-  ACESFilmicToneMapping, AdditiveBlending, BoxGeometry, BufferGeometry, CanvasTexture, CapsuleGeometry, CatmullRomCurve3, CircleGeometry,
+  ACESFilmicToneMapping, AdditiveBlending, BoxGeometry, BufferGeometry, CanvasTexture, CapsuleGeometry, CircleGeometry, ConeGeometry,
   Color, CylinderGeometry, DirectionalLight, DoubleSide, Fog, Group, HemisphereLight, Line, LineBasicMaterial, Mesh,
   BufferAttribute, MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, Object3D, PCFSoftShadowMap,
-  PerspectiveCamera, PlaneGeometry, PMREMGenerator, Points, PointsMaterial, Raycaster, RepeatWrapping, RingGeometry,
-  Scene, SphereGeometry, Spherical, SpotLight, Sprite, SpriteMaterial, SRGBColorSpace, TubeGeometry, Vector2, Vector3,
+  PerspectiveCamera, PlaneGeometry, PMREMGenerator, Points, PointsMaterial, Quaternion, Raycaster, RepeatWrapping, RingGeometry,
+  Scene, SphereGeometry, Spherical, SpotLight, Sprite, SpriteMaterial, SRGBColorSpace, Vector2, Vector3,
   WebGLRenderer, type Material,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -248,6 +249,19 @@ function stainTexture(seed: number, color: string, blobs = 22) {
     g.arc(Math.cos(a) * d, Math.sin(a) * d, 1.5 + rand() * 3.5, 0, Math.PI * 2);
     g.fill();
   }
+  return tex(c);
+}
+
+/** Hot glow (muzzle flash, tracer head, impact burst): white core fading to orange. */
+function glowTexture() {
+  const { c, g } = canvas(64);
+  const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, 'rgba(255,255,255,1)');
+  gr.addColorStop(0.22, 'rgba(255,226,170,0.9)');
+  gr.addColorStop(0.55, 'rgba(255,120,50,0.3)');
+  gr.addColorStop(1, 'rgba(255,80,30,0)');
+  g.fillStyle = gr;
+  g.fillRect(0, 0, 64, 64);
   return tex(c);
 }
 
@@ -605,9 +619,14 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   victimWrap.position.set(-0.52, 0, 0.52);
   scene.add(victimWrap);
 
-  // Shooter at the doorway, aiming at the impact point on the back wall.
+  // Shooter at the doorway. Hypothesis of two shots: the first hit the victim where
+  // she stood (chest height; she fell backwards, head away from the door), the second
+  // missed and lodged in the back wall. The shooter aims between both targets.
   const origin = new Vector3(-3.35, 0, 1.7);
   const impactPoint = new Vector3(3.1, 1.6, -3.94);
+  const standAt = new Vector3(-0.55, 1.3, 0.55);
+  const toward = (p: Vector3) => Math.atan2(p.x - origin.x, p.z - origin.z);
+  const shooterRotY = (toward(standAt) + toward(impactPoint)) / 2;
   const shooterMat = new MeshPhysicalMaterial({ color: 0x7f9bb8, roughness: 0.5, clearcoat: 0.3, transparent: true, opacity: 0 });
   const shooter = mannequin(shooterMat, {
     armR: [0, 0.32, Math.PI / 2 - 0.05], armL: [0, -0.32, Math.PI / 2 - 0.05],
@@ -812,25 +831,86 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   scene.add(selRing);
   let selected: number | null = null;
 
-  // --- Trajectories (red rods) ---------------------------------------------
-  const muzzle = new Vector3();
-  scene.updateMatrixWorld(true);
-  shooter.handR.getWorldPosition(muzzle);
-  muzzle.y += 0.02;
-  const rodMat = new MeshBasicMaterial({ color: 0xff3b30 });
-  const trajectories = [
-    [muzzle.clone(), new Vector3(0.3, 1.58, -1.3), impactPoint.clone()],
-    [muzzle.clone(), new Vector3(-1.4, 1.38, 0.55), new Vector3(0.45, 1.3, -0.35)],
-  ].map((pts) => {
-    const geo = new TubeGeometry(new CatmullRomCurve3(pts), 80, 0.011, 6);
-    geo.setDrawRange(0, 0);
-    const m = new Mesh(geo, rodMat);
-    scene.add(m);
-    return m;
+  // --- Shots: muzzle flash, tracer, the straight line it leaves, arrowhead, burst --
+  // Muzzle: the hands of the baked shooter figure (model space), placed like the figure.
+  const muzzle = new Vector3(0.068, 1.395, 0.443).applyAxisAngle(new Vector3(0, 1, 0), shooterRotY).add(origin);
+  const glowMap = glowTexture();
+  const lineMat = new MeshBasicMaterial({ color: 0xff3b30, toneMapped: false });
+  const hot = (color: number, opacity = 1) =>
+    new MeshBasicMaterial({ color, transparent: true, opacity, blending: AdditiveBlending, depthWrite: false, toneMapped: false });
+  const glowSprite = (size: number) => {
+    const sp = new Sprite(new SpriteMaterial({ map: glowMap, blending: AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false }));
+    sp.scale.setScalar(size);
+    sp.visible = false;
+    return sp;
+  };
+  const TRAVEL = 0.45; // seconds from muzzle to target
+  const shots = [
+    { to: standAt, start: 3.0 },
+    { to: impactPoint, start: 3.9 },
+  ].map(({ to, start }) => {
+    const dir = to.clone().sub(muzzle);
+    const len = dir.length();
+    const beam = new Group(); // local +Y runs from the muzzle to the target
+    beam.position.copy(muzzle);
+    beam.quaternion.copy(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), dir.normalize()));
+    scene.add(beam);
+    const trail = new Group(); // the line left behind, grown by scaling Y
+    const core = new CylinderGeometry(0.01, 0.01, 1, 8, 1, true).translate(0, 0.5, 0);
+    const halo = new CylinderGeometry(0.034, 0.034, 1, 12, 1, true).translate(0, 0.5, 0);
+    trail.add(new Mesh(core, lineMat), new Mesh(halo, hot(0xff5a3c, 0.2)));
+    const head = new Mesh(new ConeGeometry(0.04, 0.13, 16).translate(0, -0.065, 0), lineMat);
+    head.position.y = len;
+    const tracer = new Mesh(new CylinderGeometry(0.016, 0.002, 0.6, 10, 1, true).translate(0, -0.3, 0), hot(0xffc27a, 0.95));
+    const spark = glowSprite(0.2);
+    const flash = glowSprite(0.5);
+    const burst = glowSprite(0.3);
+    burst.position.y = len;
+    beam.add(trail, head, tracer, spark, flash, burst);
+    return { len, start, trail, head, tracer, spark, flash, burst };
   });
+  const shotTime = (time: number) => {
+    for (const s of shots) {
+      const p = clamp01((time - s.start) / TRAVEL);
+      s.trail.visible = p > 0;
+      s.trail.scale.y = Math.max(1e-4, s.len * p);
+      s.head.visible = p >= 1;
+      s.tracer.visible = s.spark.visible = p > 0 && p < 1;
+      s.tracer.position.y = s.spark.position.y = s.len * p;
+      const f = (time - s.start) / 0.2; // muzzle flash
+      s.flash.visible = f >= 0 && f < 1;
+      s.flash.material.opacity = 1 - f;
+      s.flash.scale.setScalar(0.35 + 0.35 * f);
+      const b = (time - s.start - TRAVEL) / 0.45; // burst on arrival
+      s.burst.visible = b >= 0 && b < 1;
+      s.burst.material.opacity = 1 - b;
+      s.burst.scale.setScalar(0.12 + 0.55 * b);
+    }
+  };
+  const arrived = (i: number, time: number) => seg(time, shots[i].start + TRAVEL, shots[i].start + TRAVEL + 0.3);
+
+  // Where the victim stood when hit: dashed plumb line to the floor and a ring.
+  const plumbMat = new MeshBasicMaterial({ color: 0xff3b30, transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
+  const dash = new CylinderGeometry(0.007, 0.007, 0.08, 6);
+  for (let y = standAt.y - 0.1; y > 0.04; y -= 0.14) {
+    const d = new Mesh(dash, plumbMat);
+    d.position.set(standAt.x, y, standAt.z);
+    scene.add(d);
+  }
+  const standRing = new Mesh(new RingGeometry(0.2, 0.25, 48), plumbMat);
+  standRing.rotation.x = -Math.PI / 2;
+  standRing.position.set(standAt.x, 0.015, standAt.z);
+  standRing.renderOrder = 3;
+  scene.add(standRing);
 
   // --- Labels (constant screen size) ------------------------------------------
   const fade: { mat: Material; base: number }[] = [];
+  const labels: { s: Sprite; w: number; h: number }[] = [];
+  // Labels keep a size relative to the frame height: smaller on narrow (portrait) frames.
+  const sizeLabels = () => {
+    const k = Math.min(1, Math.max(0.62, camera.aspect));
+    labels.forEach(({ s, w, h }) => s.scale.set(w * k, h * k, 1));
+  };
   const textSprite = (text: string, color: string, bg: string, scale: number) => {
     const font = '700 54px ui-monospace, Menlo, monospace';
     const probe = document.createElement('canvas').getContext('2d')!;
@@ -852,6 +932,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     const m = new SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, sizeAttenuation: false, opacity: 0 });
     const s = new Sprite(m);
     s.scale.set(scale * (c.width / c.height), scale, 1);
+    labels.push({ s, w: scale * (c.width / c.height), h: scale });
     s.renderOrder = 5;
     scene.add(s);
     return s;
@@ -868,9 +949,12 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   const measureLabel = textSprite(`${dist} m`, '#e9f1f7', 'rgba(8,19,31,.88)', 0.04);
   measureLabel.position.set((e1[0] + e2[0]) / 2, 0.25, (e1[1] + e2[1]) / 2);
   fade.push({ mat: measureLabel.material, base: 1 });
-  const impactLabel = textSprite('IMPACTO', '#ffffff', '#d92d20', 0.034);
-  impactLabel.position.set(impactPoint.x, 2.05, impactPoint.z + 0.15);
-  fade.push({ mat: impactLabel.material, base: 1 });
+  const shotLabels = [
+    textSprite('DISPARO 1 → VÍCTIMA', '#ffffff', '#d92d20', 0.024),
+    textSprite('DISPARO 2 → PARED', '#ffffff', '#d92d20', 0.024),
+  ];
+  shotLabels[0].position.set(standAt.x, standAt.y + 0.38, standAt.z);
+  shotLabels[1].position.set(impactPoint.x - 1.0, impactPoint.y + 0.42, impactPoint.z + 0.15);
   const originLabel = textSprite('TIRADOR · HIPÓTESIS', '#0e1013', '#d4b979', 0.022);
   originLabel.position.set(origin.x + 0.55, 2.1, origin.z);
 
@@ -919,7 +1003,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   let shooterMesh: Mesh | null = null;
   const figures: { name: string; mats: Material[]; at: [number, number, number]; rotY: number }[] = [
     { name: 'victim', mats: [new MeshPhysicalMaterial({ color: 0xdcd9d3, roughness: 0.6, clearcoat: 0.25 }), joint(0x4a4f57)], at: [-0.02, 0, 0.1], rotY: Math.atan2(-0.76, 0.65) },
-    { name: 'shooter', mats: shooterFig, at: [origin.x, 0, origin.z], rotY: Math.atan2(impactPoint.x - origin.x, impactPoint.z - origin.z) },
+    { name: 'shooter', mats: shooterFig, at: [origin.x, 0, origin.z], rotY: shooterRotY },
   ];
   const assetBase = import.meta.env.BASE_URL.replace(/\/$/, '');
   figures.forEach((f) => {
@@ -1008,12 +1092,12 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       ...(portrait
         ? [
             // Phones: closer to the doorway so the shooter stays in frame above the card.
-            key(0.77, far([0.6, 3.9, 8.6], [-3.0, 0.9, 0.6]), [-3.0, 0.9, 0.6]),
-            key(0.84, far([1.0, 4.1, 8.6], [-2.9, 0.9, 0.5]), [-2.9, 0.9, 0.5]),
+            key(0.77, far([1.2, 4.4, 8.8], [-2.2, 0.8, 0.5]), [-2.2, 0.8, 0.5]),
+            key(0.84, far([1.6, 4.6, 8.8], [-2.1, 0.8, 0.4]), [-2.1, 0.8, 0.4]),
           ]
         : [
-            key(0.77, far([6.4, 5.2, 6.0], [-0.5, 0.9, -1.0]), [-0.5, 0.9, -1.0]),
-            key(0.84, far([6.7, 5.4, 5.6], [-0.4, 0.9, -1.1]), [-0.4, 0.9, -1.1]),
+            key(0.77, far([7.4, 5.8, 6.4], [-0.2, 0.9, -1.1]), [-0.2, 0.9, -1.1]),
+            key(0.84, far([7.7, 6.0, 6.0], [-0.1, 0.9, -1.2]), [-0.1, 0.9, -1.2]),
           ]),
       key(0.95, orbit.pos, orbit.target),
       key(1, orbit.pos, orbit.target),
@@ -1099,11 +1183,12 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     const { width, height } = el.getBoundingClientRect();
     renderer.setSize(width, height, false);
     camera.aspect = width / Math.max(height, 1);
+    sizeLabels();
     if (tour) {
       // Leave room for the story cards: scene shifted up on portrait frames
       // (cards at the bottom) and to the right on wide ones (cards on the left).
       if (camera.aspect < 1) camera.setViewOffset(width, height, 0, height * 0.17, width, height);
-      else if (width >= 900) camera.setViewOffset(width, height, -width * 0.17, 0, width, height);
+      else if (width >= 900) camera.setViewOffset(width, height, -width * 0.08, 0, width, height);
       else camera.clearViewOffset();
       keys = path();
       const k = fit();
@@ -1178,12 +1263,10 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       sm.castShadow = fig > 0.6;
     }
     originLabel.material.opacity = fig;
-    trajectories.forEach((tr, i) => {
-      const count = tr.geometry.index ? tr.geometry.index.count : 0;
-      const p = ease(seg(time, 2.9 + i * 0.45, 4.2 + i * 0.45));
-      tr.geometry.setDrawRange(0, Math.floor((count * p) / 3) * 3);
-    });
-    (impact.material as Material).opacity = seg(time, 4.1, 4.3);
+    shotTime(time);
+    shotLabels.forEach((l, i) => (l.material.opacity = arrived(i, time)));
+    plumbMat.opacity = 0.9 * arrived(0, time);
+    (impact.material as Material).opacity = arrived(1, time);
     fade.forEach(({ mat: m, base }) => (m.opacity = base * meas));
   };
 

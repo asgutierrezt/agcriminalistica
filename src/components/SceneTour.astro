@@ -115,7 +115,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 </section>
 
 <script>
-  import { loadModule, reloadedForUpdate } from '../lib/loadModule';
+  import { loadModule, startWhenEngaged } from '../lib/loadModule';
   import type { CrimeSceneController } from '../lib/crimeScene';
 
   const root = document.querySelector<HTMLElement>('[data-tour]');
@@ -206,13 +206,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
       update();
     };
 
-    // Same rule as the hero scene: three.js loads only after the first interaction or scroll.
-    let started = false;
-    const EVENTS = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove', 'scroll'];
-    const start = () => {
-      if (started) return;
-      started = true;
-      EVENTS.forEach((ev) => removeEventListener(ev, start));
+    // Same rule as the hero scene: three.js loads after the first interaction or scroll
+    // (or a few seconds after load when there is none).
+    startWhenEngaged(() => {
       const io = new IntersectionObserver(
         ([entry]) => {
           if (!entry.isIntersecting) return;
@@ -222,9 +218,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         { rootMargin: '1500px 0px' }, // load well before the tour is reached, so it moves on arrival
       );
       io.observe(root);
-    };
-    EVENTS.forEach((ev) => addEventListener(ev, start, { once: true, passive: true }));
-    if (reloadedForUpdate()) start();
+    });
   }
 </script>
 
@@ -313,19 +307,20 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .bars { left: auto; width: 260px; }
     .rail {
       display: block; position: absolute; z-index: 3; right: var(--gutter); top: 50%; transform: translateY(-50%);
-      padding: 0.7rem 0.9rem 0.7rem 0.7rem; border-radius: 14px; background: rgba(14, 16, 19, 0.42);
+      /* A slim strip of numbers; the act names unfold on hover or keyboard focus. */
+      padding: 0.45rem 0.6rem 0.45rem 0.35rem; border-radius: 12px; background: rgba(14, 16, 19, 0.62);
       border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     }
     .rail ol { list-style: none; margin: 0; padding: 0 0 0 1px; display: grid; border-left: 1px solid rgba(255, 255, 255, 0.16); }
-    /* Compact: numbers only; the name shows for the current act and on hover. */
+    /* Compact: numbers only; the name shows on hover or focus. */
     .rail em { font-style: normal; display: none; white-space: nowrap; }
-    .rail button[aria-current='step'] em, .rail button:hover em, .rail button:focus-visible em { display: inline; }
+    .rail:hover em, .rail:focus-within em { display: inline; }
     .rail button {
-      position: relative; display: flex; align-items: baseline; gap: 0.7rem; width: 100%; padding: 0.55rem 0 0.55rem 1.1rem;
+      position: relative; display: flex; align-items: baseline; gap: 0.7rem; width: 100%; padding: 0.5rem 0 0.5rem 0.8rem;
       background: none; border: 0; cursor: pointer; text-align: left; font: inherit; font-size: 0.9rem; font-weight: 600; color: var(--muted-on-ink);
       transition: color 0.2s ease;
     }
-    .rail button span { font-family: var(--font-mono); font-size: 0.72rem; color: rgba(255, 255, 255, 0.45); transition: color 0.2s ease; }
+    .rail button span { font-family: var(--font-mono); font-size: 0.72rem; color: rgba(255, 255, 255, 0.75); transition: color 0.2s ease; }
     .rail button::before {
       content: ''; position: absolute; left: -2px; top: 50%; width: 3px; height: 0; border-radius: 2px; background: var(--amber);
       transform: translateY(-50%); transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);

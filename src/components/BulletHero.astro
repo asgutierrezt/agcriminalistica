@@ -131,7 +131,7 @@ const tags = [
 </section>
 
 <script>
-  import { loadModule, reloadedForUpdate } from '../lib/loadModule';
+  import { loadModule, startWhenEngaged } from '../lib/loadModule';
   import type { BulletController, BulletLabel } from '../lib/bullet';
 
   const hero = document.querySelector<HTMLElement>('[data-bullet-hero]');
@@ -202,17 +202,8 @@ const tags = [
       update();
     };
 
-    // three.js loads only after the first interaction or scroll (never for page-speed bots).
-    let started = false;
-    const EVENTS = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove', 'scroll'];
-    const start = () => {
-      if (started) return;
-      started = true;
-      EVENTS.forEach((ev) => removeEventListener(ev, start));
-      void mount();
-    };
-    EVENTS.forEach((ev) => addEventListener(ev, start, { once: true, passive: true }));
-    if (reloadedForUpdate()) start();
+    // three.js loads after the first interaction or scroll, or a few seconds after load.
+    startWhenEngaged(() => void mount());
     update();
   }
 </script>

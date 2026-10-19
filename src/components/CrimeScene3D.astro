@@ -107,7 +107,7 @@ const posterAlt = full
 </figure>
 
 <script>
-  import { loadModule, reloadedForUpdate } from '../lib/loadModule';
+  import { loadModule, startWhenEngaged } from '../lib/loadModule';
   import type { CrimeSceneController } from '../lib/crimeScene';
 
   const fmt = (s: number) => `00:${String(Math.floor(s)).padStart(2, '0')}`;
@@ -216,16 +216,11 @@ const posterAlt = full
     mount: wire(root),
   }));
 
-  // Start the 3D scene only on the visitor's first interaction (touch, mouse,
-  // wheel, keyboard or scroll, including dragging the scrollbar). Until then the
-  // poster, rendered from the scene's own first frame, looks identical, and
-  // three.js costs nothing: no timers.
-  let started = false;
-  const EVENTS = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'mousemove', 'scroll'];
-  const start = () => {
-    if (started) return;
-    started = true;
-    EVENTS.forEach((ev) => removeEventListener(ev, start));
+  // Start the 3D scene on the visitor's first interaction (touch, mouse, wheel,
+  // keyboard or scroll, including dragging the scrollbar), or a few seconds after
+  // load when there is none. Until then the poster, rendered from the scene's own
+  // first frame, looks identical. The scene mounts once it is on screen.
+  startWhenEngaged(() => {
     for (const { root, mount } of mounts) {
       const io = new IntersectionObserver(
         ([entry]) => {
@@ -237,9 +232,7 @@ const posterAlt = full
       );
       io.observe(root);
     }
-  };
-  EVENTS.forEach((ev) => addEventListener(ev, start, { once: true, passive: true }));
-  if (reloadedForUpdate()) start();
+  });
 </script>
 
 <style>
