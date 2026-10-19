@@ -7,19 +7,19 @@ import type { LibraryItem } from '../data/library';
 interface Props { item: LibraryItem; size?: 'sm' | 'md' | 'lg' }
 const { item, size = 'md' } = Astro.props;
 const PALETTES: Record<string, [string, string, string]> = {
-  'Criminalística general': ['#0f2133', '#1ba3e0', '#f5b70a'],
+  'Criminalística general': ['#171a1f', '#d4b979', '#c9a45c'],
   Criminología: ['#3a1f2b', '#e07a5f', '#f2cc8f'],
-  Dactiloscopia: ['#14263a', '#f5b70a', '#ffffff'],
+  Dactiloscopia: ['#14263a', '#c9a45c', '#ffffff'],
   'Prueba pericial': ['#1c2a1f', '#7fb069', '#e6f2d8'],
   'Ciencias forenses': ['#10283d', '#2c9cdb', '#e9f1f7'],
-  'Escena del crimen': ['#2a1a12', '#f5b70a', '#ffe9b0'],
+  'Escena del crimen': ['#2a1a12', '#c9a45c', '#ffe9b0'],
   'Investigación de homicidios': ['#2b0f12', '#ff5a4d', '#ffd6d1'],
   'Fotografía forense': ['#1d1d29', '#9b8cff', '#ece9ff'],
   'Manchas hemáticas': ['#3b0d10', '#ff6b5e', '#ffe1dc'],
   Balística: ['#1f2328', '#c29a3c', '#f4e6c4'],
   'Informática forense': ['#081a2b', '#3ddc97', '#d6fff0'],
 };
-const [bg, accent, ink] = PALETTES[item.topic] ?? ['#132a40', '#1ba3e0', '#e9f1f7'];
+const [bg, accent, ink] = PALETTES[item.topic] ?? ['#132a40', '#d4b979', '#e9f1f7'];
 const isBook = item.cat !== 'equipo';
 const short = item.title.split(':')[0];
 // Title size follows the cover width (cqi) and shrinks for long words so none gets clipped.
@@ -48,7 +48,7 @@ const ttlSize = Math.min(15, 158 / longest).toFixed(1);
   .cover {
     position: relative; display: flex; flex-direction: column; aspect-ratio: 2 / 3; padding: 9% 9% 8%; overflow: hidden; container-type: inline-size;
     border-radius: 3px 10px 10px 3px; background: var(--bg); color: var(--ink);
-    box-shadow: inset 7px 0 0 rgba(255, 255, 255, 0.07), inset 9px 0 0 rgba(0, 0, 0, 0.25), 0 14px 26px -14px rgba(8, 19, 31, 0.8);
+    box-shadow: inset 7px 0 0 rgba(255, 255, 255, 0.07), inset 9px 0 0 rgba(0, 0, 0, 0.25), 0 14px 26px -14px rgba(14, 16, 19, 0.8);
     transform: perspective(600px) rotateY(-8deg); transform-origin: left center; transition: transform 0.25s ease;
   }
   :global(a:hover) .cover, :global(article:hover) .cover { transform: perspective(600px) rotateY(0deg); }

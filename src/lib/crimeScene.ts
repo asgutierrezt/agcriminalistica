@@ -27,11 +27,12 @@ import {
   BufferAttribute, MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, Object3D, PCFSoftShadowMap,
   PerspectiveCamera, PlaneGeometry, PMREMGenerator, Points, PointsMaterial, Raycaster, RepeatWrapping, RingGeometry,
   Scene, SphereGeometry, Spherical, SpotLight, Sprite, SpriteMaterial, SRGBColorSpace, TubeGeometry, Vector2, Vector3,
-  WebGLRenderer, type Material,
+  WebGLRenderer, GridHelper, ShaderMaterial, type Material,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { SCENE_EVIDENCE, type SceneViewId } from '../data/sceneEvidence';
+import { gridBoxes, gridFloor, loadFigure, pointsOf, sampleMeshes, scanMaterial } from './scanPoints';
 
 export interface CrimeSceneController {
   duration: number;
@@ -78,7 +79,8 @@ function canvas(w: number, h = w) {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;
-  return { c, g: c.getContext('2d')! };
+  // CPU-backed: the forensic-scan sampler reads these pixels back (fast with this hint).
+  return { c, g: c.getContext('2d', { willReadFrequently: true })! };
 }
 
 function tex(c: HTMLCanvasElement, repeat?: [number, number], color = true) {
@@ -299,8 +301,8 @@ function numberTexture(n: number) {
   const c = document.createElement('canvas');
   c.width = 128;
   c.height = 128;
-  const g = c.getContext('2d')!;
-  g.fillStyle = '#f5b70a';
+  const g = c.getContext('2d', { willReadFrequently: true })!;
+  g.fillStyle = '#c9a45c';
   g.fillRect(0, 0, 128, 128);
   g.fillStyle = '#111';
   g.fillRect(0, 0, 128, 12);
@@ -318,7 +320,7 @@ function tapeTexture() {
   const c = document.createElement('canvas');
   c.width = 1024;
   c.height = 64;
-  const g = c.getContext('2d')!;
+  const g = c.getContext('2d', { willReadFrequently: true })!;
   g.fillStyle = '#f5c400';
   g.fillRect(0, 0, 1024, 64);
   g.fillStyle = '#111';
@@ -417,15 +419,16 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     return null; // No WebGL: keep the poster image and the HTML evidence list.
   }
   renderer.setPixelRatio(Math.min(devicePixelRatio, small ? 1.5 : 1.75));
-  renderer.shadowMap.enabled = true;
+  // The room is drawn as a point cloud (see "Forensic scan" below): no shadow maps.
+  renderer.shadowMap.enabled = false;
   renderer.shadowMap.type = PCFSoftShadowMap;
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.92;
   renderer.outputColorSpace = SRGBColorSpace;
 
   const scene = new Scene();
-  scene.background = new Color(0x0d1825);
-  scene.fog = new Fog(0x0d1825, 16, 30);
+  scene.background = new Color(0x0e1013);
+  scene.fog = new Fog(0x0e1013, 16, 30);
   // Image-based lighting from a neutral studio room: soft reflections and
   // bounce light that make the clay materials read as real surfaces.
   const pmrem = new PMREMGenerator(renderer);
@@ -774,8 +777,8 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   })());
   hand.position.set(-2.1, 1.05, -3.985);
   scene.add(hand);
-  const bgDay = new Color(0x0d1825);
-  const bgDark = new Color(0x020508);
+  const bgDay = new Color(0x0e1013);
+  const bgDark = new Color(0x050607);
 
   // --- Evidence tents (clickable) ---------------------------------------------
   const tentGeo = new PlaneGeometry(0.16, 0.17);
@@ -869,8 +872,102 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   const impactLabel = textSprite('IMPACTO', '#ffffff', '#d92d20', 0.034);
   impactLabel.position.set(impactPoint.x, 2.05, impactPoint.z + 0.15);
   fade.push({ mat: impactLabel.material, base: 1 });
-  const originLabel = textSprite('ORIGEN', '#08131f', '#1ba3e0', 0.034);
+  const originLabel = textSprite('ORIGEN', '#0e1013', '#d4b979', 0.034);
   originLabel.position.set(origin.x, 2.15, origin.z);
+
+  // --- Forensic scan: the room as a LiDAR-style point cloud ----------------------
+  // Every modelled surface (room, furniture, traces, cordon, lamps) is sampled
+  // with its real texture colours into one point cloud; the solid meshes are
+  // hidden. Evidence tents, trajectories, labels, the impact ring and the
+  // luminol traces stay solid on top of the scan. People are baked figures.
+  scene.updateMatrixWorld(true);
+  const solidKeep = new Set<Material>([rodMat, selRing.material as Material, impact.material as Material, hole.material as Material]);
+  const scanned: Mesh[] = [];
+  const walls: Mesh[] = [];
+  const hidden: Object3D[] = [];
+  scene.traverse((o) => {
+    const m = o as Mesh;
+    if (!m.isMesh || o.userData.index !== undefined) return; // evidence tents stay solid
+    const mat = (Array.isArray(m.material) ? m.material[0] : m.material) as Material;
+    if (solidKeep.has(mat)) return;
+    if (mat === shooterMat || mat === victimMat || o === outside || o === glass || mat === aoMat || mat === cornerMat) {
+      hidden.push(o);
+      return;
+    }
+    if ((mat as { toneMapped?: boolean }).toneMapped === false) return; // lamp faces, beams, luminol
+    hidden.push(o);
+    if (mat === wallMat) walls.push(m); // walls and floor get even grids below
+    else if (o !== floor) scanned.push(m);
+  });
+  const scanRand = rng(97);
+  // Walls a little darker than furniture and traces, so the evidence stands out.
+  const cloudGeo = sampleMeshes(scanned, small ? 60000 : 110000, scanRand);
+  // Walls a little darker than furniture and traces, so the evidence stands out.
+  const wallGeo = gridBoxes(walls, small ? 0.045 : 0.032, 0.62, scanRand);
+  const floorGeo = gridFloor(8, small ? 0.045 : 0.032, (floor.material as MeshStandardMaterial).map, 0.55, scanRand);
+  hidden.forEach((o) => (o.visible = false));
+  shooter.root.visible = false;
+  const pxPerMetre = () => (el.clientHeight || 1) / 2 / Math.tan((camera.fov * Math.PI) / 360) * renderer.getPixelRatio();
+  // Points about as wide as their spacing, so surfaces read as continuous scans.
+  const cloudMat = scanMaterial({ size: small ? 0.04 : 0.03, scale: 1 });
+  const cloud = pointsOf(cloudGeo, cloudMat);
+  scene.add(cloud, pointsOf(floorGeo, cloudMat), pointsOf(wallGeo, cloudMat));
+  const scanMats = [cloudMat];
+
+  // Measuring grid on the floor (0.5 m) and around the room.
+  const grid = new GridHelper(16, 32, 0xc9a45c, 0xc9a45c);
+  (grid.material as Material).transparent = true;
+  (grid.material as Material).opacity = 0.09;
+  (grid.material as Material).depthWrite = false;
+  grid.position.set(0, 0.003, 0);
+  scene.add(grid);
+
+  // Terrestrial laser scanner on its tripod: the scan wave starts here.
+  const scannerAt = new Vector3(-3.15, 1.45, -1.05); // by the sofa, out of the main views
+  {
+    const metal = mat(0x30353c, 0.4, 0.6);
+    for (let k = 0; k < 3; k++) {
+      const a = (k / 3) * Math.PI * 2 + 0.4;
+      const leg = solid(new CylinderGeometry(0.009, 0.009, 1.4, 6), metal, scannerAt.x + Math.cos(a) * 0.24, 0.66, scannerAt.z + Math.sin(a) * 0.24);
+      leg.rotation.set(Math.sin(a) * 0.33, 0, -Math.cos(a) * 0.33);
+    }
+    solid(new CylinderGeometry(0.075, 0.09, 0.2, 24), metal, scannerAt.x, scannerAt.y - 0.02, scannerAt.z);
+    const ring = new Mesh(new CylinderGeometry(0.092, 0.092, 0.025, 32, 1, true), new MeshBasicMaterial({ color: 0xe3c27a, toneMapped: false }));
+    ring.position.copy(scannerAt).add(new Vector3(0, 0.05, 0));
+    scene.add(ring);
+  }
+  cloudMat.uniforms.uOrigin.value.copy(scannerAt);
+  // A brass scan wave sweeps the room once when the scene appears (the cloud is
+  // already complete, so it matches the static poster).
+  let scanRadius = reduceMotion ? 1e4 : 0;
+
+  // People: baked point-cloud figures (victim, shooter hypothesis, forensic examiner).
+  const figures: { name: string; tint: number; at: [number, number, number]; rotY: number }[] = [
+    { name: 'victim', tint: 0xeceae6, at: [-0.02, 0, 0.1], rotY: Math.atan2(-0.76, 0.65) },
+    { name: 'shooter', tint: 0x9fb0c4, at: [origin.x, 0, origin.z], rotY: Math.atan2(impactPoint.x - origin.x, impactPoint.z - origin.z) },
+    { name: 'perito', tint: 0xd9dde3, at: [-2.25, 0, 2.05], rotY: Math.atan2(-0.65, -0.85) }, // photographing the casing (1)
+  ];
+  let shooterCloud: ShaderMaterial | null = null;
+  const assetBase = import.meta.env.BASE_URL.replace(/\/$/, '');
+  figures.forEach((f) =>
+    loadFigure(`${assetBase}/scan/${f.name}.bin`, new Color(f.tint))
+      .then((geo) => {
+        const m = scanMaterial({ size: small ? 0.028 : 0.022, scale: pxPerMetre() });
+        m.uniforms.uOrigin.value.copy(scannerAt);
+        m.uniforms.uRadius.value = scanRadius;
+        const pts = pointsOf(geo, m);
+        pts.position.set(...f.at);
+        pts.rotation.y = f.rotY;
+        scene.add(pts);
+        scanMats.push(m);
+        if (f.name === 'shooter') {
+          shooterCloud = m;
+          applyTime(t);
+        }
+        wake();
+      })
+      .catch(() => {}),
+  );
 
   // --- Camera & controls -----------------------------------------------------
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -987,6 +1084,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     beams.forEach((b, i) => (b.opacity = beamBase[i] * k));
     dustMat.opacity = 0.55 * (1 - 0.6 * L);
     luminolMats.forEach((m) => (m.opacity = L));
+    scanMats.forEach((m) => (m.uniforms.uDim.value = 1 - 0.86 * L));
     (scene.background as Color).lerpColors(bgDay, bgDark, L);
     scene.fog!.color.lerpColors(bgDay, bgDark, L);
   };
@@ -1020,10 +1118,12 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       else camera.clearViewOffset();
       keys = path();
       const k = fit();
-      scene.fog = new Fog(0x0d1825, 16 * k, 30 * k);
+      scene.fog = new Fog(0x0e1013, 16 * k, 30 * k);
       placeTour(tourAt);
     }
     camera.updateProjectionMatrix();
+    const pxm = pxPerMetre();
+    scanMats.forEach((m) => (m.uniforms.uScale.value = pxm));
     wake();
   };
   camera.position.copy(VIEWS.orbital().pos);
@@ -1070,7 +1170,6 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   el.classList.add('is-live');
 
   // --- Timeline -------------------------------------------------------------
-  let shooterShadows = false;
   const applyTime = (time: number, meas = seg(time, 4.7, 5.3)) => {
     markers.forEach((m, i) => {
       const p = ease(seg(time, 0.4 + i * 0.32, 0.75 + i * 0.32));
@@ -1080,13 +1179,16 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
       m.scale.set(s, s, s);
     });
     const fig = seg(time, 2.1, 2.8);
-    shooterMat.opacity = fig;
-    shooterMat.transparent = fig < 1;
-    shooterMat.depthWrite = fig > 0.5;
-    shooter.root.visible = fig > 0.01;
-    if (fig > 0.6 !== shooterShadows) {
-      shooterShadows = fig > 0.6;
-      shooter.root.traverse((o) => (o.castShadow = shooterShadows));
+    // The shooter is a hypothesis: its scanned figure fades in with the reconstruction.
+    if (shooterCloud) {
+      const sc: ShaderMaterial = shooterCloud;
+      sc.uniforms.uOpacity.value = fig;
+      if (sc.transparent !== fig < 1) {
+        sc.transparent = fig < 1;
+        sc.needsUpdate = true;
+      }
+      sc.depthWrite = fig > 0.5;
+      sc.visible = fig > 0.01;
     }
     originLabel.material.opacity = fig;
     trajectories.forEach((tr, i) => {
@@ -1102,6 +1204,10 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
   const tick = (now: number) => {
     const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
     last = now;
+    if (scanRadius < 30) {
+      scanRadius = Math.min(30, scanRadius + dt * 7);
+      scanMats.forEach((m) => (m.uniforms.uRadius.value = scanRadius >= 30 ? 1e4 : scanRadius));
+    }
     if (playing) {
       t += dt;
       if (t >= DURATION) {
@@ -1152,7 +1258,7 @@ export function mountCrimeScene(el: HTMLElement, opts: Options = {}): CrimeScene
     }
     const moved = !tour && controls.update();
     renderer.render(scene, camera);
-    const busy = !onDemand || playing || tween !== null || moved || selected !== null || tourAt !== tourGoal || lumi !== lumiGoal;
+    const busy = !onDemand || playing || tween !== null || moved || selected !== null || tourAt !== tourGoal || lumi !== lumiGoal || scanRadius < 30;
     raf = busy && visible && !document.hidden ? requestAnimationFrame(tick) : 0;
   };
   function wake() {

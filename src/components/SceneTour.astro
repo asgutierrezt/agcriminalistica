@@ -228,7 +228,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 <style>
   .tour { position: relative; }
   .sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
-  .stage { position: absolute; inset: 0; pointer-events: none; background: #0d1825; }
+  .stage { position: absolute; inset: 0; pointer-events: none; background: #0e1013; }
   .poster { position: absolute; inset: 0; transition: opacity 0.6s ease; }
   .poster img { width: 100%; height: 100%; object-fit: cover; }
   .is-live .poster { opacity: 0; }
@@ -244,14 +244,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
     background:
       repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
       radial-gradient(120% 90% at 60% 45%, transparent 55%, rgba(0, 0, 0, 0.5)),
-      linear-gradient(0deg, rgba(8, 19, 31, 0.94) 0%, rgba(8, 19, 31, 0.5) 36%, transparent 60%);
+      linear-gradient(0deg, rgba(14, 16, 19, 0.94) 0%, rgba(14, 16, 19, 0.5) 36%, transparent 60%);
   }
   @media (min-width: 900px) and (orientation: landscape) {
     .fx {
       background:
         repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 3px),
         radial-gradient(120% 90% at 60% 45%, transparent 55%, rgba(0, 0, 0, 0.5)),
-        linear-gradient(90deg, rgba(8, 19, 31, 0.9) 0%, rgba(8, 19, 31, 0.45) 34%, transparent 55%);
+        linear-gradient(90deg, rgba(14, 16, 19, 0.9) 0%, rgba(14, 16, 19, 0.45) 34%, transparent 55%);
     }
   }
   /* Signal glitch between acts: colour-split bands sweep the frame and the render jolts. */
@@ -259,7 +259,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .glitching .gl {
     animation: gl 0.42s steps(1) both;
     background:
-      linear-gradient(transparent 18%, rgba(27, 163, 224, 0.35) 18% 21%, transparent 21% 47%, rgba(255, 59, 92, 0.3) 47% 49%, transparent 49% 76%, rgba(255, 255, 255, 0.18) 76% 77%, transparent 77%);
+      linear-gradient(transparent 18%, rgba(212, 185, 121, 0.35) 18% 21%, transparent 21% 47%, rgba(255, 59, 92, 0.3) 47% 49%, transparent 49% 76%, rgba(255, 255, 255, 0.18) 76% 77%, transparent 77%);
   }
   .glitching .stage { animation: jolt 0.42s steps(1); }
   @keyframes gl {
@@ -301,7 +301,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .bars { left: auto; width: 260px; }
     .rail {
       display: block; position: absolute; z-index: 3; right: var(--gutter); top: 50%; transform: translateY(-50%);
-      padding: 0.9rem 1.1rem 0.9rem 0.9rem; border-radius: 14px; background: rgba(8, 19, 31, 0.78);
+      padding: 0.9rem 1.1rem 0.9rem 0.9rem; border-radius: 14px; background: rgba(14, 16, 19, 0.78);
       border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     }
     .rail ol { list-style: none; margin: 0; padding: 0 0 0 1px; display: grid; border-left: 1px solid rgba(255, 255, 255, 0.16); }
@@ -332,14 +332,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .card {
     position: relative; overflow: hidden; pointer-events: auto; display: grid; gap: 0.6rem; width: 100%; max-width: 470px;
     padding: 1.25rem 1.35rem 1.3rem; border-radius: 16px;
-    background: linear-gradient(160deg, rgba(15, 33, 51, 0.88), rgba(8, 19, 31, 0.82));
+    background: linear-gradient(160deg, rgba(23, 26, 31, 0.88), rgba(14, 16, 19, 0.82));
     border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   .card::before {
     content: var(--n); position: absolute; right: -0.4rem; top: -1.6rem; z-index: -1;
     font-family: var(--font-mono); font-size: 7.5rem; font-weight: 800; line-height: 1; letter-spacing: -0.06em;
-    color: transparent; -webkit-text-stroke: 1px rgba(245, 183, 10, 0.22);
+    color: transparent; -webkit-text-stroke: 1px rgba(201, 164, 92, 0.22);
   }
   .card::after { content: ''; position: absolute; left: 0; top: 1.2rem; bottom: 1.2rem; width: 3px; border-radius: 0 3px 3px 0; background: var(--amber); }
   @supports (animation-timeline: view()) {
@@ -354,11 +354,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .no { color: var(--amber); font-weight: 800; }
   .tcs { color: var(--muted-on-ink); font-variant-numeric: tabular-nums; }
   .title { margin: 0; font-size: 1.45rem; color: var(--white); letter-spacing: -0.02em; }
-  .text { margin: 0; color: #c9d6e2; line-height: 1.55; }
+  .text { margin: 0; color: #cfcbc2; line-height: 1.55; }
   .chips { list-style: none; margin: 0.2rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
   .chips li {
-    padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid rgba(27, 163, 224, 0.4); background: rgba(27, 163, 224, 0.08);
-    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; color: #bfe6f7;
+    padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid rgba(212, 185, 121, 0.4); background: rgba(212, 185, 121, 0.08);
+    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; color: #e5d6b0;
   }
   .scroll-hint { margin: 0; display: inline-flex; align-items: center; gap: 0.6rem; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); }
   .mouse { position: relative; width: 16px; height: 24px; border: 1.5px solid currentColor; border-radius: 9px; }
