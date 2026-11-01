@@ -10,15 +10,15 @@
     "check": "astro check"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "7.3.2",
-    "astro": "7.3.8",
+    "@astrojs/markdown-remark": "7.3.5",
+    "astro": "7.4.4",
     "sharp": "0.35.5",
     "three": "^0.186.1"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
+    "@astrojs/check": "^0.9.12",
     "@types/three": "^0.186.0",
-    "meshoptimizer": "^0.22.0",
+    "meshoptimizer": "^0.25.0",
     "typescript": "^5.9.3"
   }
 }
